@@ -1,4 +1,4 @@
-const CACHE = 'football-gym-v16';
+const CACHE = 'football-gym-v17';
 const ASSETS = [
   '/forge-app/',
   '/forge-app/index.html',
