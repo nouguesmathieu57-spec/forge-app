@@ -1582,7 +1582,7 @@ body{
 .meal-del{background:none;border:none;color:var(--dim);font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0}
 .nutri-empty-meals{text-align:center;color:var(--dim);font-size:12px;padding:20px 0}
 .nutri-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
-.nutri-day-cell{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);background:var(--s2);border:1px solid var(--s3)}
+.nutri-day-cell{height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);background:var(--s2);border:1px solid var(--s3)}
 .nutri-day-cell.today{border-color:#FF6B35;color:#FF6B35}
 .nutri-day-cell.logged{background:rgba(255,107,53,.15);color:#FF6B35;border-color:rgba(255,107,53,.4)}
 .nutri-day-cell.on-target{background:rgba(0,200,83,.15);color:#00C853;border-color:rgba(0,200,83,.4)}
@@ -1812,6 +1812,43 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   border-color:rgba(255,179,0,.6);
 }
 .seance-manquee-btn:active{opacity:.8}
+
+/* ── CARTE SÉANCE DU JOUR ── */
+.home-today{
+  margin:0 14px 14px;
+  background:rgba(14,14,14,.85);
+  border-radius:14px;overflow:hidden;
+  border:1px solid var(--s4);
+  backdrop-filter:blur(4px);
+  transition:border-color .3s;
+}
+.home-today:active{background:var(--s3)}
+.home-today-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px 8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.home-today-label{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:11px;letter-spacing:3px;color:var(--acc);
+}
+.home-today-body{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;
+}
+.home-today-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;color:var(--wht);
+  letter-spacing:.5px;line-height:1;
+}
+.home-today-sub{font-size:11px;color:var(--dim);margin-top:4px}
+.home-start-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;
+  background:var(--acc);color:#000;border:none;
+  padding:10px 20px;border-radius:10px;cursor:pointer;
+  flex-shrink:0;transition:opacity .15s;white-space:nowrap;
+}
+.home-start-btn:active{opacity:.8}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -1846,17 +1883,19 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
     <div class="home-date" id="home-date">—</div>
   </div>
 
-  <!-- Séance du jour -->
-  <div class="home-today" id="home-today-card">
+  <!-- SÉANCE DU JOUR — carte principale -->
+  <div class="home-today" id="home-today-card" style="cursor:pointer"
+       onclick="var btn=document.getElementById('home-start-btn');if(btn&&btn.dataset.tab)switchTab(btn.dataset.tab)">
     <div class="home-today-header" id="home-today-header">
-      <span class="home-today-label">📅 Séance du jour</span>
+      <span class="home-today-label">&#x1F4C5; S&Eacute;ANCE DU JOUR</span>
+      <span style="font-size:10px;color:var(--dim)" id="home-today-date"></span>
     </div>
     <div class="home-today-body">
-      <div class="home-today-emoji" id="home-today-emoji">⚽</div>
-      <div class="home-today-info">
-        <div class="home-today-name" id="home-today-name">—</div>
-        <div class="home-today-sub"  id="home-today-sub">—</div>
-        <div class="home-today-prog" id="home-today-prog" style="display:none">
+      <div class="home-today-emoji" id="home-today-emoji" style="font-size:42px">&#x2753;</div>
+      <div class="home-today-info" style="flex:1">
+        <div class="home-today-name" id="home-today-name" style="font-size:22px">—</div>
+        <div class="home-today-sub" id="home-today-sub">—</div>
+        <div class="home-today-prog" id="home-today-prog" style="display:none;margin-top:8px">
           <div class="home-today-prog-bar">
             <div class="home-today-prog-fill" id="home-today-prog-fill" style="width:0%"></div>
           </div>
@@ -1867,35 +1906,20 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
         </div>
       </div>
       <button class="home-start-btn" id="home-start-btn" style="display:none"
-              onclick="switchTab(document.getElementById('home-start-btn').dataset.tab)">
-        GO →
+              onclick="event.stopPropagation();switchTab(this.dataset.tab)">
+        &#x25B6; GO
       </button>
     </div>
   </div>
 
-  <!-- Sections -->
-  <div class="home-sections-title">Séances & Outils</div>
+  <!-- Grille outils -->
   <div class="home-grid">
 
-    <div class="home-card" onclick="switchTab('jambes')" style="border-color:rgba(0,200,83,.25)">
-      <span class="home-card-emoji">&#x1F9B5;</span>
-      <div class="home-card-name">Jambes</div>
-      <div class="home-card-sub">Quadri &middot; Ischio &middot; Fessiers &middot; Mollets</div>
-      <span class="home-card-badge" style="background:rgba(0,200,83,.15);color:#00C853">~70 min</span>
-    </div>
-
-    <div class="home-card" onclick="switchTab('back')" style="border-color:rgba(41,121,255,.25)">
-      <span class="home-card-emoji">&#x1F519;</span>
-      <div class="home-card-name">Back</div>
-      <div class="home-card-sub">Dos &middot; Trap&egrave;zes &middot; Lombaires</div>
-      <span class="home-card-badge" style="background:rgba(41,121,255,.15);color:#2979FF">~65 min</span>
-    </div>
-
-    <div class="home-card" onclick="switchTab('bras')" style="border-color:rgba(229,57,53,.25)">
-      <span class="home-card-emoji">&#x1F4AA;</span>
-      <div class="home-card-name">Bras &amp; Pecs</div>
-      <div class="home-card-sub">Pectoraux &middot; &Eacute;paules &middot; Biceps &middot; Triceps</div>
-      <span class="home-card-badge" style="background:rgba(229,57,53,.15);color:#E53935">~65 min</span>
+    <div class="home-card" onclick="switchTab('libre')" style="border-color:rgba(255,179,0,.35);grid-column:span 2">
+      <span class="home-card-emoji">&#x2746;</span>
+      <div class="home-card-name" style="color:#FFB300">S&eacute;ance Libre</div>
+      <div class="home-card-sub">Construis ta propre s&eacute;ance depuis la biblioth&egrave;que</div>
+      <span class="home-card-badge" style="background:rgba(255,179,0,.15);color:#FFB300">Personnalis&eacute;e</span>
     </div>
 
     <div class="home-card" onclick="switchTab('planning')" style="border-color:rgba(255,179,0,.25)">
@@ -2868,16 +2892,54 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
     </div>
     <div id="nutri-meals-list"></div>
   </div>
-  <div class="nutri-sec" style="margin-top:14px">
-    <div class="nutri-sec-title">Suivi du mois</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;padding:14px 14px 0">
+
+  <!-- Calendrier mois -->
+  <div style="flex:1.2;min-width:260px">
+    <div class="nutri-sec-title" style="margin-bottom:8px">Suivi du mois</div>
     <div style="background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:12px">
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
-        <div class="nutri-month-wd">L</div><div class="nutri-month-wd">M</div><div class="nutri-month-wd">M</div>
-        <div class="nutri-month-wd">J</div><div class="nutri-month-wd">V</div><div class="nutri-month-wd">S</div><div class="nutri-month-wd">D</div>
+        <div class="nutri-month-wd">L</div><div class="nutri-month-wd">M</div>
+        <div class="nutri-month-wd">M</div><div class="nutri-month-wd">J</div>
+        <div class="nutri-month-wd">V</div><div class="nutri-month-wd">S</div>
+        <div class="nutri-month-wd">D</div>
       </div>
       <div class="nutri-month-grid" id="nutri-month-grid"></div>
     </div>
   </div>
+
+  <!-- Hydratation -->
+  <div style="flex:1;min-width:240px">
+    <div class="nutri-sec-title" style="margin-bottom:8px">Hydratation</div>
+    <div class="hydra-wrap">
+      <div class="hydra-top">
+        <div class="hydra-icon">&#x1F4A7;</div>
+        <div class="hydra-info">
+          <div class="hydra-title">EAU DU JOUR</div>
+          <div class="hydra-amount"><span id="hydra-current">0</span> ml / <span id="hydra-goal">2500</span> ml</div>
+          <div class="hydra-pct" id="hydra-pct">0% de l&#x2019;objectif</div>
+        </div>
+      </div>
+      <div class="hydra-bar-wrap">
+        <div class="hydra-bar-fill" id="hydra-bar" style="width:0%"></div>
+      </div>
+      <div class="hydra-btns">
+        <button class="hydra-btn" onclick="addWater(250)"><span class="hydra-btn-icon">&#x1FAD7;</span><span class="hydra-btn-lbl">+250ml</span></button>
+        <button class="hydra-btn" onclick="addWater(500)"><span class="hydra-btn-icon">&#x1F376;</span><span class="hydra-btn-lbl">+500ml</span></button>
+        <button class="hydra-btn" onclick="addWater(750)"><span class="hydra-btn-icon">&#x1FAD9;</span><span class="hydra-btn-lbl">+750ml</span></button>
+        <button class="hydra-btn" onclick="addWater(1000)"><span class="hydra-btn-icon">&#x1F9F4;</span><span class="hydra-btn-lbl">+1L</span></button>
+      </div>
+      <button class="hydra-reset" onclick="resetWater()">&#x21BA; Remettre &agrave; z&eacute;ro</button>
+    </div>
+    <div class="seance-manquee-wrap" id="seance-manquee-wrap" style="display:none">
+      <button class="seance-manquee-btn" id="seance-manquee-btn" onclick="toggleSeanceManquee()">
+        <span id="seance-manquee-icon">&#x26A0;&#xFE0F;</span>
+        <span id="seance-manquee-txt">J&#x2019;AI RAT&#x00C9; MA S&#x00C9;ANCE</span>
+      </button>
+    </div>
+  </div>
+
+</div>
   <div style="height:20px"></div>
 </div>
 
@@ -2940,7 +3002,341 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
     <div class="weight-chart-wrap" id="wc-chart"></div>
     <div style="padding:0 14px 6px"><div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:var(--dim);margin-bottom:6px">HISTORIQUE</div></div>
     <div class="weight-history-list" id="wc-history"></div>
-    <div style="height:20px"></div>
+    
+    </div><!-- /suivi mois wrap -->
+
+
+    <div class="hydra-wrap">
+      <div class="hydra-top">
+        <div class="hydra-icon">&#x1F4A7;</div>
+        <div class="hydra-info">
+          <div class="hydra-title">EAU DU JOUR</div>
+          <div class="hydra-amount"><span id="hydra-current">0</span> ml / <span id="hydra-goal">2500</span> ml</div>
+          <div class="hydra-pct" id="hydra-pct">0% de l&#x2019;objectif</div>
+        </div>
+      </div>
+      <div class="hydra-bar-wrap">
+        <div class="hydra-bar-fill" id="hydra-bar" style="width:0%"></div>
+      </div>
+      <div class="hydra-btns">
+        <button class="hydra-btn" onclick="addWater(250)"><span class="hydra-btn-icon">&#x1FAD7;</span><span class="hydra-btn-lbl">+250ml</span></button>
+        <button class="hydra-btn" onclick="addWater(500)"><span class="hydra-btn-icon">&#x1F376;</span><span class="hydra-btn-lbl">+500ml</span></button>
+        <button class="hydra-btn" onclick="addWater(750)"><span class="hydra-btn-icon">&#x1FAD9;</span><span class="hydra-btn-lbl">+750ml</span></button>
+        <button class="hydra-btn" onclick="addWater(1000)"><span class="hydra-btn-icon">&#x1F9F4;</span><span class="hydra-btn-lbl">+1L</span></button>
+      </div>
+      <button class="hydra-reset" onclick="resetWater()">&#x21BA; Remettre &agrave; z&eacute;ro</button>
+    </div>
+    <div class="seance-manquee-wrap" id="seance-manquee-wrap" style="display:none">
+      <button class="seance-manquee-btn" id="seance-manquee-btn" onclick="toggleSeanceManquee()">
+        <span id="seance-manquee-icon">&#x26A0;&#xFE0F;</span>
+        <span id="seance-manquee-txt">J&#x2019;AI RAT&#x00C9; MA S&#x00C9;ANCE</span>
+      </button>
+    </div>
+  </div>
+
+<div style="height:20px"></div>
+  </div>
+</div>
+
+</div><!-- /scroll-area -->
+
+
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: PLANNING — VUE CALENDRIER MENSUEL
+══════════════════════════════════════════════════════════ -->
+
+
+<!-- ══ TIMER OVERLAY ════════════════════════════════════ -->
+<div id="timer-overlay">
+  <div id="timer-ex-name"></div>
+  <div id="timer-label">RÉCUPÉRATION</div>
+  <div id="timer-ring-wrap">
+    <svg width="220" height="220" viewBox="0 0 220 220">
+      <circle id="timer-track" cx="110" cy="110" r="96"/>
+      <circle id="timer-arc"   cx="110" cy="110" r="96"/>
+    </svg>
+    <div id="timer-digits">
+      <div id="timer-count">--</div>
+      <div id="timer-unit">secondes</div>
+    </div>
+  </div>
+  <div id="timer-btns">
+    <button class="timer-btn" id="btn-skip" onclick="timerSkip()">PASSER</button>
+    <button class="timer-btn" id="btn-stop" onclick="timerStop()">ARRÊTER</button>
+  </div>
+</div>
+
+<!-- ══ FOCUS OVERLAY ════════════════════════════════════ -->
+<div id="focus-overlay">
+  <div id="focus-header">
+    <button id="focus-close" onclick="closeFocus()">✕</button>
+    <div id="focus-title-wrap">
+      <div id="focus-tab-label"></div>
+      <div id="focus-ex-title"></div>
+    </div>
+    <div id="focus-counter"></div>
+  </div>
+  <div id="focus-body"></div>
+  <div id="focus-nav">
+    <button class="focus-nav-btn" id="focus-prev" onclick="focusMove(-1)">← PRÉC.</button>
+    <button class="focus-nav-btn" id="focus-next" onclick="focusMove(+1)">SUIV. →</button>
+  </div>
+</div>
+
+
+<!-- ══ MODAL RULES / LEXIQUE ═══════════════════════════ -->
+<div id="rules-modal" onclick="if(event.target===this) closeRules()">
+  <div class="rules-content">
+    <div class="rules-head">
+      <div class="rules-title">RÈGLES & LEXIQUE</div>
+      <button class="rules-close" onclick="closeRules()">✕</button>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">🎯 SÉANCES TYPES</div>
+      <div class="legend-grid">
+        <span class="day-badge gym-j">🦵 Jambes</span>
+        <span class="day-badge gym-d">🔙 Back</span>
+        <span class="day-badge gym-b">💪 Bras/Pecs</span>
+        <span class="day-badge foot">⚽ Foot</span>
+        <span class="day-badge match">🏆 Match</span>
+        <span class="day-badge opt">✦ Optionnel</span>
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">📅 SEMAINE TYPE</div>
+      <ul class="rules-list">
+        <li><strong>Lundi :</strong> 🦵 Jambes (salle)</li>
+        <li><strong>Mardi :</strong> ⚽ Entraînement foot</li>
+        <li><strong>Mercredi :</strong> 🔙 Back (salle)</li>
+        <li><strong>Jeudi :</strong> 💪 Bras & Pecs (salle)</li>
+        <li><strong>Vendredi :</strong> ⚽ Entraînement foot</li>
+        <li><strong>Samedi :</strong> ✦ Salle légère ou repos</li>
+        <li><strong>Dimanche :</strong> 🏆 Match</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">⚡ RÈGLES D'OR</div>
+      <ul class="rules-list">
+        <li>Jamais de salle lourde <strong>moins de 24h</strong> avant un match ou entraînement</li>
+        <li>Toujours <strong>48h de récup</strong> entre séance jambes lourde et foot</li>
+        <li>Le samedi est <strong>flexible</strong> selon la fatigue ressentie</li>
+        <li>Si surcharge : supprimer le samedi salle en priorité</li>
+        <li><strong>Sommeil ≥ 7h</strong> les nuits avant match — priorité n°1</li>
+        <li>Hydratation : <strong>500ml minimum</strong> pendant chaque séance</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">🍽️ AVANT / APRÈS SÉANCE</div>
+      <ul class="rules-list">
+        <li><strong>Avant salle :</strong> repas léger glucides 1h30 avant</li>
+        <li><strong>Après salle :</strong> protéines + glucides dans les 30 min</li>
+        <li><strong>Avant match :</strong> repas complet 3h avant, pâtes/riz</li>
+        <li><strong>Après match :</strong> hydratation +++ et étirements 15 min</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">⚠️ SIGNAUX D'ALARME</div>
+      <ul class="rules-list">
+        <li>Douleur persistante aux ischio-jambiers → <strong>arrêt + kiné</strong></li>
+        <li>Fatigue cumulative sur 2 semaines → réduire volume de 30%</li>
+        <li>Sommeil dégradé plusieurs nuits → repos forcé 48h</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SCHEMA MODAL ════════════════════════════════════ -->
+<div id="schema-modal" onclick="if(event.target===this)closeSchema()">
+  <div class="schema-content">
+    <div class="schema-head">
+      <div class="schema-ex-name" id="schema-ex-name">—</div>
+      <button class="schema-close" onclick="closeSchema()">&#x2715;</button>
+    </div>
+    <div id="schema-svg-wrap"></div>
+    <div class="schema-points" id="schema-points"></div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ═══════════════════════════════════════ -->
+
+
+<!-- MODAL PROGRESSION CHARGES -->
+<div id="prog-modal" onclick="if(event.target===this)closeProgModal()">
+  <div class="prog-sheet">
+    <div class="prog-handle"></div>
+    <div class="prog-head">
+      <div class="prog-head-info">
+        <div class="prog-head-label">PROGRESSION</div>
+        <div class="prog-head-name" id="prog-head-name">--</div>
+      </div>
+      <button class="prog-close" onclick="closeProgModal()">&#x2715;</button>
+    </div>
+    <div class="prog-body">
+      <div id="prog-1rm" style="display:none;background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:12px 14px;margin-bottom:14px"></div>
+      <div class="prog-chart-wrap">
+        <div class="prog-chart-title">EVOLUTION DU POIDS MAX (kg)</div>
+        <div id="prog-chart"></div>
+      </div>
+      <div class="prog-chart-wrap">
+        <div class="prog-chart-title">HISTORIQUE DES SEANCES</div>
+        <div id="prog-history"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTORIQUE NOTES -->
+<div id="notes-history-modal" onclick="if(event.target===this)closeNotesHistory()">
+  <div class="notes-history-sheet">
+    <div class="notes-history-handle"></div>
+    <div class="notes-history-head">
+      <div class="notes-history-title">JOURNAL</div>
+      <button class="notes-history-close" onclick="closeNotesHistory()">&#x2715;</button>
+    </div>
+    <div class="notes-filter-row" id="notes-filter-row">
+      <button class="notes-filter-btn active" data-session="all" onclick="filterNotes(this)">Toutes</button>
+      <button class="notes-filter-btn" data-session="jambes" onclick="filterNotes(this)">Jambes</button>
+      <button class="notes-filter-btn" data-session="back" onclick="filterNotes(this)">Back</button>
+      <button class="notes-filter-btn" data-session="bras" onclick="filterNotes(this)">Bras &amp; Pecs</button>
+      <button class="notes-filter-btn" data-session="libre" onclick="filterNotes(this)">Libre</button>
+    </div>
+    <div class="notes-history-list" id="notes-history-list"></div>
+  </div>
+</div>
+
+<div id="nav">
+  <button class="nav-btn" id="nav-jambes" onclick="switchTab('jambes')">
+    <div class="nav-icon">🦵</div>
+    <span>Jambes</span>
+  <div class="nav-badge" id="badge-jambes">✓</div>
+  </button>
+  <button class="nav-btn" id="nav-back" onclick="switchTab('back')">
+    <div class="nav-icon">🔙</div>
+    <span>Back</span>
+  <div class="nav-badge" id="badge-back">✓</div>
+  </button>
+  <button class="nav-btn" id="nav-bras" onclick="switchTab('bras')">
+    <div class="nav-icon">💪</div>
+    <span>Bras & Pecs</span>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;padding:14px 14px 0">
+
+    <!-- Calendrier mois -->
+    <div style="flex:1.2;min-width:260px">
+      <div class="nutri-sec-title" style="margin-bottom:8px">Suivi du mois</div>
+
+    </div>
+
+    <!-- Hydratation -->
+    <div style="flex:1;min-width:240px">
+      <div class="nutri-sec-title" style="margin-bottom:8px">Hydratation</div>
+      
+      
+    </div>
+
+  </div>
+
+  <div style="height:20px"></div>
+</div>
+
+<!-- MODAL PROFIL NUTRITION -->
+<div id="nutri-profile-modal" onclick="if(event.target===this)closeNutriProfile()">
+  <div class="nutri-profile-sheet">
+    <div class="nutri-profile-title">MON PROFIL</div>
+    <div class="nutri-field"><label class="nutri-field-lbl">POIDS (kg)</label><input id="np-poids" type="number" min="40" max="200" placeholder="75"></div>
+    <div class="nutri-field"><label class="nutri-field-lbl">TAILLE (cm)</label><input id="np-taille" type="number" min="140" max="220" placeholder="180"></div>
+    <div class="nutri-field"><label class="nutri-field-lbl">AGE</label><input id="np-age" type="number" min="15" max="80" placeholder="25"></div>
+    <div class="nutri-field">
+      <label class="nutri-field-lbl">SEXE</label>
+      <div class="nutri-radio-group">
+        <div class="nutri-radio selected" data-field="sexe" data-val="H" onclick="selectRadio(this)">HOMME</div>
+        <div class="nutri-radio" data-field="sexe" data-val="F" onclick="selectRadio(this)">FEMME</div>
+      </div>
+    </div>
+    <div class="nutri-field">
+      <label class="nutri-field-lbl">NIVEAU D'ACTIVITE</label>
+      <div class="nutri-radio-group" style="flex-wrap:wrap">
+        <div class="nutri-radio" data-field="activite" data-val="1.2" onclick="selectRadio(this)">S&eacute;dentaire</div>
+        <div class="nutri-radio" data-field="activite" data-val="1.375" onclick="selectRadio(this)">L&eacute;ger</div>
+        <div class="nutri-radio selected" data-field="activite" data-val="1.55" onclick="selectRadio(this)">Mod&eacute;r&eacute;</div>
+        <div class="nutri-radio" data-field="activite" data-val="1.725" onclick="selectRadio(this)">Intense</div>
+        <div class="nutri-radio" data-field="activite" data-val="1.9" onclick="selectRadio(this)">Athl&egrave;te</div>
+      </div>
+    </div>
+    <div class="nutri-field">
+      <label class="nutri-field-lbl">OBJECTIF</label>
+      <div class="nutri-radio-group">
+        <div class="nutri-radio" data-field="objectif" data-val="masse" onclick="selectRadio(this)">Masse</div>
+        <div class="nutri-radio selected" data-field="objectif" data-val="maintien" onclick="selectRadio(this)">Maintien</div>
+        <div class="nutri-radio" data-field="objectif" data-val="seche" onclick="selectRadio(this)">S&egrave;che</div>
+      </div>
+    </div>
+    <button class="nutri-save-btn" onclick="saveNutriProfile()">ENREGISTRER</button>
+  </div>
+</div>
+
+<!-- MODAL COURBE POIDS -->
+<div id="weight-chart-modal" onclick="if(event.target===this)closeWeightChart()">
+  <div class="weight-chart-sheet">
+    <div class="weight-chart-handle"></div>
+    <div class="weight-chart-head">
+      <div class="weight-chart-title">SUIVI DU POIDS</div>
+      <button class="weight-chart-close" onclick="closeWeightChart()">&#x2715;</button>
+    </div>
+    <div class="weight-period-row">
+      <button class="weight-period-btn active" data-days="30" onclick="selectWeightPeriod(this)">30 jours</button>
+      <button class="weight-period-btn" data-days="60" onclick="selectWeightPeriod(this)">60 jours</button>
+      <button class="weight-period-btn" data-days="90" onclick="selectWeightPeriod(this)">90 jours</button>
+    </div>
+    <div class="weight-stats-row">
+      <div class="weight-stat"><div class="weight-stat-val" id="wc-current">--</div><div class="weight-stat-lbl">Actuel</div></div>
+      <div class="weight-stat"><div class="weight-stat-val" id="wc-min">--</div><div class="weight-stat-lbl">Min</div></div>
+      <div class="weight-stat"><div class="weight-stat-val" id="wc-max">--</div><div class="weight-stat-lbl">Max</div></div>
+      <div class="weight-stat"><div class="weight-stat-val" id="wc-evol">--</div><div class="weight-stat-lbl">Evolution</div></div>
+    </div>
+    <div class="weight-goal-info" id="wc-goal-info"></div>
+    <div class="weight-chart-wrap" id="wc-chart"></div>
+    <div style="padding:0 14px 6px"><div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:var(--dim);margin-bottom:6px">HISTORIQUE</div></div>
+    <div class="weight-history-list" id="wc-history"></div>
+    
+    </div><!-- /suivi mois wrap -->
+
+
+    <div class="hydra-wrap">
+      <div class="hydra-top">
+        <div class="hydra-icon">&#x1F4A7;</div>
+        <div class="hydra-info">
+          <div class="hydra-title">EAU DU JOUR</div>
+          <div class="hydra-amount"><span id="hydra-current">0</span> ml / <span id="hydra-goal">2500</span> ml</div>
+          <div class="hydra-pct" id="hydra-pct">0% de l&#x2019;objectif</div>
+        </div>
+      </div>
+      <div class="hydra-bar-wrap">
+        <div class="hydra-bar-fill" id="hydra-bar" style="width:0%"></div>
+      </div>
+      <div class="hydra-btns">
+        <button class="hydra-btn" onclick="addWater(250)"><span class="hydra-btn-icon">&#x1FAD7;</span><span class="hydra-btn-lbl">+250ml</span></button>
+        <button class="hydra-btn" onclick="addWater(500)"><span class="hydra-btn-icon">&#x1F376;</span><span class="hydra-btn-lbl">+500ml</span></button>
+        <button class="hydra-btn" onclick="addWater(750)"><span class="hydra-btn-icon">&#x1FAD9;</span><span class="hydra-btn-lbl">+750ml</span></button>
+        <button class="hydra-btn" onclick="addWater(1000)"><span class="hydra-btn-icon">&#x1F9F4;</span><span class="hydra-btn-lbl">+1L</span></button>
+      </div>
+      <button class="hydra-reset" onclick="resetWater()">&#x21BA; Remettre &agrave; z&eacute;ro</button>
+    </div>
+    <div class="seance-manquee-wrap" id="seance-manquee-wrap" style="display:none">
+      <button class="seance-manquee-btn" id="seance-manquee-btn" onclick="toggleSeanceManquee()">
+        <span id="seance-manquee-icon">&#x26A0;&#xFE0F;</span>
+        <span id="seance-manquee-txt">J&#x2019;AI RAT&#x00C9; MA S&#x00C9;ANCE</span>
+      </button>
+    </div>
+  </div>
+
+<div style="height:20px"></div>
   </div>
 </div>
 
@@ -5500,6 +5896,8 @@ function renderHome() {
 
   var dateEl = document.getElementById('home-date');
   if (dateEl) dateEl.textContent = jour + ' ' + date;
+  var todayDateEl = document.getElementById('home-today-date');
+  if (todayDateEl) todayDateEl.textContent = jour + ' ' + date;
 
   // Séance du jour
   var sched    = HOME_SCHEDULE[dow];
@@ -6095,22 +6493,48 @@ function mealsSave(dateKey, meals) {
     localStorage.setItem(NUTRI_MEALS_KEY,JSON.stringify(data));
   } catch(e){}
 }
-function calcMacros(profile, isTraining) {
+function calcMacros(profile, isTraining, dayType) {
   var p=parseFloat(profile.poids)||75, t=parseFloat(profile.taille)||178;
   var a=parseFloat(profile.age)||25, act=parseFloat(profile.activite)||1.55;
   var goal=profile.objectif||'maintien', sexe=profile.sexe||'H';
   var bmr=sexe==='H'?10*p+6.25*t-5*a+5:10*p+6.25*t-5*a-161;
   var tdee=Math.round(bmr*act);
   var adj={masse:350,maintien:0,seche:-400}; var kcal=tdee+(adj[goal]||0);
-  var pF=isTraining?{masse:2.1,maintien:1.8,seche:2.2}[goal]:{masse:1.9,maintien:1.7,seche:2.0}[goal];
-  var lF=isTraining?{masse:0.9,maintien:0.9,seche:0.8}[goal]:{masse:1.0,maintien:1.0,seche:0.9}[goal];
+  var type = dayType || (isTraining ? 'muscu' : 'repos');
+  // Facteurs protéines selon type de jour
+  var pFactors = {
+    muscu: {masse:2.1, maintien:1.8, seche:2.2},
+    foot:  {masse:1.9, maintien:1.7, seche:2.0},
+    repos: {masse:1.7, maintien:1.5, seche:1.9}
+  };
+  // Facteurs lipides selon type de jour
+  var lFactors = {
+    muscu: {masse:0.9, maintien:0.9, seche:0.8},
+    foot:  {masse:0.9, maintien:0.9, seche:0.8},
+    repos: {masse:1.0, maintien:1.0, seche:0.9}
+  };
+  // Ajustement kcal selon type
+  var kcalAdj = { muscu:0, foot:-100, repos:-200 };
+  kcal += (kcalAdj[type] || 0);
+  var pF = (pFactors[type]||pFactors.repos)[goal];
+  var lF = (lFactors[type]||lFactors.repos)[goal];
   var pG=Math.round(p*pF), lG=Math.round(p*lF);
   var gG=Math.round(Math.max(0,kcal-pG*4-lG*9)/4);
-  return {kcal:kcal,p:pG,g:gG,l:lG,pKcal:pG*4,gKcal:gG*4,lKcal:lG*9};
+  return {kcal:kcal,p:pG,g:gG,l:lG,dayType:type};
 }
 function isTrainingDay() {
-  var dow=new Date().getDay(), sched=HOME_SCHEDULE[dow];
-  return sched&&sched.tab!==null;
+  return getDayType() !== 'repos';
+}
+
+function getDayType() {
+  if (manqueeLoad()) return 'repos';
+  var dow   = new Date().getDay();
+  if (dow === 6) return 'repos'; // Samedi = repos par défaut
+  var sched = HOME_SCHEDULE[dow];
+  if (!sched) return 'repos';
+  if (sched.tab === null && sched.emoji === '⚽') return 'foot'; // jour foot
+  if (sched.tab !== null) return 'muscu'; // jour gym
+  return 'repos';
 }
 function renderNutri() {
   var profile=nutriProfileLoad();
@@ -6120,9 +6544,12 @@ function renderNutri() {
   var macros=calcMacros(profile,isTraining), meals=mealsLoad(today);
   var badge=document.getElementById('nutri-day-badge');
   if (badge) {
-    var lbl=sched?sched.label:'Repos'; var col=isTraining?'#00C853':'#6495ED';
-    badge.textContent=(isTraining?'':'')+ ' '+lbl;
-    badge.style.cssText='background:rgba('+(isTraining?'0,200,83':'100,149,237')+',.15);color:'+col+';border:1px solid '+col+';border-radius:20px;padding:3px 10px;font-size:11px;font-family:Bebas Neue,sans-serif;letter-spacing:1.5px';
+    var lbl  = sched ? sched.label : 'Repos';
+    var col  = {muscu:'#00C853', foot:'#2979FF', repos:'#6495ED'}[dayType] || '#6495ED';
+    var icon = {muscu:'??️', foot:'⚽', repos:'??'}[dayType] || '';
+    badge.textContent = icon + ' ' + lbl;
+    var rgb = {muscu:'0,200,83', foot:'41,121,255', repos:'100,149,237'}[dayType] || '100,149,237';
+    badge.style.cssText='background:rgba('+rgb+',.15);color:'+col+';border:1px solid '+col+';border-radius:20px;padding:3px 10px;font-size:11px;font-family:Bebas Neue,sans-serif;letter-spacing:1.5px';
   }
   var goalLabels={masse:'PRISE DE MASSE',maintien:'MAINTIEN',seche:'SECHE'};
   var goalColors={masse:'rgba(0,200,83,.2)',maintien:'rgba(255,179,0,.2)',seche:'rgba(229,57,53,.2)'};
@@ -6759,3 +7186,7 @@ function renderHydra() {
 </script>
 </body>
 </html>
+  </div>
+
+</div>
+
