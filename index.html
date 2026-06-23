@@ -1849,6 +1849,74 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   flex-shrink:0;transition:opacity .15s;white-space:nowrap;
 }
 .home-start-btn:active{opacity:.8}
+
+/* ── PLANNING MODIFIABLE ── */
+.planning-week{
+  padding:14px 14px 0;
+}
+.planning-week-title{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:3px;color:var(--dim);margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.planning-week-title::after{content:'';flex:1;height:1px;background:var(--s4)}
+.planning-days{display:flex;flex-direction:column;gap:6px}
+.planning-day-row{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:10px 12px;
+  cursor:pointer;transition:background .15s;
+}
+.planning-day-row:active{background:var(--s3)}
+.planning-day-row.today-row{border-color:var(--acc)}
+.planning-day-name{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  color:var(--dim);width:36px;flex-shrink:0;
+}
+.planning-day-row.today-row .planning-day-name{color:var(--acc)}
+.planning-day-emoji{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.planning-day-info{flex:1}
+.planning-day-session{
+  font-family:'Bebas Neue',sans-serif;font-size:15px;
+  color:var(--wht);letter-spacing:.5px;
+}
+.planning-day-type{font-size:10px;color:var(--dim);margin-top:2px}
+.planning-day-edit{
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1px;
+  color:var(--dim);background:var(--s3);border:1px solid var(--s4);
+  padding:4px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;
+}
+
+/* Modal choix session */
+#planning-edit-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,8,8,.92);z-index:700;
+  align-items:flex-end;justify-content:center;
+}
+#planning-edit-modal.show{display:flex}
+.planning-edit-sheet{
+  background:var(--s1);border-radius:16px 16px 0 0;
+  width:100%;max-width:480px;padding:20px 16px 40px;
+}
+.planning-edit-title{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:var(--wht);letter-spacing:1px;margin-bottom:14px;text-align:center;
+}
+.planning-session-options{display:flex;flex-direction:column;gap:8px}
+.planning-session-opt{
+  display:flex;align-items:center;gap:12px;
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:12px 14px;cursor:pointer;
+  transition:all .15s;
+}
+.planning-session-opt:active{background:var(--s3)}
+.planning-session-opt.selected{border-color:var(--acc);background:rgba(var(--acc-r),.1)}
+.planning-session-opt-emoji{font-size:22px;width:28px;text-align:center}
+.planning-session-opt-name{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;
+  color:var(--wht);letter-spacing:.5px;
+}
+.planning-session-opt-sub{font-size:10px;color:var(--dim);margin-top:2px}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -2671,6 +2739,14 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
     </div>
   </div>
 
+
+  <!-- Planning modifiable -->
+  <div class="planning-week">
+    <div class="planning-week-title">Ma semaine type</div>
+    <div class="planning-days" id="planning-days-list"></div>
+  </div>
+
+  <div style="height:14px"></div>
   <div class="cal-wrap">
     <div class="cal-header-bar">
       <div class="cal-nav-group">
@@ -2979,6 +3055,15 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   </div>
 </div>
 
+
+<!-- MODAL CHOIX SESSION PLANNING -->
+<div id="planning-edit-modal" onclick="if(event.target===this)closePlanningEdit()">
+  <div class="planning-edit-sheet">
+    <div class="planning-edit-title" id="planning-edit-day-title">Choisir la séance</div>
+    <div class="planning-session-options" id="planning-session-options"></div>
+  </div>
+</div>
+
 <!-- MODAL COURBE POIDS -->
 <div id="weight-chart-modal" onclick="if(event.target===this)closeWeightChart()">
   <div class="weight-chart-sheet">
@@ -3278,6 +3363,15 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
       </div>
     </div>
     <button class="nutri-save-btn" onclick="saveNutriProfile()">ENREGISTRER</button>
+  </div>
+</div>
+
+
+<!-- MODAL CHOIX SESSION PLANNING -->
+<div id="planning-edit-modal" onclick="if(event.target===this)closePlanningEdit()">
+  <div class="planning-edit-sheet">
+    <div class="planning-edit-title" id="planning-edit-day-title">Choisir la séance</div>
+    <div class="planning-session-options" id="planning-session-options"></div>
   </div>
 </div>
 
@@ -4022,6 +4116,7 @@ function switchTab(tab) {
   if (tab === 'biblio') initLibrary();
   if (tab === 'libre')  renderLibreSession();
   if (tab === 'nutri')  renderNutri();
+  if (tab === 'planning') renderPlanningWeek();
 
   // Timer : pause si on quitte une séance
   if (typeof timerOnTabChange === 'function') timerOnTabChange(tab);
@@ -6235,6 +6330,19 @@ var GROUP_TO_NAV = { jambes:'jambes', back:'back', bras:'bras' };
 initCounts();
 
 // Initialiser les variantes
+
+var JOURS_COURTS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+
+var SESSION_OPTIONS = [
+  { key:'jambes', emoji:'\uD83E\uDDB5', name:'Jambes',       sub:'Quadri · Ischio · Fessiers', tab:'jambes', color:'#00C853' },
+  { key:'back',   emoji:'\uD83D\uDD19', name:'Back',          sub:'Dos · Trapèzes · Lombaires', tab:'back', color:'#2979FF' },
+  { key:'bras',   emoji:'\uD83D\uDCAA', name:'Bras & Pecs',   sub:'Pecto · Épaules · Biceps', tab:'bras', color:'#E53935' },
+  { key:'foot',   emoji:'⚽',        name:'Foot',          sub:'Entraînement ou match', tab:null, color:'#2979FF' },
+  { key:'libre',  emoji:'❆',        name:'Séance Libre', sub:'Exercices personnalisés', tab:'libre', color:'#FFB300' },
+  { key:'match',  emoji:'\u26BD',  name:'Match',         sub:'Jour de compétition', tab:null, color:'#FFD600' },
+  { key:'repos',  emoji:'\u2744',  name:'Repos',         sub:'Récupération', tab:null, color:'#666666' },
+];
+
 initVariants();
 
 // Boutons schéma
@@ -6255,6 +6363,9 @@ document.querySelectorAll('.card').forEach(card => {
 
 // Swipe navigation
 initSwipe();
+
+// Planning modifiable
+planningUpdateHomeSchedule();
 
 // Purge notes 30j
 purgeOldNotes();
@@ -6546,7 +6657,7 @@ function renderNutri() {
   if (badge) {
     var lbl  = sched ? sched.label : 'Repos';
     var col  = {muscu:'#00C853', foot:'#2979FF', repos:'#6495ED'}[dayType] || '#6495ED';
-    var icon = {muscu:'??️', foot:'⚽', repos:'??'}[dayType] || '';
+    var icon = {muscu:'\uD83C\uDFCB', foot:'\u26BD', repos:'\uD83D\uDE34'}[dayType] || '';
     badge.textContent = icon + ' ' + lbl;
     var rgb = {muscu:'0,200,83', foot:'41,121,255', repos:'100,149,237'}[dayType] || '100,149,237';
     badge.style.cssText='background:rgba('+rgb+',.15);color:'+col+';border:1px solid '+col+';border-radius:20px;padding:3px 10px;font-size:11px;font-family:Bebas Neue,sans-serif;letter-spacing:1.5px';
@@ -7067,7 +7178,7 @@ function renderSessionNotes(group) {
     var meta = document.createElement('div');  meta.className = 'notes-existing-meta';
     var info = document.createElement('span'); info.textContent = (n.time||'') + ' · Aujourd’hui';
     var btn  = document.createElement('button'); btn.className = 'notes-del-btn';
-    btn.textContent = '??';
+    btn.textContent = '\uD83D\uDDD1';
     btn.dataset.nid = n.id; btn.dataset.grp = group;
     btn.onclick = function(){ deleteNote(this.dataset.nid, this.dataset.grp); };
     meta.appendChild(info); meta.appendChild(btn);
@@ -7180,6 +7291,169 @@ function renderHydra() {
   if (btn)  btn.classList.toggle('active', manquee);
   if (icon) icon.textContent = manquee ? '✅' : '⚠️';
   if (txt)  txt.textContent  = manquee ? 'SÉANCE MARQUÉE COMME RATÉE — MACROS REPOS' : 'J’AI RATÉ MA SÉANCE';
+}
+
+
+/* ══════════════════════════════════════════════════════
+   PLANNING MODIFIABLE
+══════════════════════════════════════════════════════ */
+var PLANNING_KEY = 'planning-schedule-v1';
+
+function planningLoadSchedule() {
+  try {
+    var s = localStorage.getItem(PLANNING_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+
+function planningSaveSchedule(schedule) {
+  try { localStorage.setItem(PLANNING_KEY, JSON.stringify(schedule)); } catch(e) {}
+}
+
+function planningGetDefaultSchedule() {
+  // Basé sur HOME_SCHEDULE existant
+  return {
+    1: 'jambes',
+    2: 'foot',
+    3: 'back',
+    4: 'bras',
+    5: 'foot',
+    6: 'libre',
+    0: 'match'
+  };
+}
+
+function planningGetSchedule() {
+  return planningLoadSchedule() || planningGetDefaultSchedule();
+}
+
+function planningGetSession(dow) {
+  var schedule = planningGetSchedule();
+  var key = schedule[dow];
+  return SESSION_OPTIONS.find(function(s){ return s.key === key; }) || SESSION_OPTIONS[6]; // repos par défaut
+}
+
+/* Mettre à jour HOME_SCHEDULE dynamiquement */
+function planningUpdateHomeSchedule() {
+  var schedule = planningGetSchedule();
+  var labelMap = {
+    jambes:'Séance Jambes', back:'Séance Back', bras:'Bras & Pecs',
+    foot:'Entraînement Foot', libre:'Séance Libre', match:'Jour de Match', repos:'Repos'
+  };
+  [0,1,2,3,4,5,6].forEach(function(dow) {
+    var sess = planningGetSession(dow);
+    if (HOME_SCHEDULE[dow]) {
+      HOME_SCHEDULE[dow].tab   = sess.tab;
+      HOME_SCHEDULE[dow].label = sess.name;
+      HOME_SCHEDULE[dow].emoji = sess.emoji;
+      HOME_SCHEDULE[dow].color = sess.color;
+    }
+  });
+}
+
+/* Render la liste des jours */
+function renderPlanningWeek() {
+  var list = document.getElementById("planning-days-list");
+  if (!list) return;
+  var todayDow = new Date().getDay();
+  list.innerHTML = "";
+
+  [1,2,3,4,5,6,0].forEach(function(dow) {
+    var sess = planningGetSession(dow);
+    var isToday = dow === todayDow;
+
+    var row = document.createElement("div");
+    row.className = "planning-day-row" + (isToday ? " today-row" : "");
+    row.dataset.dow = dow;
+    row.onclick = function(){ openPlanningEdit(parseInt(this.dataset.dow)); };
+
+    var dayName = document.createElement("div");
+    dayName.className = "planning-day-name";
+    dayName.textContent = JOURS_COURTS[dow].toUpperCase();
+
+    var emoji = document.createElement("div");
+    emoji.className = "planning-day-emoji";
+    emoji.textContent = sess.emoji;
+
+    var info = document.createElement("div");
+    info.className = "planning-day-info";
+    var sessName = document.createElement("div");
+    sessName.className = "planning-day-session";
+    sessName.style.color = sess.color;
+    sessName.textContent = sess.name;
+    var sessType = document.createElement("div");
+    sessType.className = "planning-day-type";
+    sessType.textContent = sess.sub;
+    info.appendChild(sessName);
+    info.appendChild(sessType);
+
+    var editBtn = document.createElement("div");
+    editBtn.className = "planning-day-edit";
+    editBtn.textContent = "MODIFIER";
+
+    row.appendChild(dayName);
+    row.appendChild(emoji);
+    row.appendChild(info);
+    row.appendChild(editBtn);
+    list.appendChild(row);
+  });
+}
+
+var planningEditDow = null;
+
+function openPlanningEdit(dow) {
+  planningEditDow = dow;
+  var title = document.getElementById("planning-edit-day-title");
+  if (title) title.textContent = "S\u00e9ance du " + JOURS_FR[dow];
+
+  var current = planningGetSchedule()[dow];
+  var opts    = document.getElementById("planning-session-options");
+  if (!opts) return;
+
+  opts.innerHTML = "";
+  SESSION_OPTIONS.forEach(function(s) {
+    var div  = document.createElement("div");
+    div.className = "planning-session-opt" + (s.key === current ? " selected" : "");
+    div.dataset.key = s.key;
+    div.onclick = function(){ selectPlanningSession(this.dataset.key); };
+
+    var emoji = document.createElement("div");
+    emoji.className = "planning-session-opt-emoji";
+    emoji.textContent = s.emoji;
+
+    var info = document.createElement("div");
+    var name = document.createElement("div");
+    name.className = "planning-session-opt-name";
+    name.style.color = s.color;
+    name.textContent = s.name;
+    var sub = document.createElement("div");
+    sub.className = "planning-session-opt-sub";
+    sub.textContent = s.sub;
+    info.appendChild(name);
+    info.appendChild(sub);
+
+    div.appendChild(emoji);
+    div.appendChild(info);
+    opts.appendChild(div);
+  });
+
+  document.getElementById("planning-edit-modal").classList.add("show");
+}
+
+function closePlanningEdit() {
+  document.getElementById('planning-edit-modal').classList.remove('show');
+}
+
+function selectPlanningSession(sessionKey) {
+  if (planningEditDow === null) return;
+  var schedule      = planningGetSchedule();
+  schedule[planningEditDow] = sessionKey;
+  planningSaveSchedule(schedule);
+  closePlanningEdit();
+  planningUpdateHomeSchedule();
+  renderPlanningWeek();
+  renderHome();
+  showToast('✅ Planning mis à jour', 'rgba(0,200,83,.9)');
 }
 
 
