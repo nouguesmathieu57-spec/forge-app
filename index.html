@@ -6523,6 +6523,47 @@ function timerOnTabChange(newTab) {
 }
 
 
+/* ── Notes séance — fonctions UI ── */
+function toggleNotes(group) {
+  var body = document.getElementById('notes-body-' + group);
+  var icon = document.getElementById('notes-icon-' + group);
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (icon) icon.classList.toggle('open', !isOpen);
+  if (!isOpen) renderSessionNotes(group);
+}
+
+function updateNotesCount(group) {
+  var inp = document.getElementById('notes-input-' + group);
+  var cnt = document.getElementById('notes-count-' + group);
+  if (inp && cnt) cnt.textContent = inp.value.length + ' / 500';
+}
+
+function renderSessionNotes(group) {
+  var wrap = document.getElementById('notes-existing-' + group);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  var today = localDateKey(new Date());
+  var notes  = notesLoad().filter(function(n){ return n.session === group && n.date === today; });
+  if (!notes.length) return;
+  notes.forEach(function(n) {
+    var div  = document.createElement('div');  div.className = 'notes-existing';
+    var meta = document.createElement('div');  meta.className = 'notes-existing-meta';
+    var info = document.createElement('span'); info.textContent = (n.time||'') + ' · Aujourd’hui';
+    var btn  = document.createElement('button'); btn.className = 'notes-del-btn';
+    btn.textContent = '??';
+    btn.dataset.nid = n.id; btn.dataset.grp = group;
+    btn.onclick = function(){ deleteNote(this.dataset.nid, this.dataset.grp); };
+    meta.appendChild(info); meta.appendChild(btn);
+    var txt = document.createElement('div');
+    txt.innerHTML = n.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    div.appendChild(meta); div.appendChild(txt);
+    wrap.appendChild(div);
+  });
+}
+
+
 </script>
 </body>
 </html>
