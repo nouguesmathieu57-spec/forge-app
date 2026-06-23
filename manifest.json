@@ -1,7 +1,7 @@
 {
-  "name": "Football Gym",
-  "short_name": "FootGym",
-  "description": "Séances de salle spécifiques football — Jambes, Back, Bras & Pecs",
+  "name": "FORGE",
+  "short_name": "FORGE",
+  "description": "Préparation physique football — Séances, Planning, Bibliothèque",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#080808",

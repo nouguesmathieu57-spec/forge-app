@@ -1,4 +1,4 @@
-const CACHE = 'football-gym-v3';
+const CACHE = 'football-gym-v16';
 const ASSETS = ['/'];
 
 self.addEventListener('install', e => {
@@ -22,16 +22,12 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(resp => {
-        // Mettre en cache les images d'exercices ET la page principale
         if (resp.ok) {
           const clone = resp.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return resp;
-      }).catch(() => {
-        // Hors ligne et pas en cache
-        return new Response('', { status: 503 });
-      });
+      }).catch(() => new Response('', { status: 503 }));
     })
   );
 });
