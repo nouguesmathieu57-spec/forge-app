@@ -1,0 +1,4102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Football Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ────────────────────────────────────────────── */
+:root {
+  --bg:    #080808;
+  --s1:    #111111;
+  --s2:    #181818;
+  --s3:    #222222;
+  --s4:    #2C2C2C;
+  --txt:   #DEDEDE;
+  --dim:   #666;
+  --wht:   #FFFFFF;
+  --yel:   #FFD600;
+  --blu:   #6495ED;
+
+  /* séance accent – overridden per tab */
+  --acc:   #00C853;
+  --acc2:  #007B33;
+  --acc-r: 0,200,83;
+}
+
+/* ── RESET ─────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'DM Sans',sans-serif;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── SCROLL CONTAINER ──────────────────────────────────── */
+#scroll-area{
+  flex:1;
+  overflow-y:auto;
+  padding-bottom:80px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ── BOTTOM NAV ────────────────────────────────────────── */
+#nav{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:68px;
+  background:var(--s1);
+  border-top:1px solid var(--s4);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  z-index:100;
+}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;border:none;background:none;color:var(--dim);
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.5px;
+  text-transform:uppercase;padding-bottom:env(safe-area-inset-bottom,0px);
+  transition:color .2s;
+}
+.nav-btn.active{color:var(--acc)}
+.nav-icon{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;transition:background .2s;
+}
+.nav-btn.active .nav-icon{background:rgba(var(--acc-r),.15)}
+
+/* ── HEADER ────────────────────────────────────────────── */
+.app-header{
+  background:var(--s1);
+  padding:28px 18px 18px;
+  border-bottom:3px solid var(--acc);
+  position:relative;overflow:hidden;
+}
+.app-header::after{
+  content:'';position:absolute;
+  bottom:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(var(--acc-r),.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.hdr-tag{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;
+  color:var(--acc);border:1px solid rgba(var(--acc-r),.4);
+  padding:3px 10px;border-radius:2px;
+}
+.hdr-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;
+  color:var(--yel);background:rgba(255,214,0,.1);
+  border:1px solid rgba(255,214,0,.3);padding:3px 10px;border-radius:2px;
+}
+.hdr-title{
+  font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;
+  letter-spacing:2px;color:var(--wht);
+}
+.hdr-title span{color:var(--acc)}
+.hdr-sub{font-size:12px;color:var(--dim);margin-top:5px}
+
+/* ── STATS ROW ─────────────────────────────────────────── */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--s4);
+}
+.stat{background:var(--s2);padding:11px 6px;text-align:center}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acc);line-height:1}
+.stat-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* ── PROGRESS ──────────────────────────────────────────── */
+.prog-wrap{padding:14px 16px 0}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:5px}
+.prog-bar{height:3px;background:var(--s4);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc2,#005a28),var(--acc));border-radius:2px;transition:width .4s ease;width:0%}
+
+/* ── SECTION ───────────────────────────────────────────── */
+.section{padding:16px 14px 0}
+.sec-title{
+  font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:4px;
+  color:var(--dim);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--s4)}
+
+/* ── PHASE BADGE ───────────────────────────────────────── */
+.phase{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;
+  padding:3px 10px 3px 7px;border-radius:20px;margin-bottom:8px;
+}
+.phase-dot{width:6px;height:6px;border-radius:50%}
+.phase.warmup{background:rgba(255,214,0,.1);color:var(--yel);border:1px solid rgba(255,214,0,.25)}
+.phase.warmup .phase-dot{background:var(--yel)}
+.phase.main{background:rgba(var(--acc-r),.1);color:var(--acc);border:1px solid rgba(var(--acc-r),.3)}
+.phase.main .phase-dot{background:var(--acc)}
+.phase.finish{background:rgba(var(--acc-r),.1);color:var(--acc);border:1px solid rgba(var(--acc-r),.3)}
+.phase.finish .phase-dot{background:var(--acc)}
+.phase.cool{background:rgba(100,149,237,.1);color:var(--blu);border:1px solid rgba(100,149,237,.25)}
+.phase.cool .phase-dot{background:var(--blu)}
+
+/* ── EXERCISE CARD ─────────────────────────────────────── */
+.card{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;margin-bottom:9px;overflow:hidden;
+  transition:border-color .2s;
+}
+.card.done-card{border-color:rgba(var(--acc-r),.4);background:rgba(var(--acc-r),.03)}
+.card-header{display:flex;align-items:center;padding:12px 12px 8px;gap:10px}
+.ex-num{
+  font-family:'Bebas Neue',sans-serif;font-size:30px;
+  color:var(--s4);line-height:1;min-width:30px;
+  filter:brightness(4);opacity:.18;
+}
+.ex-info{flex:1}
+.ex-name{
+  font-family:'Bebas Neue',sans-serif;font-size:19px;
+  color:var(--wht);letter-spacing:.5px;line-height:1.1;
+}
+.ex-focus{font-size:11px;color:var(--dim);margin-top:2px}
+.ex-metrics{display:flex;gap:6px}
+.metric{
+  text-align:center;background:var(--s3);
+  border-radius:6px;padding:4px 8px;min-width:42px;
+  border:1px solid var(--s4);
+}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--acc);line-height:1}
+.metric-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.tip{
+  background:rgba(var(--acc-r),.05);border-left:2px solid var(--acc2,#005a28);
+  margin:0 12px 10px;padding:7px 10px;
+  border-radius:0 6px 6px 0;font-size:11.5px;color:var(--dim);line-height:1.5;
+}
+.tip strong{color:var(--acc);font-weight:600}
+
+/* ── CHECKBOX ──────────────────────────────────────────── */
+.cb{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--s4);cursor:pointer;flex-shrink:0;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.cb.done{background:var(--acc);border-color:var(--acc)}
+.cb.done::after{content:'✓';color:#000;font-size:12px;font-weight:700}
+
+/* ── SUPERSET ──────────────────────────────────────────── */
+.superset-wrap{margin-bottom:9px}
+.superset-label{
+  display:flex;align-items:center;gap:8px;margin-bottom:4px;
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;color:var(--yel);
+}
+.superset-label::before,.superset-label::after{content:'';flex:1;height:1px;background:rgba(255,214,0,.2)}
+.superset-wrap .card{margin-bottom:2px;border-radius:0}
+.superset-wrap .card:first-of-type{border-radius:10px 10px 0 0}
+.superset-wrap .card:last-of-type{border-radius:0 0 10px 10px}
+
+/* ── NOTE BOX ──────────────────────────────────────────── */
+.note-box{
+  margin:14px 14px 0;background:var(--s2);
+  border:1px solid var(--s4);border-radius:10px;padding:13px;
+}
+.note-title{
+  font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;
+  color:var(--acc);text-transform:uppercase;margin-bottom:7px;
+}
+.note-list{list-style:none;font-size:12px;color:var(--dim);line-height:1.75}
+.note-list li::before{content:'— ';color:var(--acc)}
+
+/* ── PLANNING ──────────────────────────────────────────── */
+.planning{
+  margin:14px 14px 0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+}
+.plan-day{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:8px;padding:9px;text-align:center;
+}
+.plan-day.active-day{border-color:var(--acc)}
+.plan-lbl{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--wht);line-height:1}
+.plan-name{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.plan-day.active-day .plan-lbl{color:var(--acc)}
+.plan-day.active-day .plan-name{color:var(--acc)}
+
+/* ── DIVIDER ───────────────────────────────────────────── */
+.divider{height:1px;background:var(--s3);margin:14px 14px 0}
+
+/* ── TABS (hidden pages) ───────────────────────────────── */
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* ── JAMBES accent ─────────────────────────────────────── */
+[data-tab="jambes"]{--acc:#00C853;--acc2:#007B33;--acc-r:0,200,83}
+/* ── BACK accent ───────────────────────────────────────── */
+[data-tab="back"]{--acc:#2979FF;--acc2:#0D47A1;--acc-r:41,121,255}
+/* ── BRAS accent ───────────────────────────────────────── */
+[data-tab="bras"]{--acc:#E53935;--acc2:#B71C1C;--acc-r:229,57,53}
+
+/* scope accent on nav btn */
+#nav-jambes.active{--acc:#00C853;--acc-r:0,200,83}
+#nav-back.active{--acc:#2979FF;--acc-r:41,121,255}
+#nav-bras.active{--acc:#E53935;--acc-r:229,57,53}
+
+/* ── TIMER OVERLAY ─────────────────────────────────────── */
+#timer-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(8,8,8,.96);
+  z-index:300;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:0;
+}
+#timer-overlay.show{display:flex}
+
+#timer-ex-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px;letter-spacing:4px;
+  color:var(--dim);text-transform:uppercase;
+  margin-bottom:6px;text-align:center;padding:0 24px;
+}
+#timer-label{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px;letter-spacing:3px;
+  color:var(--dim);margin-bottom:28px;
+  text-transform:uppercase;
+}
+
+/* SVG ring */
+#timer-ring-wrap{position:relative;width:220px;height:220px;margin-bottom:28px}
+#timer-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+#timer-track{fill:none;stroke:var(--s4);stroke-width:8}
+#timer-arc{fill:none;stroke:var(--acc);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .3s}
+#timer-digits{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+#timer-count{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:72px;line-height:1;
+  color:var(--wht);letter-spacing:-2px;
+}
+#timer-unit{font-size:12px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:-4px}
+
+/* buttons row */
+#timer-btns{display:flex;gap:12px}
+.timer-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;
+  padding:10px 24px;border-radius:8px;border:none;cursor:pointer;
+  transition:opacity .15s;
+}
+.timer-btn:active{opacity:.7}
+#btn-skip{background:var(--s3);color:var(--dim)}
+#btn-stop{background:rgba(var(--acc-r),.15);color:var(--acc);border:1px solid rgba(var(--acc-r),.4)}
+
+/* ── FOCUS OVERLAY ─────────────────────────────────────── */
+#focus-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:var(--bg);
+  z-index:200;
+  flex-direction:column;
+}
+#focus-overlay.show{display:flex}
+
+#focus-header{
+  background:var(--s1);
+  padding:20px 16px 16px;
+  border-bottom:2px solid var(--acc);
+  display:flex;align-items:center;gap:12px;
+}
+#focus-close{
+  background:var(--s3);border:none;color:var(--dim);
+  width:34px;height:34px;border-radius:8px;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+#focus-title-wrap{flex:1}
+#focus-tab-label{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+#focus-ex-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;
+  color:var(--wht);letter-spacing:1px;line-height:1;
+}
+#focus-counter{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;
+  color:var(--acc);background:rgba(var(--acc-r),.12);
+  padding:4px 10px;border-radius:20px;border:1px solid rgba(var(--acc-r),.3);
+  white-space:nowrap;
+}
+
+#focus-body{
+  flex:1;overflow-y:auto;padding:18px 16px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* sets tracker */
+.sets-tracker{
+  display:grid;gap:8px;margin-bottom:18px;
+}
+.set-row{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .2s,background .2s;
+}
+.set-row.set-done{border-color:rgba(var(--acc-r),.4);background:rgba(var(--acc-r),.06)}
+.set-num{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;
+  color:var(--s4);filter:brightness(4);opacity:.2;min-width:28px;line-height:1;
+}
+.set-info{flex:1}
+.set-name{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--wht);letter-spacing:.5px}
+.set-reps{font-size:11px;color:var(--dim);margin-top:1px}
+.set-cb{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid var(--s4);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.set-cb.done{background:var(--acc);border-color:var(--acc)}
+.set-cb.done::after{content:'✓';color:#000;font-size:13px;font-weight:700}
+
+/* focus tip */
+.focus-tip{
+  background:rgba(var(--acc-r),.05);border-left:2px solid var(--acc2,#005a28);
+  padding:10px 12px;border-radius:0 8px 8px 0;
+  font-size:12px;color:var(--dim);line-height:1.55;margin-bottom:16px;
+}
+.focus-tip strong{color:var(--acc);font-weight:600}
+
+/* nav arrows */
+#focus-nav{
+  padding:12px 16px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  border-top:1px solid var(--s3);background:var(--s1);
+}
+.focus-nav-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;
+  padding:12px;border-radius:8px;border:none;cursor:pointer;
+  transition:opacity .15s;
+}
+.focus-nav-btn:active{opacity:.7}
+#focus-prev{background:var(--s3);color:var(--dim)}
+#focus-next{background:var(--acc);color:#000}
+#focus-next:disabled{background:var(--s3);color:var(--dim);cursor:default}
+
+/* pulse animation fin de timer */
+@keyframes pulse-acc{
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--acc-r),.5)}
+  50%{box-shadow:0 0 0 18px rgba(var(--acc-r),0)}
+}
+.pulse{animation:pulse-acc .6s ease 3}
+
+/* ── VARIANTES ─────────────────────────────────────────── */
+.variante-reset{
+  font-size:11px;color:var(--dim);padding:6px 0 8px;
+  cursor:pointer;border-bottom:1px solid var(--s4);
+  margin-bottom:6px;display:block;
+  transition:color .15s;
+}
+.variante-reset:hover{color:var(--acc)}
+.variante-item{
+  cursor:pointer;
+  transition:background .15s, padding .15s;
+  border-radius:6px;
+  position:relative;
+}
+.variante-item:hover{
+  background:rgba(var(--acc-r),.08);
+  padding-left:8px !important;
+}
+.variante-item.var-active{
+  background:rgba(var(--acc-r),.1);
+  border-color:rgba(var(--acc-r),.3) !important;
+  padding-left:8px !important;
+}
+.variante-item.var-active::after{
+  content:'✓';
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  color:var(--acc);font-weight:700;font-size:13px;
+}
+.card.var-changed .ex-name{color:var(--acc)}
+.card.var-changed .variantes-toggle{
+  color:var(--acc);border-color:rgba(var(--acc-r),.4);
+}
+.variantes-toggle{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;
+  color:var(--dim);cursor:pointer;margin:0 12px 10px;
+  background:none;border:none;padding:0;
+  transition:color .2s;
+}
+.variantes-toggle:hover{color:var(--acc)}
+.variantes-toggle::before{
+  content:'↕';font-size:12px;
+}
+.variantes-box{
+  display:none;
+  margin:0 12px 10px;
+  background:rgba(255,214,0,.04);
+  border:1px solid rgba(255,214,0,.15);
+  border-radius:8px;padding:10px 12px;
+}
+.variantes-box.open{display:block}
+.variantes-title{
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;
+  color:var(--yel);margin-bottom:6px;
+}
+.variante-item{
+  font-size:11.5px;color:var(--dim);line-height:1.6;padding:3px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.variante-item:last-child{border-bottom:none}
+.variante-item strong{color:var(--txt);}
+
+/* ── PLANNING TAB ──────────────────────────────────────── */
+#page-planning{
+  --acc:#A259FF;--acc2:#6B2FBF;--acc-r:162,89,255;
+}
+.week-grid{
+  padding:14px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.day-card{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:12px;overflow:hidden;
+  transition:border-color .2s;
+}
+.day-card.today{border-color:var(--acc)}
+.day-header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px 10px;
+}
+.day-name{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;
+  color:var(--wht);letter-spacing:1px;line-height:1;min-width:90px;
+}
+.day-card.today .day-name{color:var(--acc)}
+.day-badge{
+  flex:1;display:flex;flex-wrap:wrap;gap:5px;
+}
+.badge{
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1.5px;
+  padding:3px 9px;border-radius:20px;
+}
+.badge.foot{background:rgba(0,200,83,.12);color:#00C853;border:1px solid rgba(0,200,83,.3)}
+.badge.salle{background:rgba(41,121,255,.12);color:#448AFF;border:1px solid rgba(41,121,255,.3)}
+.badge.match{background:rgba(255,61,0,.12);color:#FF6D00;border:1px solid rgba(255,61,0,.3)}
+.badge.repos{background:rgba(100,100,100,.1);color:var(--dim);border:1px solid rgba(100,100,100,.2)}
+.badge.opt{background:rgba(162,89,255,.1);color:#A259FF;border:1px solid rgba(162,89,255,.3)}
+.day-today-tag{
+  font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:2px;
+  color:var(--acc);background:rgba(var(--acc-r),.12);
+  border:1px solid rgba(var(--acc-r),.3);
+  padding:2px 7px;border-radius:10px;white-space:nowrap;
+}
+.day-detail{
+  font-size:11.5px;color:var(--dim);
+  padding:0 14px 12px;line-height:1.6;
+}
+.day-detail strong{color:var(--txt)}
+
+.planning-note{
+  margin:0 14px 14px;
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:13px;
+}
+.planning-note-title{
+  font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;
+  color:#A259FF;margin-bottom:7px;
+}
+.planning-note-list{list-style:none;font-size:12px;color:var(--dim);line-height:1.75}
+.planning-note-list li::before{content:'— ';color:#A259FF}
+
+#nav-planning.active{--acc:#A259FF;--acc-r:162,89,255}
+
+
+/* ── VARIANTES ─────────────────────────────────────────── */
+.alt-toggle{
+  display:flex;align-items:center;gap:6px;
+  margin:0 12px 10px;cursor:pointer;
+  font-size:11px;color:var(--dim);
+  background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;
+}
+.alt-toggle:active{opacity:.7}
+.alt-arrow{
+  font-size:10px;transition:transform .2s;display:inline-block;
+}
+.alt-arrow.open{transform:rotate(90deg)}
+.alt-box{
+  display:none;
+  margin:0 12px 10px;
+  background:rgba(255,214,0,.04);
+  border:1px solid rgba(255,214,0,.15);
+  border-radius:6px;padding:9px 11px;
+}
+.alt-box.show{display:block}
+.alt-title{
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;
+  color:var(--yel);margin-bottom:6px;
+}
+.alt-list{list-style:none;font-size:11.5px;color:var(--dim);line-height:1.75}
+.alt-list li::before{content:'→ ';color:var(--yel)}
+
+/* ── PAGE PLANNING ─────────────────────────────────────── */
+#page-planning{
+  --acc:#FFB300;--acc2:#FF6F00;--acc-r:255,179,0;
+}
+.week-grid{
+  display:grid;gap:8px;
+  padding:16px 14px 0;
+}
+.day-card{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:12px;overflow:hidden;
+  transition:border-color .2s;
+}
+.day-card.today{border-color:var(--yel)}
+.day-header{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;
+}
+.day-name{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:var(--wht);letter-spacing:1px;min-width:90px;
+}
+.day-card.today .day-name{color:var(--yel)}
+.day-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;padding:3px 9px;border-radius:20px;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:1px;
+}
+.day-badge.foot{background:rgba(0,200,83,.12);color:#00C853;border:1px solid rgba(0,200,83,.3)}
+.day-badge.gym-j{background:rgba(41,121,255,.12);color:#2979FF;border:1px solid rgba(41,121,255,.3)}
+.day-badge.gym-b{background:rgba(229,57,53,.12);color:#E53935;border:1px solid rgba(229,57,53,.3)}
+.day-badge.gym-d{background:rgba(0,200,83,.12);color:#00C853;border:1px solid rgba(0,200,83,.3)}
+.day-badge.match{background:rgba(255,179,0,.12);color:#FFB300;border:1px solid rgba(255,179,0,.3)}
+.day-badge.rest{background:rgba(100,100,100,.1);color:var(--dim);border:1px solid var(--s4)}
+.day-badge.opt{background:rgba(100,149,237,.1);color:#6495ED;border:1px solid rgba(100,149,237,.25)}
+.day-detail{
+  padding:0 14px 11px;
+  font-size:11.5px;color:var(--dim);line-height:1.6;
+}
+.day-emoji{font-size:16px;flex-shrink:0}
+.today-tag{
+  font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:2px;
+  background:var(--yel);color:#000;padding:2px 7px;border-radius:10px;margin-left:auto;
+}
+
+.planning-header{
+  background:var(--s1);padding:28px 18px 18px;
+  border-bottom:3px solid var(--yel);position:relative;overflow:hidden;
+}
+.planning-header::after{
+  content:'';position:absolute;bottom:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,179,0,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.legend-row{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:12px 14px 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   CALENDRIER MENSUEL
+══════════════════════════════════════════════════════ */
+.cal-header-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 6px;
+}
+.cal-month-title{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;
+  color:var(--wht);letter-spacing:2px;
+}
+.cal-month-title span{color:#FFB300;font-size:14px;margin-left:6px}
+.cal-nav-btn{
+  background:var(--s2);border:1px solid var(--s4);color:var(--wht);
+  width:36px;height:36px;border-radius:8px;cursor:pointer;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.cal-nav-btn:active{background:var(--s3)}
+.cal-nav-group{display:flex;gap:6px;align-items:center}
+.cal-rules-btn{
+  background:var(--s2);border:1px solid var(--s4);
+  width:36px;height:36px;border-radius:8px;cursor:pointer;
+  font-size:15px;color:#FFB300;
+  display:flex;align-items:center;justify-content:center;
+}
+.cal-today-btn{
+  background:rgba(255,179,0,.12);color:#FFB300;
+  border:1px solid rgba(255,179,0,.3);
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.5px;
+  padding:0 12px;height:36px;border-radius:8px;cursor:pointer;
+}
+
+/* Weekday header (Lu Ma Me ...) */
+.cal-weekdays{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  padding:8px 12px 4px;gap:3px;
+}
+.cal-wd{
+  text-align:center;font-family:'Bebas Neue',sans-serif;
+  font-size:10px;letter-spacing:1.5px;color:var(--dim);
+  padding:4px 0;
+}
+
+/* Grille principale */
+.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:3px;padding:0 12px;
+}
+.cal-cell{
+  aspect-ratio:1/1.05;
+  background:var(--s2);border:1px solid var(--s3);
+  border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:3px 2px;position:relative;
+  transition:border-color .15s,background .15s;
+}
+.cal-cell.empty{background:transparent;border:none}
+.cal-cell.today{border-color:#FFB300;background:rgba(255,179,0,.06)}
+.cal-cell.done{background:rgba(0,200,83,.08);border-color:rgba(0,200,83,.35)}
+
+.cal-day-num{
+  font-family:'Bebas Neue',sans-serif;font-size:12px;
+  color:var(--txt);line-height:1;margin-top:1px;
+}
+.cal-cell.today .cal-day-num{color:#FFB300}
+.cal-cell.weekend .cal-day-num{color:var(--dim)}
+
+.cal-icon{
+  font-size:13px;line-height:1;
+}
+.cal-cell.no-icon .cal-icon{visibility:hidden}
+
+/* Mini checkbox dans la cellule */
+.cal-check{
+  width:14px;height:14px;border-radius:50%;
+  border:1.5px solid var(--s4);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;
+}
+.cal-check.done{background:#00C853;border-color:#00C853}
+.cal-check.done::after{content:'✓';color:#000;font-size:9px;font-weight:700;line-height:1}
+.cal-cell.no-icon .cal-check{visibility:hidden}
+
+
+/* ── BARRE PROGRESSION MENSUELLE ───────────────────── */
+.cal-month-prog{
+  padding:10px 14px 4px;
+}
+.cal-month-prog-top{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:5px;
+}
+.cal-month-prog-label{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:2px;color:var(--dim);
+}
+.cal-month-prog-count{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;
+  color:#FFB300;
+}
+.cal-month-prog-bar{
+  height:6px;background:var(--s3);border-radius:3px;overflow:hidden;
+  border:1px solid var(--s4);
+}
+.cal-month-prog-fill{
+  height:100%;
+  background:linear-gradient(90deg,#E65100,#FFB300);
+  border-radius:3px;
+  transition:width .5s ease;
+  min-width:0%;
+}
+
+/* ══════════════════════════════════════════════════════
+   WEIGHT TRACKER
+══════════════════════════════════════════════════════ */
+.weight-tracker{
+  margin:0 12px 12px;
+  background:var(--s3);
+  border:1px solid var(--s4);
+  border-radius:8px;
+  padding:10px 12px;
+}
+.weight-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;
+}
+.weight-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:12px;letter-spacing:2px;
+  color:var(--acc);flex:1;
+}
+.weight-date{
+  font-size:10px;color:var(--dim);
+}
+.weight-save-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1px;
+  background:rgba(var(--acc-r),.15);color:var(--acc);
+  border:1px solid rgba(var(--acc-r),.3);
+  padding:5px 12px;border-radius:6px;cursor:pointer;
+  transition:background .15s;
+}
+.weight-save-btn:active{background:rgba(var(--acc-r),.35)}
+.weight-row{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:5px;
+}
+.weight-row:last-of-type{margin-bottom:0}
+.weight-set-lbl{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  color:var(--dim);min-width:22px;
+}
+.weight-btn{
+  width:32px;height:32px;border-radius:6px;
+  background:var(--s4);border:none;color:var(--wht);
+  font-size:20px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .1s;line-height:1;
+}
+.weight-btn:active{background:var(--acc);color:#000}
+.weight-input{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:var(--wht);text-align:center;
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:6px;padding:2px 4px;
+  width:54px;height:32px;
+  -moz-appearance:textfield;
+}
+.weight-input::-webkit-inner-spin-button,
+.weight-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.weight-input:focus{outline:none;border-color:var(--acc)}
+.weight-unit{font-size:11px;color:var(--dim);min-width:16px}
+.weight-last{
+  font-size:10px;color:var(--dim);font-style:italic;
+  flex:1;text-align:right;white-space:nowrap;
+}
+.weight-last.up{color:#00C853}
+.weight-last.down{color:#E53935}
+.weight-saved-msg{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:2px;color:var(--acc);
+  text-align:center;padding-top:7px;
+  border-top:1px solid var(--s4);margin-top:7px;
+  display:none;
+}
+/* ══════════════════════════════════════════════════════
+   POPUP LEXIQUE / RÈGLES
+══════════════════════════════════════════════════════ */
+#rules-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,8,8,.85);z-index:400;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+#rules-modal.show{display:flex}
+.rules-content{
+  background:var(--s1);border:1px solid var(--s4);
+  border-radius:14px;max-width:420px;width:100%;
+  max-height:85vh;overflow-y:auto;
+  padding:18px;
+  -webkit-overflow-scrolling:touch;
+}
+.rules-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--s4);
+}
+.rules-title{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  color:#FFB300;letter-spacing:2px;
+}
+.rules-close{
+  background:var(--s3);border:none;color:var(--dim);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;
+}
+.rules-section{margin-bottom:16px}
+.rules-section:last-child{margin-bottom:0}
+.rules-section-title{
+  font-family:'Bebas Neue',sans-serif;font-size:12px;
+  letter-spacing:2px;color:#FFB300;margin-bottom:7px;
+}
+.legend-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.rules-list{list-style:none;font-size:12px;color:var(--dim);line-height:1.7}
+.rules-list li::before{content:'— ';color:#FFB300}
+.rules-list strong{color:var(--txt)}
+
+/* Cacher l'ancien header de planning */
+#page-planning .planning-header,
+#page-planning .legend-row,
+#page-planning .week-grid,
+#page-planning .planning-note{display:none}
+
+/* Container du calendrier */
+.cal-wrap{padding-top:14px}
+.cal-mini-header{
+  background:var(--s1);
+  padding:18px 16px 8px;
+  border-bottom:2px solid #FFB300;
+  position:relative;overflow:hidden;
+}
+.cal-mini-header::after{
+  content:'';position:absolute;bottom:-50px;right:-50px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,179,0,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cal-mini-tag{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;
+  color:#FFB300;border:1px solid rgba(255,179,0,.4);
+  padding:3px 10px;border-radius:2px;display:inline-block;margin-bottom:8px;
+}
+.cal-mini-title{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;
+  color:var(--wht);letter-spacing:2px;line-height:1;
+}
+.cal-mini-title span{color:#FFB300}
+.cal-mini-sub{font-size:11.5px;color:var(--dim);margin-top:4px}
+
+/* Weight dans focus mode */
+.focus-weight-row{
+  display:flex;align-items:center;gap:5px;margin:0 8px;
+}
+.focus-weight-row .weight-btn{
+  width:28px;height:28px;font-size:16px;
+}
+.focus-weight-row .weight-input{
+  width:48px;height:28px;font-size:16px;
+}
+.focus-weight-row .weight-unit{
+  font-size:10px;
+}
+
+/* ══════════════════════════════════════════════════════
+   SCHÉMA POPUP
+══════════════════════════════════════════════════════ */
+#schema-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,8,8,.92);z-index:500;
+  align-items:center;justify-content:center;
+  padding:16px;
+}
+#schema-modal.show{display:flex}
+.schema-content{
+  background:var(--s1);border:1px solid var(--s4);
+  border-radius:14px;max-width:360px;width:100%;
+  overflow:hidden;
+}
+.schema-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px 10px;border-bottom:1px solid var(--s4);
+}
+.schema-ex-name{
+  font-family:'Bebas Neue',sans-serif;font-size:15px;
+  color:var(--wht);letter-spacing:1px;line-height:1.1;flex:1;
+}
+.schema-close{
+  background:var(--s3);border:none;color:var(--dim);
+  width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:15px;
+  flex-shrink:0;
+}
+#schema-svg-wrap{
+  background:var(--s2);padding:8px;
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:1px solid var(--s4);
+}
+#schema-svg-wrap svg{max-width:100%;height:auto;max-height:200px}
+.schema-points{padding:10px 14px 14px}
+.schema-point{
+  display:flex;gap:8px;align-items:flex-start;
+  font-size:11.5px;color:var(--dim);line-height:1.5;
+  margin-bottom:5px;
+}
+.schema-point:last-child{margin-bottom:0}
+.schema-point-num{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  color:var(--acc);flex-shrink:0;line-height:1.3;min-width:14px;
+}
+.schema-btn{
+  background:none;border:none;color:var(--dim);
+  font-size:14px;cursor:pointer;padding:2px 4px;
+  flex-shrink:0;line-height:1;transition:color .15s;
+}
+.schema-btn:hover,.schema-btn:active{color:var(--acc)}
+
+/* ── NAV 5 COLONNES ────────────────────────────────── */
+#nav{ grid-template-columns:repeat(5,1fr) }
+.nav-btn span{ font-size:9px; letter-spacing:.3px }
+#nav-biblio.active{ --acc:#A259FF; --acc-r:162,89,255 }
+
+/* ══════════════════════════════════════════════════════
+   BIBLIOTHÈQUE
+══════════════════════════════════════════════════════ */
+.lib-header{
+  background:var(--s1);padding:26px 16px 16px;
+  border-bottom:3px solid #A259FF;position:relative;overflow:hidden;
+}
+.lib-header::after{
+  content:'';position:absolute;bottom:-50px;right:-50px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(162,89,255,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.lib-tag{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;
+  color:#A259FF;border:1px solid rgba(162,89,255,.4);
+  padding:3px 10px;border-radius:2px;display:inline-block;margin-bottom:8px;
+}
+.lib-title{
+  font-family:'Bebas Neue',sans-serif;font-size:38px;
+  color:var(--wht);letter-spacing:2px;line-height:1;
+}
+.lib-title span{color:#A259FF}
+.lib-subtitle{font-size:12px;color:var(--dim);margin-top:5px}
+
+/* Stats rapides */
+.lib-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--s4);
+  border-bottom:1px solid var(--s4);
+}
+.lib-stat{background:var(--s2);padding:10px 6px;text-align:center}
+.lib-stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#A259FF;line-height:1}
+.lib-stat-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* Pills groupes */
+.lib-pills-wrap{
+  padding:12px 14px 8px;
+  overflow-x:auto;white-space:nowrap;
+  -webkit-overflow-scrolling:touch;
+}
+.lib-pills-wrap::-webkit-scrollbar{display:none}
+.lib-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.5px;
+  padding:5px 12px;border-radius:20px;margin-right:6px;
+  border:1px solid var(--s4);background:var(--s2);
+  color:var(--dim);cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.lib-pill.active{
+  background:rgba(162,89,255,.15);
+  color:#A259FF;border-color:rgba(162,89,255,.4);
+}
+.lib-pill-count{
+  font-size:9px;background:var(--s3);
+  padding:1px 5px;border-radius:10px;
+}
+.lib-pill.active .lib-pill-count{background:rgba(162,89,255,.2)}
+
+/* Searchbar */
+.lib-search-wrap{padding:0 14px 10px}
+.lib-search{
+  width:100%;background:var(--s2);border:1px solid var(--s4);
+  border-radius:8px;padding:9px 12px;color:var(--txt);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  outline:none;
+}
+.lib-search::placeholder{color:var(--dim)}
+.lib-search:focus{border-color:rgba(162,89,255,.5)}
+
+/* Section groupe */
+.lib-group-label{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:3px;color:var(--dim);
+  padding:6px 14px 4px;
+  display:flex;align-items:center;gap:8px;
+}
+.lib-group-label::after{content:'';flex:1;height:1px;background:var(--s4)}
+
+/* Carte exercice */
+.lib-card{
+  display:flex;align-items:center;gap:12px;
+  background:var(--s2);border:1px solid var(--s3);
+  border-radius:10px;margin:0 14px 8px;
+  padding:10px 12px;cursor:pointer;
+  transition:border-color .15s,background .15s;
+}
+.lib-card:active{background:var(--s3);border-color:rgba(162,89,255,.4)}
+.lib-thumb{
+  width:56px;height:56px;border-radius:7px;
+  overflow:hidden;background:var(--s3);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.lib-thumb img{width:100%;height:100%;object-fit:cover}
+.lib-thumb-placeholder{font-size:22px;line-height:1}
+.lib-info{flex:1;min-width:0}
+.lib-name{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;
+  color:var(--wht);letter-spacing:.5px;line-height:1.1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lib-equip{
+  display:inline-block;
+  font-size:10px;color:var(--dim);
+  background:var(--s3);border-radius:4px;
+  padding:1px 6px;margin-top:3px;
+}
+.lib-focus{font-size:10.5px;color:var(--dim);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lib-arrow{
+  font-size:18px;color:var(--s4);filter:brightness(3);
+  flex-shrink:0;
+}
+
+/* Empty state */
+.lib-empty{
+  text-align:center;padding:40px 20px;
+  color:var(--dim);font-size:13px;
+}
+.lib-empty-icon{font-size:36px;margin-bottom:8px}
+
+/* ══ POPUP DÉTAIL EXERCICE ═══════════════════════════ */
+#lib-detail-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,8,8,.92);z-index:600;
+  align-items:flex-end;justify-content:center;
+}
+#lib-detail-modal.show{display:flex}
+.lib-detail-sheet{
+  background:var(--s1);border-radius:16px 16px 0 0;
+  width:100%;max-width:480px;
+  max-height:88vh;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.lib-detail-handle{
+  width:36px;height:4px;background:var(--s4);
+  border-radius:2px;margin:10px auto 6px;
+}
+.lib-detail-head{
+  padding:8px 16px 12px;
+  border-bottom:1px solid var(--s4);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.lib-detail-thumb{
+  width:70px;height:70px;border-radius:8px;
+  overflow:hidden;background:var(--s3);flex-shrink:0;
+}
+.lib-detail-thumb img{width:100%;height:100%;object-fit:cover}
+.lib-detail-meta{flex:1}
+.lib-detail-group{
+  font-size:10px;color:#A259FF;letter-spacing:2px;
+  font-family:'Bebas Neue',sans-serif;margin-bottom:3px;
+}
+.lib-detail-name{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;
+  color:var(--wht);letter-spacing:.5px;line-height:1.1;
+}
+.lib-detail-equip{
+  display:inline-block;font-size:11px;color:var(--dim);
+  background:var(--s3);border-radius:5px;padding:2px 8px;margin-top:4px;
+}
+.lib-detail-close{
+  background:var(--s3);border:none;color:var(--dim);
+  width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;
+  flex-shrink:0;
+}
+.lib-detail-img{
+  width:100%;max-height:200px;object-fit:contain;
+  background:var(--s2);padding:8px;display:block;
+  border-bottom:1px solid var(--s4);
+}
+.lib-detail-body{padding:14px 16px 20px}
+.lib-detail-focus{
+  font-size:12px;color:#A259FF;margin-bottom:10px;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:1px;
+}
+.lib-detail-pts{margin-bottom:12px}
+.lib-detail-pt{
+  display:flex;gap:8px;font-size:12px;color:var(--dim);
+  line-height:1.5;margin-bottom:5px;
+}
+.lib-detail-pt-num{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  color:#A259FF;min-width:14px;
+}
+.lib-detail-tip{
+  background:rgba(162,89,255,.06);border-left:2px solid #7B3FBE;
+  padding:9px 12px;border-radius:0 7px 7px 0;
+  font-size:12px;color:var(--dim);line-height:1.55;
+}
+.lib-detail-tip strong{color:#A259FF;font-weight:600}
+.lib-rest-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.5px;
+  color:#A259FF;background:rgba(162,89,255,.1);
+  border:1px solid rgba(162,89,255,.3);padding:4px 10px;
+  border-radius:20px;margin-bottom:10px;
+}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080808">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FootGym">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: JAMBES
+══════════════════════════════════════════════════════════ -->
+<div id="scroll-area">
+<div class="tab-page active" id="page-jambes" data-tab="jambes">
+
+  <div class="app-header">
+    <div class="hdr-top">
+      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-badge">MODÉRÉ</div>
+    </div>
+    <div class="hdr-title">SÉANCE <span>JAMBES</span></div>
+    <div class="hdr-sub">Maintien de condition physique · Salle de sport</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">~70'</div><div class="stat-label">Durée</div></div>
+    <div class="stat"><div class="stat-val">9</div><div class="stat-label">Exercices</div></div>
+    <div class="stat"><div class="stat-val">Mod.</div><div class="stat-label">Intensité</div></div>
+    <div class="stat"><div class="stat-val">48h</div><div class="stat-label">Récup</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Progression</span><span id="j-prog-txt">0 / 9</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="j-prog-fill"></div></div>
+  </div>
+
+  <!-- ÉCHAUFFEMENT -->
+  <div class="section">
+    <div class="sec-title">Échauffement</div>
+    <div class="phase warmup"><div class="phase-dot"></div>10 minutes</div>
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">1</div>
+        <div class="ex-info"><div class="ex-name">Vélo ou Tapis</div><div class="ex-focus">Activation cardiovasculaire · Mobilisation articulations</div></div>
+        <div class="ex-metrics"><div class="metric"><div class="metric-val">10'</div><div class="metric-label">Durée</div></div></div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Allure :</strong> rythme modéré, montée progressive. Finir les 2 dernières minutes avec une légère accélération pour activer le système neuromusculaire.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Velo_ou_Tapis')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Velo_ou_Tapis"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de cardio machine :</strong> 10' de corde à sauter ou montées de genoux sur place</div><div class="variante-item"><strong>Rameur :</strong> 10' rameur allure légère, active aussi le dos</div></div>
+    </div>
+  </div>
+
+  <!-- FORCE -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Force & Puissance</div>
+    <div class="phase main"><div class="phase-dot"></div>35 minutes</div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">2</div>
+        <div class="ex-info"><div class="ex-name">Squat Goblet</div><div class="ex-focus">Quadriceps · Fessiers · Gainage</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> descente lente (3s), remontée explosive. Simule l'impulsion au saut. Haltère ou kettlebell contre la poitrine. Récup 75s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Squat_Goblet')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Squat_Goblet"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de kettlebell :</strong> Barre en goblet ou haltère classique tenu à deux mains</div><div class="variante-item"><strong>Trop lourd :</strong> Squat poids de corps avec pause 3s en bas</div><div class="variante-item"><strong>Matériel limité :</strong> Squat sauté sans charge, focus explosivité</div></div>
+    </div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">3</div>
+        <div class="ex-info"><div class="ex-name">Fentes Marchées</div><div class="ex-focus">Quadriceps · Fessiers · Stabilité latérale</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10/j</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> imite les accélérations et changements de direction. Haltères en main, genou avant à 90°, genou arrière effleure le sol. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Fentes_Marchees')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Fentes_Marchees"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas d'espace :</strong> Fentes statiques sur place, même bénéfice</div><div class="variante-item"><strong>Genou douloureux :</strong> Step-up lent sur banc, même muscles, moins de stress articulaire</div><div class="variante-item"><strong>Trop facile :</strong> Ajouter haltères ou Bulgarian split squat</div></div>
+    </div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">4</div>
+        <div class="ex-info"><div class="ex-name">Leg Press Unilatéral</div><div class="ex-focus">Quadriceps · Ischio · Correction asymétries</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10/j</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> une jambe à la fois pour corriger les déséquilibres droite/gauche. Charge modérée. Pied haut sur la plateforme. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Leg_Press_Unilateral')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Leg_Press_Unilateral"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de leg press :</strong> Pistol squat assisté à la barre/TRX</div><div class="variante-item"><strong>Machine occupée :</strong> Fentes bulgares avec haltères, équivalent unilatéral</div><div class="variante-item"><strong>Débutant :</strong> Leg press bilateral d'abord, puis progresser</div></div>
+    </div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">5</div>
+        <div class="ex-info"><div class="ex-name">Romanian Deadlift</div><div class="ex-focus">Ischio-jambiers · Fessiers · Prévention blessures</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Priorité blessures :</strong> renforce les ischio-jambiers, muscle le plus touché au foot. Barre ou haltères, dos droit, descente jusqu'à léger étirement. Récup 90s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Romanian_Deadlift')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Romanian_Deadlift"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de barre :</strong> RDL avec haltères, même mouvement</div><div class="variante-item"><strong>Lombaires sensibles :</strong> Good morning avec élastique, version allégée</div><div class="variante-item"><strong>Avancé :</strong> RDL unilatéral sur une jambe, meilleur pour l'équilibre</div></div>
+    </div>
+  </div>
+
+  <!-- EXPLOSIVITÉ -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Explosivité & Spécifique</div>
+    <div class="phase finish"><div class="phase-dot"></div>15 minutes</div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">6</div>
+        <div class="ex-info"><div class="ex-name">Step-up Explosif</div><div class="ex-focus">Explosivité · Puissance unipodal</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">8/j</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> montée explosive sur banc/step, genou montant haut. Simule la foulée en sprint. Haltères légers ou poids de corps. Récup 45s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Step-up_Explosif')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Step-up_Explosif"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de step/banc :</strong> Box jump au sol, focus réception souple</div><div class="variante-item"><strong>Genou fragile :</strong> Step-up lent et contrôlé sans phase explosive</div><div class="variante-item"><strong>Avancé :</strong> Step-up avec saut et changement de jambe en l'air</div></div>
+    </div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">7</div>
+        <div class="ex-info"><div class="ex-name">Mollets Debout</div><div class="ex-focus">Soléaire · Gastrocnémiens · Propulsion</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> crucial pour les démarrages et la course. Amplitude complète, pause 1s en haut. Machine mollets ou Smith. Récup 45s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Mollets_Debout')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Mollets_Debout"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de machine :</strong> Mollets sur une marche d'escalier, poids de corps</div><div class="variante-item"><strong>Charge légère disponible :</strong> Mollets unilatéraux sur marche, haltère dans une main</div><div class="variante-item"><strong>Avancé :</strong> Mollets unilatéraux, 3s de descente excentrique</div></div>
+    </div>
+
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">8</div>
+        <div class="ex-info"><div class="ex-name">Hip Thrust</div><div class="ex-focus">Fessiers · Extension hanche · Vitesse</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> les fessiers sont le moteur de la vitesse. Dos sur banc, barre sur bassin, poussée explosive. Serrer les fessiers 1s en haut. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Hip_Thrust')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Hip_Thrust"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de barre :</strong> Hip thrust avec haltère posé sur le bassin</div><div class="variante-item"><strong>Pas de banc :</strong> Glute bridge au sol, même muscles</div><div class="variante-item"><strong>Avancé :</strong> Hip thrust unilatéral, une jambe tendue</div></div>
+    </div>
+  </div>
+
+  <!-- RÉCUP -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Récupération Active</div>
+    <div class="phase cool"><div class="phase-dot"></div>10 minutes</div>
+    <div class="card" data-group="jambes">
+      <div class="card-header">
+        <div class="ex-num">9</div>
+        <div class="ex-info"><div class="ex-name">Étirements Statiques</div><div class="ex-focus">Quadri · Ischio · Fessiers · Mollets</div></div>
+        <div class="ex-metrics"><div class="metric"><div class="metric-val">30s</div><div class="metric-label">/muscle</div></div></div>
+        <div class="cb" onclick="toggle(this,'jambes')"></div>
+      </div>
+      <div class="tip"><strong>Ordre :</strong> quadriceps debout · fente basse ischio · pigeon fessier · mollet sur marche. Ne pas sauter les étirements — récupération = prochaine séance.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Étirements_Statiques')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Étirements_Statiques"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de temps :</strong> 5 min minimum : quadri + ischio seulement</div><div class="variante-item"><strong>Douleurs :</strong> Étirements en piscine ou bain chaud après</div></div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <div class="note-title">⚡ Conseils Football</div>
+    <ul class="note-list">
+      <li>Hydratation : minimum 500ml pendant la séance</li>
+      <li>Fréquence : 1 à 2 fois/semaine max</li>
+      <li>Progressivité : +5% de charge tous les 10 jours</li>
+      <li>Récup : 48h minimum avant un match ou entraînement intensif</li>
+      <li>Douleur ischio-jambiers → arrêter RDL, consulter kiné</li>
+    </ul>
+  </div>
+  <div style="height:14px"></div>
+</div><!-- /page-jambes -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: BACK
+══════════════════════════════════════════════════════════ -->
+<div class="tab-page" id="page-back" data-tab="back">
+
+  <div class="app-header">
+    <div class="hdr-top">
+      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-badge">MODÉRÉ</div>
+    </div>
+    <div class="hdr-title">SÉANCE <span>BACK</span></div>
+    <div class="hdr-sub">Dos, trapèzes & gainage postérieur · Salle de sport</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">~65'</div><div class="stat-label">Durée</div></div>
+    <div class="stat"><div class="stat-val">9</div><div class="stat-label">Exercices</div></div>
+    <div class="stat"><div class="stat-val">Mod.</div><div class="stat-label">Intensité</div></div>
+    <div class="stat"><div class="stat-val">48h</div><div class="stat-label">Récup</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Progression</span><span id="b-prog-txt">0 / 9</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="b-prog-fill"></div></div>
+  </div>
+
+  <!-- ÉCHAUFFEMENT -->
+  <div class="section">
+    <div class="sec-title">Échauffement</div>
+    <div class="phase warmup"><div class="phase-dot"></div>8 minutes</div>
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">1</div>
+        <div class="ex-info"><div class="ex-name">Rameur Ergomètre</div><div class="ex-focus">Activation dos complet · Mobilisation épaules</div></div>
+        <div class="ex-metrics"><div class="metric"><div class="metric-val">8'</div><div class="metric-label">Durée</div></div></div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Pourquoi le rameur :</strong> active tous les muscles du dos en douceur avant de charger. Rythme léger, focus sur la traction des coudes vers l'arrière. Si pas de rameur → vélo + 20 arm circles.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Rameur_Ergometre')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Rameur_Ergometre"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de rameur :</strong> Vélo 8' + 20 arm circles + 10 push-up genoux</div><div class="variante-item"><strong>Autre option :</strong> Tirage élastique debout, 3×20 avant de charger</div></div>
+    </div>
+  </div>
+
+  <!-- TIRAGE -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Tirage & Largeur</div>
+    <div class="phase main"><div class="phase-dot"></div>30 minutes</div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">2</div>
+        <div class="ex-info"><div class="ex-name">Tirage Poulie Haute</div><div class="ex-focus">Grand dorsal · Biceps · Rétraction omoplates</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> stabilité des épaules pour les duels. Prise large pronation, tirer vers le sternum, coudes bas et vers l'arrière. Récup 75s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Tirage_Poulie_Haute')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Tirage_Poulie_Haute"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de machine :</strong> Tractions assistées en bande élastique</div><div class="variante-item"><strong>Trop lourd :</strong> Prise neutre (paumes face à face), plus facile</div><div class="variante-item"><strong>Avancé :</strong> Tractions lestées prise large</div></div>
+    </div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">3</div>
+        <div class="ex-info"><div class="ex-name">Tirage Horizontal Câble</div><div class="ex-focus">Grand dorsal moyen · Rhomboïdes · Posture</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> corrige la posture voûtée typique des footeux. Tirer vers le nombril, serrer les omoplates en fin de mouvement, ne pas basculer le buste. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Tirage_Horizontal_Cable')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Tirage_Horizontal_Cable"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de câble :</strong> Rowing avec haltères couché sur banc incliné</div><div class="variante-item"><strong>Alternative :</strong> Élastique de résistance tiré vers soi assis au sol</div><div class="variante-item"><strong>Avancé :</strong> Rowing barre en pronation, prise plus large</div></div>
+    </div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">4</div>
+        <div class="ex-info"><div class="ex-name">Rowing Haltère Unilatéral</div><div class="ex-focus">Grand dorsal · Correction asymétrie</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10/c</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> le côté dominant crée des déséquilibres. Main sur banc, coude tiré haut, haltère longe le flanc. Commencer par le côté faible. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Rowing_Haltere_Unilateral')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Rowing_Haltere_Unilateral"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Haltère trop lourd :</strong> Réduire et focus sur la contraction dorsale</div><div class="variante-item"><strong>Variante :</strong> Rowing câble unilatéral, meilleure tension constante</div><div class="variante-item"><strong>Avancé :</strong> Rowing barre Yates (légèrement incliné)</div></div>
+    </div>
+  </div>
+
+  <!-- TRAPÈZES -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Trapèzes & Lombaires</div>
+    <div class="phase main"><div class="phase-dot"></div>20 minutes</div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">5</div>
+        <div class="ex-info"><div class="ex-name">Shrugs Haltères</div><div class="ex-focus">Trapèzes supérieurs · Protection cervicale</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> absorbe les chocs sur les jeux de tête et contacts. Hausse lente, maintien 1s en haut, descente contrôlée. Pas de rotation des épaules. Récup 45s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Shrugs_Halteres')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Shrugs_Halteres"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas d'haltères lourds :</strong> Shrugs à la barre ou au multipower</div><div class="variante-item"><strong>Alternative :</strong> Élévations d'épaules avec élastique, charge progressive</div><div class="variante-item"><strong>Douleur cou :</strong> Supprimer et remplacer par face pull</div></div>
+    </div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">6</div>
+        <div class="ex-info"><div class="ex-name">Extensions Lombaires</div><div class="ex-focus">Érecteurs spinaux · Stabilité colonne</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Priorité prévention :</strong> lombalgies fréquentes au foot. Machine à lombaires ou GHD, mouvement lent et contrôlé. Poids de corps d'abord. Récup 60s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Extensions_Lombaires')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Extensions_Lombaires"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de machine :</strong> Superman au sol, 3×15</div><div class="variante-item"><strong>Alternative :</strong> Good morning barre légère, même pattern</div><div class="variante-item"><strong>Douleur lombaire :</strong> Remplacer par bird-dog uniquement</div></div>
+    </div>
+
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">7</div>
+        <div class="ex-info"><div class="ex-name">Face Pull Câble</div><div class="ex-focus">Deltoïdes postérieurs · Coiffe des rotateurs</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Santé épaules :</strong> protège la coiffe pour les relances et les duels. Câble à hauteur visage, corde, tirer vers le front en ouvrant les coudes. Récup 45s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Face_Pull_Cable')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Face_Pull_Cable"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de câble :</strong> Élastique accroché à hauteur visage, même mouvement</div><div class="variante-item"><strong>Alternative :</strong> Oiseau inversé avec haltères légers sur banc incliné</div><div class="variante-item"><strong>Avancé :</strong> Face pull + rotation externe, meilleur pour la coiffe</div></div>
+    </div>
+  </div>
+
+  <!-- GAINAGE -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Gainage Postérieur</div>
+    <div class="phase finish"><div class="phase-dot"></div>7 minutes</div>
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">8</div>
+        <div class="ex-info"><div class="ex-name">Bird-Dog</div><div class="ex-focus">Chaîne postérieure · Coordination</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">12/c</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> coordination bras/jambe opposés = pattern de course. Étendre bras droit + jambe gauche simultanément, maintien 2s. Colonne neutre. Récup 30s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Bird-Dog')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Bird-Dog"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Trop facile :</strong> Ajouter élastique aux poignets/chevilles</div><div class="variante-item"><strong>Difficile :</strong> Commencer par extension d'un seul membre à la fois</div><div class="variante-item"><strong>Variante :</strong> Dead bug au sol, même pattern neurologique</div></div>
+    </div>
+  </div>
+
+  <!-- RÉCUP -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Récupération Active</div>
+    <div class="phase cool"><div class="phase-dot"></div>8 minutes</div>
+    <div class="card" data-group="back">
+      <div class="card-header">
+        <div class="ex-num">9</div>
+        <div class="ex-info"><div class="ex-name">Étirements Dos & Épaules</div><div class="ex-focus">Grand dorsal · Trapèzes · Rhomboïdes</div></div>
+        <div class="ex-metrics"><div class="metric"><div class="metric-val">30s</div><div class="metric-label">/muscle</div></div></div>
+        <div class="cb" onclick="toggle(this,'back')"></div>
+      </div>
+      <div class="tip"><strong>Ordre :</strong> grand dorsal accroché barre · cat-cow 10 reps · cross-body épaule · child pose 60s. Foam roller si disponible.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Étirements_Dos__Épaules')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Étirements_Dos__Épaules"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de temps :</strong> 3 min minimum : grand dorsal + épaule croisée</div><div class="variante-item"><strong>Douleurs :</strong> Étirement en suspension à la barre, 3×20s</div></div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <div class="note-title">💡 Pourquoi le dos au football</div>
+    <ul class="note-list">
+      <li>Le dos stabilise le buste dans les sprints, duels et changements de direction</li>
+      <li>Dos faible = puissance perdue dans la chaîne cinétique bras→jambes</li>
+      <li>Les lombaires protègent contre les blessures musculaires fréquentes</li>
+      <li>Éviter dans les 48h précédant un match ou entraînement intensif</li>
+    </ul>
+  </div>
+  <div style="height:14px"></div>
+</div><!-- /page-back -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: BRAS & PECS
+══════════════════════════════════════════════════════════ -->
+<div class="tab-page" id="page-bras" data-tab="bras">
+
+  <div class="app-header">
+    <div class="hdr-top">
+      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-badge">MODÉRÉ</div>
+    </div>
+    <div class="hdr-title">BRAS <span>&</span> PECS</div>
+    <div class="hdr-sub">Pectoraux, biceps, triceps & épaules · Salle de sport</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">~65'</div><div class="stat-label">Durée</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">Exercices</div></div>
+    <div class="stat"><div class="stat-val">Mod.</div><div class="stat-label">Intensité</div></div>
+    <div class="stat"><div class="stat-val">48h</div><div class="stat-label">Récup</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Progression</span><span id="p-prog-txt">0 / 10</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="p-prog-fill"></div></div>
+  </div>
+
+  <!-- ÉCHAUFFEMENT -->
+  <div class="section">
+    <div class="sec-title">Échauffement</div>
+    <div class="phase warmup"><div class="phase-dot"></div>8 minutes</div>
+    <div class="card" data-group="bras">
+      <div class="card-header">
+        <div class="ex-num">1</div>
+        <div class="ex-info"><div class="ex-name">Élastiques + Rotations</div><div class="ex-focus">Coiffe des rotateurs · Mobilisation épaules</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3'</div><div class="metric-label">Éla.</div></div>
+          <div class="metric"><div class="metric-val">5'</div><div class="metric-label">Mob.</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'bras')"></div>
+      </div>
+      <div class="tip"><strong>Ordre :</strong> rotations externes élastique (2×15/côté) → arm circles 30s → push-up genoux lent ×10 → étirement pectoral au mur.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Élastiques_+_Rotations')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Élastiques_+_Rotations"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas d'élastique :</strong> Rotations à vide + cercles de bras 30s</div><div class="variante-item"><strong>Variante :</strong> 10 push-up très lents en échauffement des pecs</div></div>
+    </div>
+  </div>
+
+  <!-- PECS -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Pectoraux</div>
+    <div class="phase main"><div class="phase-dot"></div>22 minutes</div>
+
+    <div class="card" data-group="bras">
+      <div class="card-header">
+        <div class="ex-num">2</div>
+        <div class="ex-info"><div class="ex-name">Développé Couché Haltères</div><div class="ex-focus">Pectoraux · Deltoïdes ant. · Triceps</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'bras')"></div>
+      </div>
+      <div class="tip"><strong>Haltères > barre :</strong> amplitude plus grande, plus stable pour les épaules. Descente lente (3s), poussée explosive. Omoplates serrées sur le banc. Récup 90s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Developpe_Couche_Halteres')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Developpe_Couche_Halteres"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de banc :</strong> Développé couché au sol, même exercice</div><div class="variante-item"><strong>Trop lourd :</strong> Réduire et faire 4×15 à charge légère</div><div class="variante-item"><strong>Avancé :</strong> Développé décliné pour cibler les pecs inférieurs</div></div>
+    </div>
+
+    <div class="superset-wrap">
+      <div class="superset-label">SUPERSET</div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">3A</div>
+          <div class="ex-info"><div class="ex-name">Écarté Câble Bas</div><div class="ex-focus">Pectoraux inférieurs · Finition</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Câble bas :</strong> arc vers le haut, bras quasi tendus, contraction forte en haut.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Écarte_Cable_Bas')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Écarte_Cable_Bas"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de câble :</strong> Écarté haltères sur banc plat</div><div class="variante-item"><strong>Variante :</strong> Écarté avec élastique accroché en bas</div><div class="variante-item"><strong>Avancé :</strong> Écarté câble croisé, croiser les mains en haut</div></div>
+      </div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">3B</div>
+          <div class="ex-info"><div class="ex-name">Push-up Lesté / Classique</div><div class="ex-focus">Pectoraux · Gainage central</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">Max</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Enchaîner directement :</strong> 0s repos entre 3A et 3B. 60s après le superset. Corps gainé de la tête aux talons.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Push-up_Leste___Classique')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Push-up_Leste___Classique"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Trop facile :</strong> Mains surélevées pour plus d'amplitude</div><div class="variante-item"><strong>Trop difficile :</strong> Push-up genoux ou sur plan incliné</div><div class="variante-item"><strong>Avancé :</strong> Archer push-up ou push-up avec pause 3s en bas</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉPAULES -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Épaules</div>
+    <div class="phase main"><div class="phase-dot"></div>15 minutes</div>
+
+    <div class="card" data-group="bras">
+      <div class="card-header">
+        <div class="ex-num">4</div>
+        <div class="ex-info"><div class="ex-name">Développé Militaire Haltères</div><div class="ex-focus">Deltoïdes · Stabilité épaule · Duels aériens</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">4</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">10</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'bras')"></div>
+      </div>
+      <div class="tip"><strong>Clé foot :</strong> épaules puissantes = protection dans les duels, équilibre avec contact. Assis, haltères à hauteur d'oreilles, pousser verticalement sans cambrer. Récup 75s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Developpe_Militaire_Halteres')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Developpe_Militaire_Halteres"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Douleur épaule :</strong> Développé Arnold, rotation réduit le stress</div><div class="variante-item"><strong>Variante :</strong> Développé barre devant au multipower</div><div class="variante-item"><strong>Avancé :</strong> Développé strict debout, moins de stabilisation du dos</div></div>
+    </div>
+
+    <div class="card" data-group="bras">
+      <div class="card-header">
+        <div class="ex-num">5</div>
+        <div class="ex-info"><div class="ex-name">Élévations Latérales</div><div class="ex-focus">Deltoïdes médians · Largeur d'épaules</div></div>
+        <div class="ex-metrics">
+          <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+          <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+        </div>
+        <div class="cb" onclick="toggle(this,'bras')"></div>
+      </div>
+      <div class="tip"><strong>Charge légère :</strong> bras quasi tendus, montée jusqu'à l'horizontale, petit doigt vers le haut. Descente lente (3s). Pas d'élan avec le buste. Récup 45s.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Élevations_Laterales')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Élevations_Laterales"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas d'haltères légers :</strong> Élastique accroché latéralement</div><div class="variante-item"><strong>Trop difficile :</strong> Réduire à 2-3kg, le mouvement prime sur la charge</div><div class="variante-item"><strong>Avancé :</strong> Élévations câble pour tension constante</div></div>
+    </div>
+  </div>
+
+  <!-- BICEPS / TRICEPS -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Bloc Biceps & Triceps</div>
+    <div class="phase finish"><div class="phase-dot"></div>15 minutes</div>
+
+    <div class="superset-wrap">
+      <div class="superset-label">SUPERSET</div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">6A</div>
+          <div class="ex-info"><div class="ex-name">Curl Haltères Alterné</div><div class="ex-focus">Biceps · Brachial</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">12/b</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Supination :</strong> tourner le poignet vers l'extérieur en montant, maximise la contraction.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Curl_Halteres_Alterne')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Curl_Halteres_Alterne"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Variante :</strong> Curl barre EZ, moins de stress sur le poignet</div><div class="variante-item"><strong>Avancé :</strong> Curl incliné sur banc, amplitude maximale</div><div class="variante-item"><strong>Pas d'haltères :</strong> Curl à la poulie basse, tension constante</div></div>
+      </div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">6B</div>
+          <div class="ex-info"><div class="ex-name">Triceps Poulie Haute (Corde)</div><div class="ex-focus">Triceps · Extension du coude</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">15</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Enchaîner directement :</strong> coudes fixes aux flancs, pousser la corde vers le bas en écartant en bas. Récup 60s après le superset.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Triceps_Poulie_Haute_Corde')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Triceps_Poulie_Haute_Corde"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de poulie :</strong> Dips banc ou chaise, même muscles</div><div class="variante-item"><strong>Variante :</strong> Extension nuque haltère, long chef du triceps</div><div class="variante-item"><strong>Avancé :</strong> Extension poulie unilatérale, correction asymétries</div></div>
+      </div>
+    </div>
+
+    <div class="superset-wrap">
+      <div class="superset-label">SUPERSET FINITION</div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">7A</div>
+          <div class="ex-info"><div class="ex-name">Curl Marteau</div><div class="ex-focus">Brachioradial · Avant-bras</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">12/b</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Prise neutre</strong> (pouces vers le haut). Renforce l'avant-bras utile pour les contrôles de balle et les contacts.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Curl_Marteau')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Curl_Marteau"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Variante :</strong> Curl marteau câble, tension plus constante</div><div class="variante-item"><strong>Avancé :</strong> Curl marteau incliné, amplitude plus grande</div><div class="variante-item"><strong>Pas d'haltères :</strong> Curl neutre à la poulie basse</div></div>
+      </div>
+      <div class="card" data-group="bras">
+        <div class="card-header">
+          <div class="ex-num">7B</div>
+          <div class="ex-info"><div class="ex-name">Dips Banc</div><div class="ex-focus">Triceps · Deltoïdes ant. · Pecs bas</div></div>
+          <div class="ex-metrics">
+            <div class="metric"><div class="metric-val">3</div><div class="metric-label">Séries</div></div>
+            <div class="metric"><div class="metric-val">12</div><div class="metric-label">Reps</div></div>
+          </div>
+          <div class="cb" onclick="toggle(this,'bras')"></div>
+        </div>
+        <div class="tip"><strong>Enchaîner directement :</strong> mains sur banc, pieds tendus, descendre jusqu'à 90° au coude. Récup 60s après le superset.</div>
+      <button class="variantes-toggle" onclick="toggleVar('Dips_Banc')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Dips_Banc"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Trop facile :</strong> Jambes tendues + haltère sur les cuisses</div><div class="variante-item"><strong>Trop difficile :</strong> Réduire la profondeur de descente</div><div class="variante-item"><strong>Avancé :</strong> Dips entre deux bancs, mouvement complet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÉCUP -->
+  <div class="divider"></div>
+  <div class="section" style="margin-top:14px">
+    <div class="sec-title">Récupération Active</div>
+    <div class="phase cool"><div class="phase-dot"></div>5 minutes</div>
+    <div class="card" data-group="bras">
+      <div class="card-header">
+        <div class="ex-num">10</div>
+        <div class="ex-info"><div class="ex-name">Étirements Pecs & Bras</div><div class="ex-focus">Pectoraux · Biceps · Triceps · Épaules</div></div>
+        <div class="ex-metrics"><div class="metric"><div class="metric-val">30s</div><div class="metric-label">/muscle</div></div></div>
+        <div class="cb" onclick="toggle(this,'bras')"></div>
+      </div>
+      <div class="tip"><strong>Ordre :</strong> pec au mur (30s/côté) · triceps tête (30s/côté) · biceps bras tendu contre mur (20s/côté) · cross-body épaule (20s/côté).</div>
+      <button class="variantes-toggle" onclick="toggleVar('Étirements_Pecs__Bras')">VARIANTES / ALTERNATIVES</button><div class="variantes-box" id="var-Étirements_Pecs__Bras"><div class="variantes-title">🔄 SI PAS D'ÉQUIPEMENT OU VARIANTE</div><div class="variante-item"><strong>Pas de temps :</strong> Pec au mur 30s/côté + triceps tête 20s/côté</div><div class="variante-item"><strong>Douleurs :</strong> Étirements doux à l'élastique</div></div>
+    </div>
+  </div>
+
+
+  <div class="note-box" style="margin-top:14px">
+    <div class="note-title">⚡ Bras & Pecs au football</div>
+    <ul class="note-list">
+      <li>Pecs & épaules = protection dans les duels, équilibre face au contact</li>
+      <li>Bras forts = meilleure conservation de balle sous pression</li>
+      <li>Gardiens : développé + militaire sont prioritaires</li>
+      <li>Charge modérée + tempo contrôlé → résultats optimaux sans surcharger</li>
+      <li>Éviter 48h avant un match — courbatures pectorales gênent les sprints</li>
+    </ul>
+  </div>
+  <div style="height:14px"></div>
+</div><!-- /page-bras -->
+
+<!-- ══ PAGE PLANNING ════════════════════════════════════ -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: PLANNING — CALENDRIER MENSUEL
+══════════════════════════════════════════════════════════ -->
+<div class="tab-page" id="page-planning" data-tab="planning">
+
+  <div class="cal-mini-header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="cal-mini-tag">&#x1F4C5; PLANNING</div>
+        <div class="cal-mini-title">CALEND<span>RIER</span></div>
+        <div class="cal-mini-sub">Vue mensuelle · Cochez vos séances effectuées</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cal-wrap">
+    <div class="cal-header-bar">
+      <div class="cal-nav-group">
+        <button class="cal-nav-btn" onclick="calNav(-1)">&#8249;</button>
+        <button class="cal-today-btn" onclick="calToday()">AUJ.</button>
+        <button class="cal-nav-btn" onclick="calNav(+1)">&#8250;</button>
+      </div>
+      <div class="cal-month-title" id="cal-month-title">—</div>
+      <button class="cal-rules-btn" onclick="openRules()" title="Règles et lexique">&#x2139;</button>
+    </div>
+
+    <div class="cal-month-prog">
+      <div class="cal-month-prog-top">
+        <div class="cal-month-prog-label">JOURS VALIDÉS CE MOIS</div>
+        <div class="cal-month-prog-count" id="cal-prog-count">0 / 0</div>
+      </div>
+      <div class="cal-month-prog-bar"><div class="cal-month-prog-fill" id="cal-prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="cal-weekdays">
+      <div class="cal-wd">LUN</div>
+      <div class="cal-wd">MAR</div>
+      <div class="cal-wd">MER</div>
+      <div class="cal-wd">JEU</div>
+      <div class="cal-wd">VEN</div>
+      <div class="cal-wd">SAM</div>
+      <div class="cal-wd">DIM</div>
+    </div>
+
+    <div class="cal-grid" id="cal-grid"></div>
+    <div style="height:80px"></div>
+  </div>
+
+</div><!-- /page-planning -->
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: BIBLIOTHÈQUE D'EXERCICES
+══════════════════════════════════════════════════════════ -->
+<div class="tab-page" id="page-biblio" data-tab="biblio">
+
+  <div class="lib-header">
+    <div class="lib-tag">📚 Référence</div>
+    <div class="lib-title">BIBLIO<span>THÈQUE</span></div>
+    <div class="lib-subtitle">58 exercices · 7 groupes musculaires</div>
+  </div>
+
+  <div class="lib-stats">
+    <div class="lib-stat"><div class="lib-stat-val">58</div><div class="lib-stat-lbl">Exercices</div></div>
+    <div class="lib-stat"><div class="lib-stat-val">7</div><div class="lib-stat-lbl">Groupes</div></div>
+    <div class="lib-stat"><div class="lib-stat-val">5</div><div class="lib-stat-lbl">Équipements</div></div>
+  </div>
+
+  <!-- Filtres groupes -->
+  <div class="lib-pills-wrap" id="lib-pills"></div>
+
+  <!-- Barre de recherche -->
+  <div class="lib-search-wrap">
+    <input class="lib-search" type="search" placeholder="🔍  Rechercher un exercice..."
+           oninput="filterLibrary(this.value)" id="lib-search-input">
+  </div>
+
+  <!-- Liste exercices -->
+  <div id="lib-list"></div>
+  <div style="height:20px"></div>
+
+</div><!-- /page-biblio -->
+
+<!-- ══ POPUP DÉTAIL EXERCICE BIBLIO ═════════════════════ -->
+<div id="lib-detail-modal" onclick="if(event.target===this)closeLibDetail()">
+  <div class="lib-detail-sheet">
+    <div class="lib-detail-handle"></div>
+    <div class="lib-detail-head">
+      <div class="lib-detail-thumb"><img id="lib-detail-thumb-img" src="" alt=""></div>
+      <div class="lib-detail-meta">
+        <div class="lib-detail-group" id="lib-detail-group">—</div>
+        <div class="lib-detail-name"  id="lib-detail-name">—</div>
+        <div class="lib-detail-equip" id="lib-detail-equip">—</div>
+      </div>
+      <button class="lib-detail-close" onclick="closeLibDetail()">✕</button>
+    </div>
+    <div id="lib-detail-img-wrap" style="background:var(--s2);border-bottom:1px solid var(--s4);min-height:80px;display:flex;align-items:center;justify-content:center">
+      <div style="color:var(--dim);font-size:11px">Chargement...</div>
+    </div>
+    <div class="lib-detail-body">
+      <div class="lib-rest-badge" id="lib-detail-rest">⏱ — s récup</div>
+      <div class="lib-detail-focus" id="lib-detail-focus">—</div>
+      <div class="lib-detail-pts"  id="lib-detail-pts"></div>
+      <div class="lib-detail-tip"  id="lib-detail-tip"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /scroll-area -->
+
+
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: PLANNING — VUE CALENDRIER MENSUEL
+══════════════════════════════════════════════════════════ -->
+
+
+<!-- ══ TIMER OVERLAY ════════════════════════════════════ -->
+<div id="timer-overlay">
+  <div id="timer-ex-name"></div>
+  <div id="timer-label">RÉCUPÉRATION</div>
+  <div id="timer-ring-wrap">
+    <svg width="220" height="220" viewBox="0 0 220 220">
+      <circle id="timer-track" cx="110" cy="110" r="96"/>
+      <circle id="timer-arc"   cx="110" cy="110" r="96"/>
+    </svg>
+    <div id="timer-digits">
+      <div id="timer-count">--</div>
+      <div id="timer-unit">secondes</div>
+    </div>
+  </div>
+  <div id="timer-btns">
+    <button class="timer-btn" id="btn-skip" onclick="timerSkip()">PASSER</button>
+    <button class="timer-btn" id="btn-stop" onclick="timerStop()">ARRÊTER</button>
+  </div>
+</div>
+
+<!-- ══ FOCUS OVERLAY ════════════════════════════════════ -->
+<div id="focus-overlay">
+  <div id="focus-header">
+    <button id="focus-close" onclick="closeFocus()">✕</button>
+    <div id="focus-title-wrap">
+      <div id="focus-tab-label"></div>
+      <div id="focus-ex-title"></div>
+    </div>
+    <div id="focus-counter"></div>
+  </div>
+  <div id="focus-body"></div>
+  <div id="focus-nav">
+    <button class="focus-nav-btn" id="focus-prev" onclick="focusMove(-1)">← PRÉC.</button>
+    <button class="focus-nav-btn" id="focus-next" onclick="focusMove(+1)">SUIV. →</button>
+  </div>
+</div>
+
+
+<!-- ══ MODAL RULES / LEXIQUE ═══════════════════════════ -->
+<div id="rules-modal" onclick="if(event.target===this) closeRules()">
+  <div class="rules-content">
+    <div class="rules-head">
+      <div class="rules-title">RÈGLES & LEXIQUE</div>
+      <button class="rules-close" onclick="closeRules()">✕</button>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">🎯 SÉANCES TYPES</div>
+      <div class="legend-grid">
+        <span class="day-badge gym-j">🦵 Jambes</span>
+        <span class="day-badge gym-d">🔙 Back</span>
+        <span class="day-badge gym-b">💪 Bras/Pecs</span>
+        <span class="day-badge foot">⚽ Foot</span>
+        <span class="day-badge match">🏆 Match</span>
+        <span class="day-badge opt">✦ Optionnel</span>
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">📅 SEMAINE TYPE</div>
+      <ul class="rules-list">
+        <li><strong>Lundi :</strong> 🦵 Jambes (salle)</li>
+        <li><strong>Mardi :</strong> ⚽ Entraînement foot</li>
+        <li><strong>Mercredi :</strong> 🔙 Back (salle)</li>
+        <li><strong>Jeudi :</strong> 💪 Bras & Pecs (salle)</li>
+        <li><strong>Vendredi :</strong> ⚽ Entraînement foot</li>
+        <li><strong>Samedi :</strong> ✦ Salle légère ou repos</li>
+        <li><strong>Dimanche :</strong> 🏆 Match</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">⚡ RÈGLES D'OR</div>
+      <ul class="rules-list">
+        <li>Jamais de salle lourde <strong>moins de 24h</strong> avant un match ou entraînement</li>
+        <li>Toujours <strong>48h de récup</strong> entre séance jambes lourde et foot</li>
+        <li>Le samedi est <strong>flexible</strong> selon la fatigue ressentie</li>
+        <li>Si surcharge : supprimer le samedi salle en priorité</li>
+        <li><strong>Sommeil ≥ 7h</strong> les nuits avant match — priorité n°1</li>
+        <li>Hydratation : <strong>500ml minimum</strong> pendant chaque séance</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">🍽️ AVANT / APRÈS SÉANCE</div>
+      <ul class="rules-list">
+        <li><strong>Avant salle :</strong> repas léger glucides 1h30 avant</li>
+        <li><strong>Après salle :</strong> protéines + glucides dans les 30 min</li>
+        <li><strong>Avant match :</strong> repas complet 3h avant, pâtes/riz</li>
+        <li><strong>Après match :</strong> hydratation +++ et étirements 15 min</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">⚠️ SIGNAUX D'ALARME</div>
+      <ul class="rules-list">
+        <li>Douleur persistante aux ischio-jambiers → <strong>arrêt + kiné</strong></li>
+        <li>Fatigue cumulative sur 2 semaines → réduire volume de 30%</li>
+        <li>Sommeil dégradé plusieurs nuits → repos forcé 48h</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SCHEMA MODAL ════════════════════════════════════ -->
+<div id="schema-modal" onclick="if(event.target===this)closeSchema()">
+  <div class="schema-content">
+    <div class="schema-head">
+      <div class="schema-ex-name" id="schema-ex-name">—</div>
+      <button class="schema-close" onclick="closeSchema()">&#x2715;</button>
+    </div>
+    <div id="schema-svg-wrap"></div>
+    <div class="schema-points" id="schema-points"></div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ═══════════════════════════════════════ -->
+<div id="nav">
+  <button class="nav-btn active" id="nav-jambes" onclick="switchTab('jambes')">
+    <div class="nav-icon">🦵</div>
+    <span>Jambes</span>
+  </button>
+  <button class="nav-btn" id="nav-back" onclick="switchTab('back')">
+    <div class="nav-icon">🔙</div>
+    <span>Back</span>
+  </button>
+  <button class="nav-btn" id="nav-bras" onclick="switchTab('bras')">
+    <div class="nav-icon">💪</div>
+    <span>Bras & Pecs</span>
+  </button>
+  <button class="nav-btn" id="nav-planning" onclick="switchTab('planning')">
+    <div class="nav-icon">📅</div>
+    <span>Planning</span>
+  </button>
+  <button class="nav-btn" id="nav-biblio" onclick="switchTab('biblio')">
+    <div class="nav-icon">📚</div>
+    <span>Biblio</span>
+  </button>
+</div>
+
+
+<script>
+/* ══════════════════════════════════════════════════════
+   ACCENT TOKENS
+══════════════════════════════════════════════════════ */
+const ACCENTS = {
+  jambes: { acc:'#00C853', acc2:'#007B33', r:'0,200,83',   label:'JAMBES' },
+  back:   { acc:'#2979FF', acc2:'#0D47A1', r:'41,121,255', label:'BACK' },
+  bras:     { acc:'#E53935', acc2:'#B71C1C', r:'229,57,53',  label:'BRAS & PECS' },
+  planning: { acc:'#FFB300', acc2:'#E65100', r:'255,179,0',   label:'PLANNING' },
+  biblio:   { acc:'#A259FF', acc2:'#7B3FBE', r:'162,89,255',  label:'BIBLIOTHÈQUE' },
+};
+
+/* ══════════════════════════════════════════════════════
+   EXERCISE DATA — rest times & sets per exercise
+   Parsed from data-rest / data-sets attributes on .card
+══════════════════════════════════════════════════════ */
+// Default rest per group if not overridden
+const DEFAULT_REST = 60; // seconds
+
+/* ══════════════════════════════════════════════════════
+   PROGRESS STATE
+══════════════════════════════════════════════════════ */
+const state = {
+  jambes:{ done:0, total:0 },
+  back:  { done:0, total:0 },
+  bras:  { done:0, total:0 },
+};
+
+function initCounts() {
+  ['jambes','back','bras'].forEach(g => {
+    state[g].total = document.querySelectorAll(`[data-group="${g}"] .cb`).length;
+    state[g].done  = 0;
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   SOUND  (Web Audio API — bip de fin)
+══════════════════════════════════════════════════════ */
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq=880, dur=0.12, vol=0.4) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine'; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+function playFinish() {
+  // 3 bips montants
+  beep(660, 0.12); 
+  setTimeout(()=>beep(880, 0.12), 160);
+  setTimeout(()=>beep(1100, 0.2), 320);
+}
+function playTick() { beep(440, 0.06, 0.15); }
+
+/* ══════════════════════════════════════════════════════
+   VIBRATION
+══════════════════════════════════════════════════════ */
+function vib(pattern) {
+  try { navigator.vibrate && navigator.vibrate(pattern); } catch(e){}
+}
+
+/* ══════════════════════════════════════════════════════
+   TIMER
+══════════════════════════════════════════════════════ */
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+const CIRCUMFERENCE = 2 * Math.PI * 96; // r=96
+
+const timerOverlay  = document.getElementById('timer-overlay');
+const timerCount    = document.getElementById('timer-count');
+const timerExName   = document.getElementById('timer-ex-name');
+const timerArc      = document.getElementById('timer-arc');
+const timerRingWrap = document.getElementById('timer-ring-wrap');
+
+// init arc
+timerArc.style.strokeDasharray  = CIRCUMFERENCE;
+timerArc.style.strokeDashoffset = 0;
+
+function startTimer(seconds, exName) {
+  timerStop(); // clear any existing
+  timerTotal     = seconds;
+  timerRemaining = seconds;
+  timerExName.textContent = exName;
+  setArc(1);
+  timerCount.textContent = seconds;
+  timerOverlay.classList.add('show');
+
+  // unlock audio on first interaction
+  try { getAudio().resume(); } catch(e){}
+
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    timerCount.textContent = timerRemaining;
+    setArc(timerRemaining / timerTotal);
+
+    if (timerRemaining <= 3 && timerRemaining > 0) playTick();
+
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      onTimerEnd();
+    }
+  }, 1000);
+}
+
+function setArc(ratio) {
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+}
+
+function onTimerEnd() {
+  timerCount.textContent = 'GO !';
+  setArc(0);
+  playFinish();
+  vib([200, 100, 200, 100, 400]);
+  timerRingWrap.classList.add('pulse');
+  setTimeout(() => {
+    timerRingWrap.classList.remove('pulse');
+    timerOverlay.classList.remove('show');
+  }, 2200);
+}
+
+function timerSkip() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerOverlay.classList.remove('show');
+}
+
+function timerStop() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerOverlay.classList.remove('show');
+}
+
+/* ══════════════════════════════════════════════════════
+   REST TIME per exercise (seconds)
+   Extracted from tip text keywords
+══════════════════════════════════════════════════════ */
+function getRestFromCard(card) {
+  const tip = card.querySelector('.tip')?.textContent || '';
+  const m = tip.match(/Récup\s+(\d+)s/i);
+  if (m) return parseInt(m[1]);
+  return DEFAULT_REST;
+}
+
+function getExName(card) {
+  return card.querySelector('.ex-name')?.textContent?.trim() || 'Exercice';
+}
+
+/* ══════════════════════════════════════════════════════
+   TOGGLE CHECKBOX  →  lance le timer auto
+══════════════════════════════════════════════════════ */
+function toggle(el, group) {
+  const wasDone = el.classList.contains('done');
+  el.classList.toggle('done');
+  el.closest('.card').classList.toggle('done-card');
+  state[group].done += wasDone ? -1 : 1;
+  updateProgress(group);
+
+  // Lance le timer uniquement quand on coche (pas quand on décoche)
+  if (!wasDone) {
+    const card = el.closest('.card');
+    const rest = getRestFromCard(card);
+    const name = getExName(card);
+    // unlock audio context via user gesture
+    try { getAudio().resume(); } catch(e){}
+    startTimer(rest, name);
+  }
+}
+
+function updateProgress(group) {
+  const { done, total } = state[group];
+  const pct = total ? (done / total * 100) : 0;
+  const prefix = group === 'jambes' ? 'j' : group === 'back' ? 'b' : 'p';
+  document.getElementById(`${prefix}-prog-txt`).textContent  = `${done} / ${total}`;
+  document.getElementById(`${prefix}-prog-fill`).style.width = pct + '%';
+}
+
+/* ══════════════════════════════════════════════════════
+   FOCUS MODE
+══════════════════════════════════════════════════════ */
+const focusOverlay = document.getElementById('focus-overlay');
+const focusBody    = document.getElementById('focus-body');
+const focusTitle   = document.getElementById('focus-ex-title');
+const focusTabLbl  = document.getElementById('focus-tab-label');
+const focusCtr     = document.getElementById('focus-counter');
+const focusPrev    = document.getElementById('focus-prev');
+const focusNext    = document.getElementById('focus-next');
+
+let focusCards  = [];
+let focusIdx    = 0;
+let focusGroup  = '';
+
+function openFocus(card) {
+  focusGroup = card.dataset.group;
+  focusCards = [...document.querySelectorAll(`[data-group="${focusGroup}"]`)];
+  focusIdx   = focusCards.indexOf(card);
+  renderFocus();
+  focusOverlay.classList.add('show');
+  document.getElementById('scroll-area').style.overflow = 'hidden';
+}
+
+function closeFocus() {
+  focusOverlay.classList.remove('show');
+  document.getElementById('scroll-area').style.overflow = '';
+}
+
+function focusMove(dir) {
+  focusIdx = Math.max(0, Math.min(focusCards.length - 1, focusIdx + dir));
+  renderFocus();
+}
+
+function renderFocus() {
+  const card  = focusCards[focusIdx];
+  const total = focusCards.length;
+  const a     = ACCENTS[focusGroup];
+
+  focusTabLbl.textContent = a.label;
+  focusTitle.textContent  = card.querySelector('.ex-name').textContent;
+  focusCtr.textContent    = `${focusIdx + 1} / ${total}`;
+
+  focusPrev.disabled    = focusIdx === 0;
+  focusNext.disabled    = focusIdx === total - 1;
+  focusNext.textContent = focusIdx === total - 1 ? 'FIN ✓' : 'SUIV. →';
+
+  const metrics = [...card.querySelectorAll('.metric')].map(m => {
+    const v = m.querySelector('.metric-val').textContent;
+    const l = m.querySelector('.metric-label').textContent;
+    return `<div class="metric"><div class="metric-val">${v}</div><div class="metric-label">${l}</div></div>`;
+  }).join('');
+
+  const focus   = card.querySelector('.ex-focus')?.textContent || '';
+  const tipHTML = card.querySelector('.tip')?.innerHTML || '';
+  const rest    = getRestFromCard(card);
+  const exName  = card.querySelector('.ex-name')?.textContent?.trim() || '';
+
+  let setsCount = 1;
+  card.querySelectorAll('.metric').forEach(m => {
+    if (m.querySelector('.metric-label').textContent.toLowerCase().includes('rie')) {
+      setsCount = parseInt(m.querySelector('.metric-val').textContent) || 1;
+    }
+  });
+
+  const repsEl = [...card.querySelectorAll('.metric')].find(m =>
+    m.querySelector('.metric-label').textContent.toLowerCase().includes('rep')
+  );
+  const reps = repsEl ? repsEl.querySelector('.metric-val').textContent : '';
+
+  // Charger poids depuis localStorage
+  const wDiv = card.querySelector('.weight-tracker');
+  const skey = wDiv ? wDiv.dataset.skey : null;
+  let wtData = null;
+  if (skey) {
+    try { const s = localStorage.getItem(skey); if (s) wtData = JSON.parse(s); } catch(e) {}
+  }
+  const hasWeight = !!wDiv;
+
+  let setsHTML = '';
+  for (let i = 1; i <= setsCount; i++) {
+    const lw = wtData && wtData.weights && wtData.weights[i-1] != null ? wtData.weights[i-1] : 0;
+    const weightBlock = hasWeight ? `
+      <div class="focus-weight-row">
+        <button class="weight-btn" type="button" onclick="adjW(this,-2.5)">−</button>
+        <input class="weight-input" type="number" min="0" max="500" step="2.5"
+               value="${lw}" inputmode="decimal" data-set="${i}">
+        <span class="weight-unit">kg</span>
+      </div>` : '';
+
+    setsHTML += `
+      <div class="set-row" id="focus-set-${i}">
+        <div class="set-num">${i}</div>
+        <div class="set-info">
+          <div class="set-name">Série ${i}</div>
+          <div class="set-reps">${reps ? reps + ' reps' : ''}</div>
+        </div>
+        ${weightBlock}
+        <div class="set-cb" onclick="focusToggleSet(this,${i},${rest},'${exName.replace(/['"]/g,"_")}')"></div>
+      </div>`;
+  }
+
+  const saveBlock = hasWeight && skey ? `
+    <button onclick="focusSaveWeights('${skey}',${setsCount})"
+      style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;
+             padding:9px 20px;border-radius:8px;border:none;cursor:pointer;width:100%;
+             background:rgba(var(--acc-r),.15);color:var(--acc);
+             border:1px solid rgba(var(--acc-r),.4);margin-bottom:10px;display:block">
+      \u{1F4BE} SAUVER LES CHARGES
+    </button>` : '';
+
+  focusBody.innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${metrics}</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">${focus}</div>
+    <div class="sets-tracker" id="focus-sets-tracker">${setsHTML}</div>
+    ${saveBlock}
+    <div class="focus-tip">${tipHTML}</div>
+    <div style="display:flex;justify-content:center;margin-top:8px">
+      <button onclick="startTimer(${rest},'${exName.replace(/['"]/g,"_")}');try{getAudio().resume()}catch(e){}"
+        style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;
+               padding:10px 28px;border-radius:8px;border:none;cursor:pointer;
+               background:rgba(var(--acc-r),.15);color:var(--acc);
+               border:1px solid rgba(var(--acc-r),.4)">
+        \u23F1 LANCER RECUP (${rest}s)
+      </button>
+    </div>`;
+}
+
+function focusSaveWeights(skey, setsCount) {
+  const tracker = document.getElementById('focus-sets-tracker');
+  if (!tracker) return;
+  const inputs  = tracker.querySelectorAll('.weight-input');
+  const weights = [...inputs].map(i => parseFloat(i.value) || 0);
+  const today   = localDateKey(new Date());
+
+  try { localStorage.setItem(skey, JSON.stringify({ weights, date: today })); } catch(e) {}
+
+  // Sync avec la carte principale
+  document.querySelectorAll('.weight-tracker').forEach(wDiv => {
+    if (wDiv.dataset.skey !== skey) return;
+    const cardInputs = wDiv.querySelectorAll('.weight-input');
+    const cardLasts  = wDiv.querySelectorAll('.weight-last');
+    const dateEl     = wDiv.querySelector('.weight-date');
+    cardInputs.forEach((inp, i) => { if (weights[i] != null) inp.value = weights[i]; });
+    cardLasts.forEach((el, i) => {
+      const prev = parseFloat(el.dataset.last);
+      el.dataset.last = weights[i];
+      el.textContent  = '\u2196 ' + weights[i] + ' kg';
+      el.className    = 'weight-last';
+      if (!isNaN(prev)) {
+        if (weights[i] > prev)      el.classList.add('up');
+        else if (weights[i] < prev) el.classList.add('down');
+      }
+    });
+    if (dateEl) dateEl.textContent = today;
+  });
+
+  try { navigator.vibrate && navigator.vibrate([40, 60, 120]); } catch(e) {}
+
+  const btn = tracker.parentElement.querySelector('[onclick*="focusSaveWeights"]');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '\u2713 SAUVEGARDE OK !';
+    setTimeout(() => { btn.textContent = orig; }, 1600);
+  }
+}
+
+
+function focusToggleSet(el, setNum, rest, exName) {
+  el.classList.toggle('done');
+  el.closest('.set-row').classList.toggle('set-done');
+  if (el.classList.contains('done')) {
+    try { getAudio().resume(); } catch(e){}
+    startTimer(rest, exName);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   LONG PRESS → ouvre le mode focus
+   Tap normal → rien (le toggle cb gère ça)
+══════════════════════════════════════════════════════ */
+let pressTimer = null;
+
+function addLongPress(card) {
+  const onStart = (e) => {
+    pressTimer = setTimeout(() => {
+      pressTimer = null;
+      vib(30);
+      openFocus(card);
+    }, 500);
+  };
+  const onEnd = () => {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+  };
+  card.addEventListener('touchstart', onStart, { passive: true });
+  card.addEventListener('touchend',   onEnd);
+  card.addEventListener('touchmove',  onEnd, { passive: true });
+  // desktop
+  card.addEventListener('mousedown',  onStart);
+  card.addEventListener('mouseup',    onEnd);
+  card.addEventListener('mouseleave', onEnd);
+}
+
+// Bouton focus rapide sur chaque card-header
+function addFocusBtn(card) {
+  const header = card.querySelector('.card-header');
+  const btn = document.createElement('button');
+  btn.innerHTML = '⤢';
+  btn.title = 'Mode focus';
+  btn.style.cssText = `
+    background:none;border:none;color:var(--dim);font-size:16px;
+    cursor:pointer;padding:2px 0 2px 6px;flex-shrink:0;line-height:1;
+    transition:color .15s;
+  `;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    try { getAudio().resume(); } catch(e2){}
+    openFocus(card);
+  });
+  // Insérer avant le checkbox
+  const cb = header.querySelector('.cb');
+  header.insertBefore(btn, cb);
+}
+
+/* ══════════════════════════════════════════════════════
+   SWITCH TAB
+══════════════════════════════════════════════════════ */
+let current = 'jambes';
+function switchTab(tab) {
+  if (tab === current) return;
+  current = tab;
+
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+
+  const a = ACCENTS[tab] || ACCENTS.jambes;
+  document.documentElement.style.setProperty('--acc',  a.acc);
+  document.documentElement.style.setProperty('--acc2', a.acc2);
+  document.documentElement.style.setProperty('--acc-r', a.r);
+
+  document.getElementById('scroll-area').scrollTop = 0;
+  if (tab === 'planning') calRender();
+  if (tab === 'biblio') initLibrary();
+}
+
+/* ══════════════════════════════════════════════════════
+   PLANNING — highlight le jour courant
+══════════════════════════════════════════════════════ */
+function initPlanning() {
+  const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const today = days[new Date().getDay()];
+  document.querySelectorAll('.day-card').forEach(c => {
+    c.classList.toggle('today', c.dataset.day === today);
+    const tag = c.querySelector('.today-tag');
+    if (tag) tag.style.display = c.dataset.day === today ? '' : 'none';
+  });
+}
+
+
+/* ══════════════════════════════════════════════════════
+   CALENDRIER MENSUEL
+══════════════════════════════════════════════════════ */
+const CAL_MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+// Séance type par jour de semaine (0=Dim, 1=Lun, ...)
+// Mapping: ce qu'on fait habituellement
+const SCHEDULE = {
+  1: { icon:'🦵', type:'gym-j',  label:'Jambes' },   // Lundi
+  2: { icon:'⚽', type:'foot',   label:'Foot' },     // Mardi
+  3: { icon:'🔙', type:'gym-d',  label:'Back' },     // Mercredi
+  4: { icon:'💪', type:'gym-b',  label:'Bras' },     // Jeudi
+  5: { icon:'⚽', type:'foot',   label:'Foot' },     // Vendredi
+  6: { icon:'✦',  type:'opt',    label:'Optionnel' },// Samedi
+  0: { icon:'🏆', type:'match',  label:'Match' },    // Dimanche
+};
+
+let calCurrentMonth = new Date();
+calCurrentMonth.setDate(1);
+
+function calRender() {
+  const year  = calCurrentMonth.getFullYear();
+  const month = calCurrentMonth.getMonth();
+
+  document.getElementById('cal-month-title').innerHTML =
+    `${CAL_MONTHS[month]} <span>${year}</span>`;
+
+  const firstDayRaw = new Date(year, month, 1).getDay();
+  const firstOffset = (firstDayRaw + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const today = new Date();
+  const todayKey = localDateKey(today);
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  let monthTotal = 0; // jours prévus dans le mois (passés + aujourd'hui)
+  let monthDone  = 0; // jours cochés
+
+  // Cellules vides au début
+  for (let i = 0; i < firstOffset; i++) {
+    const c = document.createElement('div');
+    c.className = 'cal-cell empty';
+    grid.appendChild(c);
+  }
+
+  // Cellules des jours
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const dayOfWeek = date.getDay();
+    const sched = SCHEDULE[dayOfWeek];
+    const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast = dateKey <= todayKey;
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    if (dayOfWeek === 0 || dayOfWeek === 6) cell.classList.add('weekend');
+    if (dateKey === todayKey) cell.classList.add('today');
+
+    const isDone = (window.__calDone || {})[dateKey] === true;
+    if (isDone) cell.classList.add('done');
+
+    // Compter dans la progression seulement les jours passés ou aujourd'hui
+    if (isPast) {
+      monthTotal++;
+      if (isDone) monthDone++;
+    }
+
+    cell.innerHTML = `
+      <div class="cal-day-num">${d}</div>
+      <div class="cal-icon">${sched.icon}</div>
+      <div class="cal-check ${isDone ? 'done' : ''}" data-key="${dateKey}"></div>
+    `;
+
+    const cb = cell.querySelector('.cal-check');
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.__calDone = window.__calDone || {};
+      const k = cb.dataset.key;
+      window.__calDone[k] = !window.__calDone[k];
+      cb.classList.toggle('done');
+      cell.classList.toggle('done');
+      try { navigator.vibrate && navigator.vibrate(15); } catch(err){}
+      updateMonthProg();
+    });
+
+    grid.appendChild(cell);
+  }
+
+  updateMonthProg();
+}
+
+function localDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateMonthProg() {
+  const year        = calCurrentMonth.getFullYear();
+  const month       = calCurrentMonth.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayKey    = localDateKey(new Date());
+  const calDone     = window.__calDone || {};
+
+  // Total = jours écoulés du mois (jusqu'à aujourd'hui inclus)
+  // Done  = combien ont été cochés parmi ces jours
+  let total = 0, done = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dk = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if (dk <= todayKey) {
+      total++;
+      if (calDone[dk] === true) done++;
+    }
+  }
+
+  // Pour un mois futur : total = 0
+  const pct = total > 0 ? (done / total * 100) : 0;
+
+  const countEl = document.getElementById('cal-prog-count');
+  const fillEl  = document.getElementById('cal-prog-fill');
+  if (countEl) countEl.textContent = total > 0 ? `${done} / ${total} jours` : '—';
+  if (fillEl)  fillEl.style.width  = pct + '%';
+}
+
+function calNav(dir) {
+  calCurrentMonth.setMonth(calCurrentMonth.getMonth() + dir);
+  calRender();
+}
+
+function calToday() {
+  calCurrentMonth = new Date();
+  calCurrentMonth.setDate(1);
+  calRender();
+}
+
+/* ══════════════════════════════════════════════════════
+   MODAL RÈGLES
+══════════════════════════════════════════════════════ */
+function openRules() {
+  document.getElementById('rules-modal').classList.add('show');
+}
+function closeRules() {
+  document.getElementById('rules-modal').classList.remove('show');
+}
+
+/* ══════════════════════════════════════════════════════
+   VARIANTES — TOGGLE + SÉLECTION
+══════════════════════════════════════════════════════ */
+function toggleVar(id) {
+  const box = document.getElementById('var-' + id);
+  if (!box) return;
+  box.classList.toggle('open');
+  const btn = box.previousElementSibling;
+  if (btn) btn.textContent = box.classList.contains('open') ? 'MASQUER ▲' : 'VARIANTES / ALTERNATIVES';
+}
+
+/* Initialise les variantes au démarrage */
+function initVariants() {
+  document.querySelectorAll('.variantes-box').forEach(box => {
+    const card    = box.closest('.card');
+    if (!card) return;
+    const nameEl  = card.querySelector('.ex-name');
+    const focusEl = card.querySelector('.ex-focus');
+
+    // Sauvegarder les valeurs originales (nom, focus ET tip)
+    if (!box.dataset.origName) {
+      box.dataset.origName  = nameEl  ? nameEl.textContent  : '';
+      box.dataset.origFocus = focusEl ? focusEl.textContent : '';
+      const tipEl = card.querySelector('.tip');
+      box.dataset.origTip = tipEl ? tipEl.innerHTML : '';
+    }
+
+    // Ajouter le bouton "revenir à l'original" après le titre
+    if (!box.querySelector('.variante-reset')) {
+      const titleEl = box.querySelector('.variantes-title');
+      const resetBtn = document.createElement('span');
+      resetBtn.className = 'variante-reset';
+      resetBtn.textContent = '↩ Exercice original';
+      resetBtn.onclick = function(e) {
+        e.stopPropagation();
+        resetVariant(box);
+      };
+      if (titleEl) titleEl.after(resetBtn);
+      else box.prepend(resetBtn);
+    }
+
+    // Rendre chaque item cliquable
+    box.querySelectorAll('.variante-item').forEach(item => {
+      if (item.dataset.varInit) return; // éviter double init
+      item.dataset.varInit = '1';
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Extraire le nom : texte après le <strong>
+        const strong   = item.querySelector('strong');
+        const situation = strong ? strong.textContent.replace(/:/g,'').trim() : '';
+        const varName  = item.textContent.replace(strong?.textContent || '', '').trim();
+        selectVariant(box, varName, situation, item);
+      });
+    });
+  });
+}
+
+function weightStorageKey(group, exName) {
+  return 'wt-' + group + '-' + exName.replace(/[^a-zA-Z0-9]/g,'_').substring(0, 28);
+}
+
+/* Recharge les poids du weight tracker selon l'exercice actif */
+function reloadWeightTracker(card, exName) {
+  const wDiv = card.querySelector('.weight-tracker');
+  if (!wDiv) return;
+  const group  = card.dataset.group || 'gym';
+  const skey   = weightStorageKey(group, exName);
+  wDiv.dataset.skey = skey;
+
+  let data = null;
+  try { const s = localStorage.getItem(skey); if (s) data = JSON.parse(s); } catch(e) {}
+
+  const inputs = wDiv.querySelectorAll('.weight-input');
+  const lasts  = wDiv.querySelectorAll('.weight-last');
+  const dateEl = wDiv.querySelector('.weight-date');
+
+  inputs.forEach((inp, i) => {
+    const lw = data && data.weights && data.weights[i] != null ? data.weights[i] : 0;
+    inp.value = lw;
+  });
+  lasts.forEach((el, i) => {
+    const lw = data && data.weights && data.weights[i] != null ? data.weights[i] : '';
+    el.dataset.last = lw;
+    el.textContent  = lw !== '' ? '↖ ' + lw + ' kg' : '';
+    el.className    = 'weight-last';
+  });
+  if (dateEl) dateEl.textContent = data && data.date ? data.date : 'Aucune séance';
+}
+
+function selectVariant(box, varName, situation, activeItem) {
+  const card    = box.closest('.card');
+  if (!card) return;
+  const nameEl  = card.querySelector('.ex-name');
+  const focusEl = card.querySelector('.ex-focus');
+  const btn     = box.previousElementSibling;
+
+  // Extraire la description complète de la variante
+  const tipEl  = card.querySelector('.tip');
+  const strong = activeItem ? activeItem.querySelector('strong') : null;
+  const varDesc = activeItem
+    ? activeItem.textContent.replace(strong ? strong.textContent : '', '').trim()
+    : varName;
+
+  // Mettre à jour nom, focus, tip
+  if (nameEl)  nameEl.textContent  = varName;
+  if (focusEl) focusEl.textContent = '🔄 ' + (situation || 'Variante');
+  if (tipEl)   tipEl.innerHTML     = '<strong>🔄 Variante :</strong> ' + varDesc;
+
+  // Recharger le weight tracker pour cette variante
+  reloadWeightTracker(card, varName);
+
+  card.classList.add('var-changed');
+  box.querySelectorAll('.variante-item').forEach(i => i.classList.remove('var-active'));
+  if (activeItem) activeItem.classList.add('var-active');
+  box.classList.remove('open');
+  if (btn) btn.textContent = 'VARIANTES / ALTERNATIVES';
+  if (document.getElementById('schema-modal').classList.contains('show')) openSchema(varName);
+  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+}
+
+function resetVariant(box) {
+  const card    = box.closest('.card');
+  if (!card) return;
+  const nameEl  = card.querySelector('.ex-name');
+  const focusEl = card.querySelector('.ex-focus');
+  const btn     = box.previousElementSibling;
+
+  if (nameEl)  nameEl.textContent  = box.dataset.origName  || '';
+  if (focusEl) focusEl.textContent = box.dataset.origFocus || '';
+
+  const tipEl = card.querySelector('.tip');
+  if (tipEl && box.dataset.origTip) tipEl.innerHTML = box.dataset.origTip;
+
+  // Recharger le weight tracker pour l'exercice original
+  reloadWeightTracker(card, box.dataset.origName || '');
+
+  card.classList.remove('var-changed');
+  box.querySelectorAll('.variante-item').forEach(i => i.classList.remove('var-active'));
+  box.classList.remove('open');
+  if (btn) btn.textContent = 'VARIANTES / ALTERNATIVES';
+  try { navigator.vibrate && navigator.vibrate(10); } catch(e) {}
+}
+
+
+/* ══════════════════════════════════════════════════════
+   WEIGHT TRACKER — suivi de charges par série
+══════════════════════════════════════════════════════ */
+function initWeightTracking() {
+  document.querySelectorAll('.card').forEach(card => {
+    // Chercher le nombre de séries dans les metrics
+    let seriesCount = 0;
+    card.querySelectorAll('.metric').forEach(m => {
+      const lbl = m.querySelector('.metric-label');
+      const val = m.querySelector('.metric-val');
+      if (lbl && /s.rie/i.test(lbl.textContent)) {
+        seriesCount = parseInt(val ? val.textContent : '0') || 0;
+      }
+    });
+    if (seriesCount === 0) return; // pas de séries = pas de poids (cardio, étirements)
+
+    const exName    = card.querySelector('.ex-name')?.textContent?.trim() || 'ex';
+    const group     = card.dataset.group || 'gym';
+    const storageKey = weightStorageKey(group, exName);
+
+    // Charger les données sauvegardées
+    let lastData = null;
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) lastData = JSON.parse(stored);
+    } catch(e) {}
+
+    // Construire les lignes
+    let rowsHTML = '';
+    for (let s = 1; s <= seriesCount; s++) {
+      const lw = lastData && lastData.weights && lastData.weights[s-1] != null
+                  ? lastData.weights[s-1] : '';
+      const lastLabel = lw !== '' ? `<span class="weight-last" data-last="${lw}">↖ ${lw} kg</span>` : '<span class="weight-last" data-last=""></span>';
+      rowsHTML += `
+        <div class="weight-row">
+          <div class="weight-set-lbl">S${s}</div>
+          <button class="weight-btn" type="button" onclick="adjW(this,-2.5)">−</button>
+          <input class="weight-input" type="number" min="0" max="500" step="2.5" value="${lw !== '' ? lw : 0}" inputmode="decimal">
+          <span class="weight-unit">kg</span>
+          ${lastLabel}
+        </div>`;
+    }
+
+    const dateLabel = lastData && lastData.date ? lastData.date : 'Aucune séance';
+
+    const wDiv = document.createElement('div');
+    wDiv.className = 'weight-tracker';
+    wDiv.dataset.skey = storageKey;
+    wDiv.innerHTML = `
+      <div class="weight-header">
+        <div class="weight-title">⚖️ CHARGES</div>
+        <div class="weight-date">${dateLabel}</div>
+        <button class="weight-save-btn" type="button" onclick="saveWeights(this)">💾 SAUVER</button>
+      </div>
+      <div class="weight-rows">${rowsHTML}</div>
+      <div class="weight-saved-msg">✓ SAUVEGARDÉ</div>
+    `;
+
+    const tip = card.querySelector('.tip');
+    const varBox = card.querySelector('.variantes-box');
+    // Insérer après le tip, avant la variantes-box
+    if (varBox && tip) tip.after(wDiv);
+    else if (tip) tip.after(wDiv);
+    else card.appendChild(wDiv);
+  });
+}
+
+function adjW(btn, delta) {
+  const input = btn.parentElement.querySelector('.weight-input');
+  if (!input) return;
+  const cur = parseFloat(input.value) || 0;
+  input.value = Math.max(0, Math.round((cur + delta) * 10) / 10);
+}
+
+function saveWeights(btn) {
+  const wDiv = btn.closest('.weight-tracker');
+  if (!wDiv) return;
+  const inputs  = wDiv.querySelectorAll('.weight-input');
+  const lasts   = wDiv.querySelectorAll('.weight-last');
+  const weights = [...inputs].map(i => parseFloat(i.value) || 0);
+  const today   = localDateKey(new Date());
+  const skey    = wDiv.dataset.skey;
+
+  // Sauvegarder
+  try { localStorage.setItem(skey, JSON.stringify({ weights, date: today })); } catch(e) {}
+
+  // Mettre à jour les labels "dernière fois" + couleur progression
+  lasts.forEach((el, i) => {
+    const prev = parseFloat(el.dataset.last);
+    const cur  = weights[i];
+    el.dataset.last = cur;
+    el.textContent  = '↖ ' + cur + ' kg';
+    el.className = 'weight-last';
+    if (!isNaN(prev) && prev !== '') {
+      if (cur > prev)       el.classList.add('up');
+      else if (cur < prev)  el.classList.add('down');
+    }
+  });
+
+  // Mettre à jour la date
+  const dateEl = wDiv.querySelector('.weight-date');
+  if (dateEl) dateEl.textContent = today;
+
+  // Message confirmation
+  const msg = wDiv.querySelector('.weight-saved-msg');
+  if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 1800); }
+
+  try { navigator.vibrate && navigator.vibrate([40, 60, 120]); } catch(e) {}
+}
+
+const EXERCISE_SCHEMAS = {
+  "Vélo ou Tapis": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Air_Bike/0.jpg", points: ["Rythme modéré, montée progressive", "Finir les 2 dernières min en accélération", "Active le système neuromusculaire"] },
+  "Squat Goblet": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Full_Squat/0.jpg", points: ["Pieds à largeur d'épaules, orteils légèrement ouverts", "Descente lente 3s, remontée explosive", "Genoux dans l'axe des orteils"] },
+  "Fentes Marchées": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Lunge/0.jpg", points: ["Grand pas en avant, genou avant à 90°", "Genou arrière effleure le sol", "Buste droit, regard devant"] },
+  "Leg Press Unilatéral": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg", points: ["Pied haut sur la plateforme", "Descente contrôlée jusqu'à 90°", "Commencer par la jambe la plus faible"] },
+  "Romanian Deadlift": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg", points: ["Dos droit tout au long du mouvement", "Poussée des hanches en arrière (hip hinge)", "Descendre jusqu'à léger étirement ischio"] },
+  "Step-up Explosif": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Step_Ups/0.jpg", points: ["Monter de façon explosive sur le step", "Genou montant haut en haut", "Descente contrôlée, pose douce"] },
+  "Mollets Debout": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg", points: ["Amplitude complète — talon bas puis pointes", "Pause 1s en haut, serrer le mollet", "Descente lente 3s en excentrique"] },
+  "Hip Thrust": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/0.jpg", points: ["Dos sur banc, pieds à plat au sol", "Poussée explosive des hanches vers le haut", "Serrer les fessiers 1s en haut"] },
+  "Étirements Statiques": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg", points: ["30s par muscle, sans rebond", "Ordre : quadri → ischio → fessier → mollet", "Respiration lente et profonde"] },
+  "Rameur Ergomètre": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg", points: ["Poussée des jambes en premier", "Puis bascule du buste en arrière", "Finir par la traction des bras"] },
+  "Tirage Poulie Haute": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Underhand_Cable_Pulldowns/0.jpg", points: ["Prise large pronation", "Tirer la barre vers le sternum", "Coudes bas et vers l'arrière"] },
+  "Tirage Horizontal Câble": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bent_Over_Row/0.jpg", points: ["Tirer vers le nombril", "Serrer les omoplates en fin de mouvement", "Ne pas basculer le buste"] },
+  "Rowing Haltère Unilatéral": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Arm_Dumbbell_Row/0.jpg", points: ["Main sur banc pour stabiliser", "Coude tiré haut, haltère longe le flanc", "Commencer par le côté le plus faible"] },
+  "Shrugs Haltères": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shrug/0.jpg", points: ["Hausse d'épaules lente", "Maintien 1s en haut", "Pas de rotation des épaules"] },
+  "Extensions Lombaires": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg", points: ["Mouvement lent et contrôlé", "Dos droit, pas d'hyperextension", "Poids de corps d'abord"] },
+  "Face Pull Câble": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg", points: ["Câble à hauteur du visage", "Tirer vers le front en ouvrant les coudes", "Rotation externe des épaules"] },
+  "Bird-Dog": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/0.jpg", points: ["Bras droit + jambe gauche simultanés", "Maintien 2s, colonne neutre", "Alterner les côtés sans déhanchement"] },
+  "Étirements Dos & Épaules": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg", points: ["Grand dorsal accroché à la barre", "Cat-cow 10 reps lentes", "Child pose 60s pour finir"] },
+  "Élastiques + Rotations": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bench_Press/0.jpg", points: ["Rotations externes élastique 2x15", "Arm circles 30s", "10 push-up genoux lents"] },
+  "Développé Couché Haltères": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bench_Press/0.jpg", points: ["Omoplates serrées sur le banc", "Descente lente 3s", "Poussée explosive vers le haut"] },
+  "Écarté Câble Bas": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/0.jpg", points: ["Arc du bas vers le haut", "Bras quasi tendus", "Contraction forte en haut"] },
+  "Push-up Lesté / Classique": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up_Wide/0.jpg", points: ["Corps gainé tête-talons", "Coudes à 45° du corps", "Poitrine effleure le sol"] },
+  "Développé Militaire Haltères": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shoulder_Press/0.jpg", points: ["Haltères à hauteur d'oreilles", "Poussée verticale sans cambrer", "Assis pour isoler les épaules"] },
+  "Élévations Latérales": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg", points: ["Bras quasi tendus", "Montée jusqu'à l'horizontale max", "Petit doigt vers le haut"] },
+  "Curl Haltères Alterné": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Alternate_Bicep_Curl/0.jpg", points: ["Coudes fixes aux flancs", "Rotation du poignet vers l'extérieur en montant", "Alterner les bras"] },
+  "Triceps Poulie Haute (Corde)": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown/0.jpg", points: ["Coudes fixes aux flancs", "Pousser vers le bas en écartant la corde", "Contraction complète en bas"] },
+  "Curl Marteau": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cross_Body_Hammer_Curl/0.jpg", points: ["Prise neutre — pouces vers le haut", "Coudes fixes, montée contrôlée", "Renforce le brachioradial"] },
+  "Dips Banc": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/0.jpg", points: ["Mains sur banc, pieds tendus", "Descendre jusqu'à 90° au coude", "Poussée explosive vers le haut"] },
+  "Étirements Pecs & Bras": { img: "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg", points: ["Pec au mur 30s de chaque côté", "Triceps tête 30s de chaque côté", "Cross-body épaule 20s de chaque côté"] },
+};
+
+
+
+const VARIANT_SCHEMA_MAP = {
+  "Barre en goblet":           "Squat Goblet",
+  "Squat poids de corps":      "Squat Goblet",
+  "Squat sauté":               "Squat Goblet",
+  "Pistol squat":              "Squat Goblet",
+  "Fentes bulgares":           "Fentes Marchées",
+  "Fentes statiques":          "Fentes Marchées",
+  "Step-up lent":              "Step-up Explosif",
+  "Box jump":                  "Step-up Explosif",
+  "RDL avec haltères":         "Romanian Deadlift",
+  "Good morning":              "Romanian Deadlift",
+  "RDL unilatéral":            "Romanian Deadlift",
+  "Hip thrust avec haltère":   "Hip Thrust",
+  "Glute bridge":              "Hip Thrust",
+  "Hip thrust unilatéral":     "Hip Thrust",
+  "Mollets sur une marche":    "Mollets Debout",
+  "Mollets unilatéraux":       "Mollets Debout",
+  "Tractions assistées":       "Tirage Poulie Haute",
+  "Rowing avec haltères couché":"Tirage Horizontal Câble",
+  "Élastique de résistance":   "Tirage Horizontal Câble",
+  "Rowing câble unilatéral":   "Rowing Haltère Unilatéral",
+  "Développé couché au sol":   "Développé Couché Haltères",
+  "Développé décliné":         "Développé Couché Haltères",
+  "Oiseau inversé":            "Face Pull Câble",
+  "Dead bug":                  "Bird-Dog",
+  "Superman":                  "Extensions Lombaires",
+};
+
+function getSchemaForExercise(name) {
+  if (EXERCISE_SCHEMAS[name]) return EXERCISE_SCHEMAS[name];
+  for (const [k, v] of Object.entries(VARIANT_SCHEMA_MAP)) {
+    if (name.toLowerCase().includes(k.toLowerCase()))
+      return EXERCISE_SCHEMAS[v] || null;
+  }
+  return null;
+}
+
+function openSchema(exName) {
+  var data = getSchemaForExercise(exName);
+  if (!data) return;
+  document.getElementById('schema-ex-name').textContent = exName;
+
+  var wrap = document.getElementById('schema-svg-wrap');
+  wrap.innerHTML = '';
+
+  if (data.img) {
+    var div = document.createElement('div');
+    div.style.cssText = 'text-align:center;width:100%;min-height:80px';
+
+    var loader = document.createElement('div');
+    loader.style.cssText = 'color:#666;font-size:11px;padding:24px;text-align:center';
+    loader.textContent = 'Chargement...';
+
+    var fallback = document.createElement('div');
+    fallback.style.cssText = 'display:none;color:#666;font-size:11px;padding:24px;text-align:center';
+    fallback.textContent = 'Image indisponible';
+
+    div.appendChild(loader);
+    div.appendChild(fallback);
+    wrap.appendChild(div);
+
+    // Charger via fetch → blob URL (évite les soucis de cache navigateur)
+    fetch(data.img, { mode: 'cors', cache: 'force-cache' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob();
+      })
+      .then(function(blob) {
+        var burl = URL.createObjectURL(blob);
+        var img  = document.createElement('img');
+        img.alt  = exName;
+        img.style.cssText = 'max-width:100%;max-height:220px;border-radius:8px;object-fit:contain;display:block;margin:0 auto';
+        img.src  = burl;
+        loader.replaceWith(img);
+      })
+      .catch(function() {
+        loader.style.display  = 'none';
+        fallback.style.display = 'block';
+      });
+  } else {
+    wrap.innerHTML = '<div style="color:#666;font-size:11px;padding:24px;text-align:center">Aucun schéma disponible</div>';
+  }
+
+  document.getElementById('schema-points').innerHTML = data.points.map(function(p,i) {
+    return '<div class="schema-point"><div class="schema-point-num">'+(i+1)+'</div><div>'+p+'</div></div>';
+  }).join('');
+  document.getElementById('schema-modal').classList.add('show');
+}
+function closeSchema() {
+  document.getElementById('schema-modal').classList.remove('show');
+}
+
+function initSchemaButtons() {
+  document.querySelectorAll('.card').forEach(card => {
+    const nameEl = card.querySelector('.ex-name');
+    const header = card.querySelector('.card-header');
+    if (!nameEl || !header || header.querySelector('.schema-btn')) return;
+    // Vérifier si un schéma existe pour cet exercice
+    if (!getSchemaForExercise(nameEl.textContent.trim())) return;
+    const btn = document.createElement('button');
+    btn.className   = 'schema-btn';
+    btn.title       = 'Voir le schéma';
+    btn.textContent = '\u{1F4D0}';
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openSchema(card.querySelector('.ex-name').textContent.trim());
+    });
+    const focusBtn = header.querySelector('button');
+    if (focusBtn) header.insertBefore(btn, focusBtn);
+    else header.appendChild(btn);
+  });
+}
+
+
+
+/* ══════════════════════════════════════════════════════
+   EXERCISE LIBRARY — base de données complète
+   58 exercices · 7 groupes musculaires
+   Équipement · Image · Points clés · Tip · Rest
+══════════════════════════════════════════════════════ */
+const EXERCISE_LIBRARY = {
+  "jambes": {
+    "label": "Jambes",
+    "emoji": "🦵",
+    "color": "#00C853",
+    "exercises": [
+      {
+        "id": "squat_goblet",
+        "name": "Squat Goblet",
+        "equipment": "Haltère / Kettlebell",
+        "focus": "Quadriceps · Fessiers · Gainage",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Full_Squat/0.jpg",
+        "rest": 75,
+        "points": [
+          "Pieds à largeur d'épaules",
+          "Descente lente 3s, remontée explosive",
+          "Genoux dans l'axe des orteils"
+        ],
+        "tip": "Descente lente (3s), remontée explosive. Simule l'impulsion au saut. Haltère ou kettlebell contre la poitrine. Récup 75s."
+      },
+      {
+        "id": "squat_barre",
+        "name": "Squat Barre",
+        "equipment": "Barre",
+        "focus": "Quadriceps · Fessiers · Ischio",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Full_Squat/0.jpg",
+        "rest": 90,
+        "points": [
+          "Barre sur les trapèzes",
+          "Dos droit tout au long",
+          "Descente jusqu'aux cuisses parallèles"
+        ],
+        "tip": "Exercice roi du bas du corps. Charges plus lourdes qu'au goblet. Récup 90s."
+      },
+      {
+        "id": "fentes_marchees",
+        "name": "Fentes Marchées",
+        "equipment": "Haltères",
+        "focus": "Quadriceps · Fessiers · Stabilité",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Lunge/0.jpg",
+        "rest": 60,
+        "points": [
+          "Grand pas en avant",
+          "Genou avant à 90°, arrière effleure le sol",
+          "Buste droit, regard devant"
+        ],
+        "tip": "Imite les accélérations et changements de direction. Haltères en main. Récup 60s."
+      },
+      {
+        "id": "fentes_bulgares",
+        "name": "Fentes Bulgares",
+        "equipment": "Haltères / Barre",
+        "focus": "Quadriceps · Fessiers · Équilibre",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Step_Ups/0.jpg",
+        "rest": 75,
+        "points": [
+          "Pied arrière surélevé sur banc",
+          "Genou avant à 90°",
+          "Amplitude maximale"
+        ],
+        "tip": "Version plus intense des fentes. Excellent pour corriger les déséquilibres. Récup 75s."
+      },
+      {
+        "id": "leg_press",
+        "name": "Leg Press Unilatéral",
+        "equipment": "Machine",
+        "focus": "Quadriceps · Ischio · Correction",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+        "rest": 60,
+        "points": [
+          "Pied haut sur la plateforme",
+          "Descente contrôlée jusqu'à 90°",
+          "Commencer par la jambe faible"
+        ],
+        "tip": "Une jambe à la fois pour corriger les déséquilibres droite/gauche. Récup 60s."
+      },
+      {
+        "id": "rdl",
+        "name": "Romanian Deadlift",
+        "equipment": "Barre / Haltères",
+        "focus": "Ischio-jambiers · Fessiers · Dos",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
+        "rest": 90,
+        "points": [
+          "Dos droit tout au long",
+          "Poussée des hanches en arrière",
+          "Étirement ischio en bas"
+        ],
+        "tip": "Muscle le plus touché au foot. Priorité prévention blessures. Récup 90s."
+      },
+      {
+        "id": "good_morning",
+        "name": "Good Morning",
+        "equipment": "Barre",
+        "focus": "Ischio-jambiers · Lombaires · Fessiers",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Good_Morning/0.jpg",
+        "rest": 75,
+        "points": [
+          "Barre sur les trapèzes",
+          "Flexion hanches, dos plat",
+          "Retour par contraction des ischio"
+        ],
+        "tip": "Renforce la chaîne postérieure complète. Commencer léger. Récup 75s."
+      },
+      {
+        "id": "leg_curl",
+        "name": "Leg Curl Couché",
+        "equipment": "Machine",
+        "focus": "Ischio-jambiers · Isolation",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/0.jpg",
+        "rest": 60,
+        "points": [
+          "Hanche plaquée contre la machine",
+          "Flexion complète jusqu'aux fesses",
+          "Descente lente (3s)"
+        ],
+        "tip": "Isolation pure des ischio. Complémentaire au RDL. Récup 60s."
+      },
+      {
+        "id": "hip_thrust",
+        "name": "Hip Thrust",
+        "equipment": "Barre / Haltère",
+        "focus": "Fessiers · Extension hanche · Vitesse",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/0.jpg",
+        "rest": 60,
+        "points": [
+          "Dos sur banc, pieds à plat",
+          "Poussée explosive vers le haut",
+          "Serrer les fessiers 1s en haut"
+        ],
+        "tip": "Les fessiers sont le moteur de la vitesse. Essentiel pour le foot. Récup 60s."
+      },
+      {
+        "id": "stepup",
+        "name": "Step-up Explosif",
+        "equipment": "Haltères / Poids corps",
+        "focus": "Explosivité · Puissance unipodal",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Step_Ups/0.jpg",
+        "rest": 45,
+        "points": [
+          "Montée explosive sur le step",
+          "Genou montant haut",
+          "Descente contrôlée"
+        ],
+        "tip": "Simule la foulée en sprint. Récup 45s."
+      },
+      {
+        "id": "mollets_debout",
+        "name": "Mollets Debout",
+        "equipment": "Machine / Barre",
+        "focus": "Gastrocnémiens · Propulsion",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg",
+        "rest": 45,
+        "points": [
+          "Amplitude complète talon bas puis pointes",
+          "Pause 1s en haut",
+          "Descente lente 3s"
+        ],
+        "tip": "Crucial pour les démarrages et la course. Récup 45s."
+      },
+      {
+        "id": "mollets_assis",
+        "name": "Mollets Assis",
+        "equipment": "Machine",
+        "focus": "Soléaire · Profondeur mollet",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Raise/0.jpg",
+        "rest": 45,
+        "points": [
+          "Cible le soléaire (sous le mollet)",
+          "Amplitude complète",
+          "4 séries de 15-20 reps"
+        ],
+        "tip": "Complémentaire aux mollets debout. Le soléaire est actif genou fléchi. Récup 45s."
+      },
+      {
+        "id": "deadlift",
+        "name": "Deadlift Conventionnel",
+        "equipment": "Barre",
+        "focus": "Chaîne postérieure complète",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Deadlift/0.jpg",
+        "rest": 120,
+        "points": [
+          "Pieds sous la barre, dos plat",
+          "Poussée sol par les jambes",
+          "Barre contre les tibias"
+        ],
+        "tip": "Exercice roi de la force globale. Technique irréprochable obligatoire. Récup 120s."
+      }
+    ]
+  },
+  "dos": {
+    "label": "Dos",
+    "emoji": "🔙",
+    "color": "#2979FF",
+    "exercises": [
+      {
+        "id": "tirage_haut",
+        "name": "Tirage Poulie Haute",
+        "equipment": "Câble / Poulie",
+        "focus": "Grand dorsal · Biceps · Omoplates",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Underhand_Cable_Pulldowns/0.jpg",
+        "rest": 75,
+        "points": [
+          "Prise large pronation",
+          "Tirer vers le sternum",
+          "Coudes bas et vers l'arrière"
+        ],
+        "tip": "Stabilité des épaules pour les duels. Récup 75s."
+      },
+      {
+        "id": "tirage_horiz",
+        "name": "Tirage Horizontal Câble",
+        "equipment": "Câble",
+        "focus": "Grand dorsal moyen · Rhomboïdes",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bent_Over_Row/0.jpg",
+        "rest": 60,
+        "points": [
+          "Tirer vers le nombril",
+          "Serrer les omoplates en fin",
+          "Ne pas basculer le buste"
+        ],
+        "tip": "Corrige la posture voûtée typique des footeux. Récup 60s."
+      },
+      {
+        "id": "rowing_halt",
+        "name": "Rowing Haltère Unilatéral",
+        "equipment": "Haltère",
+        "focus": "Grand dorsal · Correction asymétrie",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Arm_Dumbbell_Row/0.jpg",
+        "rest": 60,
+        "points": [
+          "Main sur banc pour stabiliser",
+          "Coude tiré haut",
+          "Commencer par le côté faible"
+        ],
+        "tip": "Corrige les déséquilibres côté dominant. Récup 60s."
+      },
+      {
+        "id": "rowing_barre",
+        "name": "Rowing Barre",
+        "equipment": "Barre",
+        "focus": "Grand dorsal · Épaisseur du dos",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg",
+        "rest": 90,
+        "points": [
+          "Buste penché à 45°, dos plat",
+          "Barre tirée vers le nombril",
+          "Contraction des omoplates"
+        ],
+        "tip": "Exercice de masse pour l'épaisseur du dos. Récup 90s."
+      },
+      {
+        "id": "tirage_neutre",
+        "name": "Tirage Prise Neutre",
+        "equipment": "Câble",
+        "focus": "Grand dorsal · Biceps · Coiffe",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Underhand_Cable_Pulldowns/0.jpg",
+        "rest": 75,
+        "points": [
+          "Prise neutre (paumes face à face)",
+          "Coudes près du corps",
+          "Contraction en bas"
+        ],
+        "tip": "Plus naturel pour les épaules. Idéal en fin de séance dos. Récup 75s."
+      },
+      {
+        "id": "tractions",
+        "name": "Tractions",
+        "equipment": "Barre de traction",
+        "focus": "Grand dorsal · Biceps · Poids corps",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chin-Up/0.jpg",
+        "rest": 90,
+        "points": [
+          "Prise pronation large",
+          "Corps gainé, pas de balancement",
+          "Menton au-dessus de la barre"
+        ],
+        "tip": "Exercice roi du dos au poids de corps. Ajouter du lest si trop facile. Récup 90s."
+      },
+      {
+        "id": "shrugs",
+        "name": "Shrugs Haltères",
+        "equipment": "Haltères / Barre",
+        "focus": "Trapèzes supérieurs · Cervicales",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shrug/0.jpg",
+        "rest": 45,
+        "points": [
+          "Hausse d'épaules lente",
+          "Maintien 1s en haut",
+          "Pas de rotation des épaules"
+        ],
+        "tip": "Absorbe les chocs sur les jeux de tête et contacts. Récup 45s."
+      },
+      {
+        "id": "lombaires",
+        "name": "Extensions Lombaires",
+        "equipment": "Machine / GHD",
+        "focus": "Érecteurs spinaux · Lombaires",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
+        "rest": 60,
+        "points": [
+          "Mouvement lent et contrôlé",
+          "Dos droit, pas d'hyperextension",
+          "Poids de corps d'abord"
+        ],
+        "tip": "Prévention des lombalgies très fréquentes au foot. Récup 60s."
+      },
+      {
+        "id": "face_pull",
+        "name": "Face Pull Câble",
+        "equipment": "Câble",
+        "focus": "Deltoïdes post. · Coiffe des rotateurs",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg",
+        "rest": 45,
+        "points": [
+          "Câble à hauteur du visage",
+          "Tirer vers le front en ouvrant les coudes",
+          "Rotation externe"
+        ],
+        "tip": "Protège la coiffe pour les relances et duels. Récup 45s."
+      },
+      {
+        "id": "bird_dog",
+        "name": "Bird-Dog",
+        "equipment": "Poids de corps",
+        "focus": "Chaîne postérieure · Coordination",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/0.jpg",
+        "rest": 30,
+        "points": [
+          "Bras droit + jambe gauche simultanés",
+          "Maintien 2s, colonne neutre",
+          "Alterner les côtés"
+        ],
+        "tip": "Coordination bras/jambe opposés = pattern de course. Récup 30s."
+      }
+    ]
+  },
+  "pecs": {
+    "label": "Pectoraux",
+    "emoji": "💪",
+    "color": "#E53935",
+    "exercises": [
+      {
+        "id": "dev_couche_halt",
+        "name": "Développé Couché Haltères",
+        "equipment": "Haltères",
+        "focus": "Pectoraux · Deltoïdes ant. · Triceps",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bench_Press/0.jpg",
+        "rest": 90,
+        "points": [
+          "Omoplates serrées sur le banc",
+          "Descente lente 3s",
+          "Poussée explosive vers le haut"
+        ],
+        "tip": "Amplitude plus grande qu'avec la barre. Plus stable pour les épaules. Récup 90s."
+      },
+      {
+        "id": "dev_couche_bar",
+        "name": "Développé Couché Barre",
+        "equipment": "Barre",
+        "focus": "Pectoraux · Force maximale",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Incline_Shoulder_Raise/0.jpg",
+        "rest": 90,
+        "points": [
+          "Prise légèrement plus large que les épaules",
+          "Descente contrôlée jusqu'au sternum",
+          "Poussée explosive"
+        ],
+        "tip": "Exercice de force de base. Récup 90-120s pour les séries lourdes."
+      },
+      {
+        "id": "dev_incline",
+        "name": "Développé Incliné",
+        "equipment": "Haltères",
+        "focus": "Pectoraux supérieurs · Épaules",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Press/0.jpg",
+        "rest": 75,
+        "points": [
+          "Banc à 30-45°",
+          "Haltères alignés avec les pecs",
+          "Descente contrôlée"
+        ],
+        "tip": "Cible le haut des pectoraux, zone souvent négligée. Récup 75s."
+      },
+      {
+        "id": "ecarte_cable",
+        "name": "Écarté Câble Bas",
+        "equipment": "Câble",
+        "focus": "Pectoraux internes · Finition",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/0.jpg",
+        "rest": 60,
+        "points": [
+          "Arc du bas vers le haut",
+          "Bras quasi tendus",
+          "Contraction forte en haut"
+        ],
+        "tip": "Finition des pecs. Stretch à fond en position basse. Récup 60s."
+      },
+      {
+        "id": "ecarte_halt",
+        "name": "Écarté Haltères",
+        "equipment": "Haltères",
+        "focus": "Pectoraux · Stretch · Isolation",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Flyes/0.jpg",
+        "rest": 60,
+        "points": [
+          "Légère flexion des coudes",
+          "Descente jusqu'à l'étirement",
+          "Remonter en arc de cercle"
+        ],
+        "tip": "Excellent pour l'étirement des pecs. Charge légère, amplitude complète. Récup 60s."
+      },
+      {
+        "id": "pushup",
+        "name": "Push-up / Pompe",
+        "equipment": "Poids de corps",
+        "focus": "Pectoraux · Triceps · Gainage",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up_Wide/0.jpg",
+        "rest": 45,
+        "points": [
+          "Corps gainé tête-talons",
+          "Coudes à 45° du corps",
+          "Poitrine effleure le sol"
+        ],
+        "tip": "Exercice de base utilisable partout. Ajouter du lest si trop facile. Récup 45s."
+      },
+      {
+        "id": "pec_deck",
+        "name": "Pec Deck / Machine",
+        "equipment": "Machine",
+        "focus": "Pectoraux · Isolation pure",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Chest_Press/0.jpg",
+        "rest": 60,
+        "points": [
+          "Dos collé au dossier",
+          "Amplitude complète",
+          "Contraction 1s en fermeture"
+        ],
+        "tip": "Isolation des pecs sans solliciter les stabilisateurs. Idéal en finition. Récup 60s."
+      },
+      {
+        "id": "dips",
+        "name": "Dips Banc",
+        "equipment": "Banc",
+        "focus": "Pectoraux bas · Triceps · Épaules",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/0.jpg",
+        "rest": 60,
+        "points": [
+          "Mains sur banc, pieds tendus",
+          "Descendre jusqu'à 90° au coude",
+          "Poussée explosive"
+        ],
+        "tip": "Buste légèrement penché en avant pour cibler les pecs. Récup 60s."
+      }
+    ]
+  },
+  "epaules": {
+    "label": "Épaules",
+    "emoji": "🏋️",
+    "color": "#FFB300",
+    "exercises": [
+      {
+        "id": "dev_mil_halt",
+        "name": "Développé Militaire Haltères",
+        "equipment": "Haltères",
+        "focus": "Deltoïdes · Stabilité épaule",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shoulder_Press/0.jpg",
+        "rest": 75,
+        "points": [
+          "Haltères à hauteur d'oreilles",
+          "Poussée verticale sans cambrer",
+          "Assis pour isoler"
+        ],
+        "tip": "Épaules puissantes = protection dans les duels. Récup 75s."
+      },
+      {
+        "id": "dev_mil_barre",
+        "name": "Développé Militaire Barre",
+        "equipment": "Barre",
+        "focus": "Deltoïdes · Force globale épaules",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/0.jpg",
+        "rest": 90,
+        "points": [
+          "Barre au niveau du menton",
+          "Poussée verticale",
+          "Ne pas cambrer les lombaires"
+        ],
+        "tip": "Version barre pour charger plus lourd. Récup 90s."
+      },
+      {
+        "id": "elev_lat",
+        "name": "Élévations Latérales",
+        "equipment": "Haltères",
+        "focus": "Deltoïdes médians · Largeur épaules",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg",
+        "rest": 45,
+        "points": [
+          "Bras quasi tendus",
+          "Montée jusqu'à l'horizontale",
+          "Petit doigt vers le haut"
+        ],
+        "tip": "Charge légère, mouvement strict. Pas d'élan avec le buste. Récup 45s."
+      },
+      {
+        "id": "elev_front",
+        "name": "Élévations Frontales",
+        "equipment": "Haltères",
+        "focus": "Deltoïdes antérieurs",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Dumbbell_Raise/0.jpg",
+        "rest": 45,
+        "points": [
+          "Montée jusqu'à l'horizontale",
+          "Bras tendus ou légèrement fléchis",
+          "Alterner ou simultané"
+        ],
+        "tip": "Cible l'avant des épaules. Souvent déjà travaillé au développé, ne pas surcharger. Récup 45s."
+      },
+      {
+        "id": "oiseau_inv",
+        "name": "Oiseau Inversé",
+        "equipment": "Haltères",
+        "focus": "Deltoïdes postérieurs · Rhomboïdes",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Bent-Over_Rear_Delt_Raise/0.jpg",
+        "rest": 45,
+        "points": [
+          "Penché en avant à 90°",
+          "Bras légèrement fléchis",
+          "Élévation latérale vers l'arrière"
+        ],
+        "tip": "Arrière des épaules souvent négligé. Crucial pour la posture. Récup 45s."
+      },
+      {
+        "id": "arnold_press",
+        "name": "Arnold Press",
+        "equipment": "Haltères",
+        "focus": "Deltoïdes complets · Rotation",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arnold_Dumbbell_Press/0.jpg",
+        "rest": 75,
+        "points": [
+          "Départ paumes vers soi",
+          "Rotation en montant",
+          "Finir paumes vers l'extérieur"
+        ],
+        "tip": "Travaille les 3 faisceaux des deltoïdes. Mouvement de rotation complet. Récup 75s."
+      },
+      {
+        "id": "face_pull_ep",
+        "name": "Face Pull",
+        "equipment": "Câble",
+        "focus": "Deltoïdes post. · Coiffe des rotateurs",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg",
+        "rest": 45,
+        "points": [
+          "Câble à hauteur du visage",
+          "Tirer vers le front en ouvrant les coudes",
+          "Rotation externe"
+        ],
+        "tip": "Essentiel pour la santé des épaules et prévention blessures. Récup 45s."
+      }
+    ]
+  },
+  "biceps": {
+    "label": "Biceps",
+    "emoji": "💪",
+    "color": "#00BCD4",
+    "exercises": [
+      {
+        "id": "curl_halt",
+        "name": "Curl Haltères Alterné",
+        "equipment": "Haltères",
+        "focus": "Biceps · Brachial",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Alternate_Bicep_Curl/0.jpg",
+        "rest": 60,
+        "points": [
+          "Coudes fixes aux flancs",
+          "Rotation du poignet en montant",
+          "Alterner les bras"
+        ],
+        "tip": "Supination du poignet maximise la contraction du biceps. Récup 60s."
+      },
+      {
+        "id": "curl_barre",
+        "name": "Curl Barre",
+        "equipment": "Barre droite / EZ",
+        "focus": "Biceps · Force maximale",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg",
+        "rest": 75,
+        "points": [
+          "Coudes fixes aux flancs",
+          "Grip légèrement plus large que les épaules",
+          "Contraction forte en haut"
+        ],
+        "tip": "Permet de charger plus lourd qu'avec les haltères. Récup 75s."
+      },
+      {
+        "id": "curl_marteau",
+        "name": "Curl Marteau",
+        "equipment": "Haltères",
+        "focus": "Brachioradial · Avant-bras",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cross_Body_Hammer_Curl/0.jpg",
+        "rest": 60,
+        "points": [
+          "Prise neutre (pouces vers le haut)",
+          "Coudes fixes",
+          "Renforce l'avant-bras"
+        ],
+        "tip": "Idéal pour l'avant-bras et les contrôles de balle. Récup 60s."
+      },
+      {
+        "id": "curl_cable",
+        "name": "Curl Câble",
+        "equipment": "Câble",
+        "focus": "Biceps · Tension constante",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Alternate_Hammer_Curl/0.jpg",
+        "rest": 60,
+        "points": [
+          "Tension constante tout le mouvement",
+          "Coudes fixes",
+          "Contraction maximale en haut"
+        ],
+        "tip": "La tension du câble reste constante contrairement aux haltères. Récup 60s."
+      },
+      {
+        "id": "curl_concentre",
+        "name": "Curl Concentré",
+        "equipment": "Haltère",
+        "focus": "Biceps · Pic musculaire",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Dumbbell_Curl/0.jpg",
+        "rest": 60,
+        "points": [
+          "Coude posé contre la cuisse",
+          "Mouvement lent et contrôlé",
+          "Contraction maximale en haut"
+        ],
+        "tip": "Isolation totale du biceps. Bon exercice de finition. Récup 60s."
+      },
+      {
+        "id": "curl_pupitre",
+        "name": "Curl Pupitre",
+        "equipment": "Barre EZ / Haltère",
+        "focus": "Biceps · Chef long",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Preacher_Curl/0.jpg",
+        "rest": 60,
+        "points": [
+          "Bras posés sur le pupitre",
+          "Descente contrôlée jusqu'à extension complète",
+          "Pas d'élan"
+        ],
+        "tip": "Élimine totalement la triche. Excellent pour le chef long du biceps. Récup 60s."
+      }
+    ]
+  },
+  "triceps": {
+    "label": "Triceps",
+    "emoji": "💪",
+    "color": "#9C27B0",
+    "exercises": [
+      {
+        "id": "tricep_poulie",
+        "name": "Triceps Poulie Haute (Corde)",
+        "equipment": "Câble",
+        "focus": "Triceps · Extension du coude",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown/0.jpg",
+        "rest": 60,
+        "points": [
+          "Coudes fixes aux flancs",
+          "Pousser vers le bas en écartant la corde",
+          "Contraction en bas"
+        ],
+        "tip": "Isolation pure des triceps. Récup 60s."
+      },
+      {
+        "id": "dips_tricep",
+        "name": "Dips Banc",
+        "equipment": "Banc",
+        "focus": "Triceps · Pecs bas · Épaules ant.",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/0.jpg",
+        "rest": 60,
+        "points": [
+          "Mains sur banc, pieds tendus",
+          "Descendre jusqu'à 90°",
+          "Poussée explosive"
+        ],
+        "tip": "Buste droit pour cibler les triceps (vs penché pour les pecs). Récup 60s."
+      },
+      {
+        "id": "skull_crusher",
+        "name": "Skull Crusher (EZ Bar)",
+        "equipment": "Barre EZ",
+        "focus": "Triceps · Chef long",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Floor_Press/0.jpg",
+        "rest": 75,
+        "points": [
+          "Allongé sur banc",
+          "Barre descend vers le front",
+          "Coudes fixes"
+        ],
+        "tip": "Excellent pour le volume des triceps. Attention à ne pas trop descendre. Récup 75s."
+      },
+      {
+        "id": "ext_tete",
+        "name": "Extension au-dessus Tête",
+        "equipment": "Haltère / Câble",
+        "focus": "Triceps · Chef long (étirement)",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Triceps_Press/0.jpg",
+        "rest": 60,
+        "points": [
+          "Bras derrière la tête",
+          "Coudes pointés vers le haut",
+          "Étirement maximal en bas"
+        ],
+        "tip": "Seul exercice qui étire complètement le chef long. Récup 60s."
+      },
+      {
+        "id": "kickback",
+        "name": "Kickback Triceps",
+        "equipment": "Haltère",
+        "focus": "Triceps · Chef latéral",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Stretch/0.jpg",
+        "rest": 45,
+        "points": [
+          "Buste penché à 90°",
+          "Bras parallèle au sol",
+          "Extension complète en arrière"
+        ],
+        "tip": "Isolation en finition de séance. Charge légère, répétitions lentes. Récup 45s."
+      },
+      {
+        "id": "dev_serre",
+        "name": "Développé Serré",
+        "equipment": "Barre",
+        "focus": "Triceps · Pecs internes",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up_Wide/0.jpg",
+        "rest": 75,
+        "points": [
+          "Prise serrée (épaules de largeur)",
+          "Coudes contre le corps",
+          "Descente contrôlée"
+        ],
+        "tip": "Version barre pour charger les triceps. Récup 75s."
+      }
+    ]
+  },
+  "gainage": {
+    "label": "Gainage / Core",
+    "emoji": "🔥",
+    "color": "#FF5722",
+    "exercises": [
+      {
+        "id": "planche",
+        "name": "Planche Frontale",
+        "equipment": "Poids de corps",
+        "focus": "Transverse · Gainage global",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg",
+        "rest": 30,
+        "points": [
+          "Corps aligné tête-talons",
+          "Abdos contractés",
+          "Respiration normale"
+        ],
+        "tip": "Exercice de gainage fondamental. Augmenter la durée progressivement. Récup 30s."
+      },
+      {
+        "id": "planche_lat",
+        "name": "Planche Latérale",
+        "equipment": "Poids de corps",
+        "focus": "Obliques · Gainage latéral",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/0.jpg",
+        "rest": 30,
+        "points": [
+          "Corps aligné de profil",
+          "Hanche levée",
+          "Ne pas laisser tomber le bassin"
+        ],
+        "tip": "Gainage latéral essentiel pour les changements de direction. Récup 30s."
+      },
+      {
+        "id": "crunch",
+        "name": "Crunch",
+        "equipment": "Poids de corps",
+        "focus": "Abdominaux · Grand droit",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Crunches/0.jpg",
+        "rest": 30,
+        "points": [
+          "Mains derrière la tête sans tirer",
+          "Expirer en montant",
+          "Lombaires au sol"
+        ],
+        "tip": "Exercice de base des abdos. Contrôler la montée et la descente. Récup 30s."
+      },
+      {
+        "id": "russian_twist",
+        "name": "Russian Twist",
+        "equipment": "Poids de corps / Disque",
+        "focus": "Obliques · Rotation du tronc",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/0.jpg",
+        "rest": 30,
+        "points": [
+          "Pieds levés ou posés",
+          "Rotation du buste (pas des bras)",
+          "Ajouter un poids pour progresser"
+        ],
+        "tip": "Mouvement de rotation = spécifique football. Récup 30s."
+      },
+      {
+        "id": "leg_raise",
+        "name": "Relevé de Jambes",
+        "equipment": "Poids de corps / Barre",
+        "focus": "Abdominaux bas · Flexion hanche",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg",
+        "rest": 30,
+        "points": [
+          "Lombaires plaquées au sol (ou suspension)",
+          "Montée lente et contrôlée",
+          "Descente sans rebond"
+        ],
+        "tip": "Excellent pour le bas des abdos. Version suspendue plus intense. Récup 30s."
+      },
+      {
+        "id": "dead_bug",
+        "name": "Dead Bug",
+        "equipment": "Poids de corps",
+        "focus": "Core profond · Coordination",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dead_Bug/0.jpg",
+        "rest": 30,
+        "points": [
+          "Dos collé au sol",
+          "Bras et jambes opposés en extension",
+          "Expirer en descendant"
+        ],
+        "tip": "Active les muscles profonds du core. Pattern identique au Bird-Dog debout. Récup 30s."
+      },
+      {
+        "id": "bird_dog_core",
+        "name": "Bird-Dog",
+        "equipment": "Poids de corps",
+        "focus": "Chaîne post. · Core · Coordination",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/0.jpg",
+        "rest": 30,
+        "points": [
+          "À 4 pattes, dos plat",
+          "Bras droit + jambe gauche",
+          "Maintien 2s, colonne neutre"
+        ],
+        "tip": "Coordination essentielle pour le football. Renforce dos et abdos simultanément. Récup 30s."
+      },
+      {
+        "id": "crunch_oblique",
+        "name": "Crunch Oblique",
+        "equipment": "Poids de corps",
+        "focus": "Obliques · Rotation",
+        "img": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Side_Bend/0.jpg",
+        "rest": 30,
+        "points": [
+          "Rotation vers le genou opposé",
+          "Expirer en montant",
+          "Alterner les côtés"
+        ],
+        "tip": "Muscles de rotation spécifiques aux dribbles et changements de direction. Récup 30s."
+      }
+    ]
+  }
+};
+
+/* Helper : récupérer tous les exercices d'un groupe */
+function getExercisesByGroup(groupId) {
+  return EXERCISE_LIBRARY[groupId] ? EXERCISE_LIBRARY[groupId].exercises : [];
+}
+
+/* Helper : trouver un exercice par son nom (recherche dans toute la biblio) */
+function findExerciseByName(name) {
+  for (const group of Object.values(EXERCISE_LIBRARY)) {
+    const found = group.exercises.find(e => e.name.toLowerCase() === name.toLowerCase());
+    if (found) return found;
+  }
+  return null;
+}
+
+/* Helper : liste de tous les groupes */
+function getAllGroups() {
+  return Object.entries(EXERCISE_LIBRARY).map(([id, data]) => ({
+    id, label: data.label, emoji: data.emoji, color: data.color,
+    count: data.exercises.length
+  }));
+}
+
+
+/* ══════════════════════════════════════════════════════
+   BIBLIOTHÈQUE — UI & interactions
+══════════════════════════════════════════════════════ */
+let libCurrentGroup = 'all';
+let libSearchQuery  = '';
+
+function libThumbError(img) {
+  img.style.display = 'none';
+  var fb = img.nextElementSibling;
+  if (fb) fb.style.display = 'flex';
+}
+
+function renderLibPills() {
+  var wrap = document.getElementById('lib-pills');
+  if (!wrap) return;
+  var total = Object.values(EXERCISE_LIBRARY).reduce(function(n, g){ return n + g.exercises.length; }, 0);
+  var html = '<button class="lib-pill active" data-group="all" onclick="selectLibGroup(this.dataset.group)">Tous <span class="lib-pill-count">' + total + '</span></button>';
+  Object.entries(EXERCISE_LIBRARY).forEach(function(entry) {
+    var id = entry[0], group = entry[1];
+    html += '<button class="lib-pill" data-group="' + id + '" onclick="selectLibGroup(this.dataset.group)">'
+          + group.emoji + ' ' + group.label
+          + ' <span class="lib-pill-count">' + group.exercises.length + '</span></button>';
+  });
+  wrap.innerHTML = html;
+}
+
+function selectLibGroup(groupId) {
+  libCurrentGroup = groupId;
+  libSearchQuery  = '';
+  var inp = document.getElementById('lib-search-input');
+  if (inp) inp.value = '';
+  document.querySelectorAll('.lib-pill').forEach(function(p) {
+    p.classList.toggle('active', p.dataset.group === groupId);
+  });
+  renderLibList();
+}
+
+function filterLibrary(query) {
+  libSearchQuery = (query || '').toLowerCase().trim();
+  if (libSearchQuery) {
+    document.querySelectorAll('.lib-pill').forEach(function(p){ p.classList.remove('active'); });
+  }
+  renderLibList();
+}
+
+function renderLibList() {
+  var wrap = document.getElementById('lib-list');
+  if (!wrap) return;
+  var html = '';
+  var total = 0;
+
+  Object.entries(EXERCISE_LIBRARY).forEach(function(entry) {
+    var groupId = entry[0], group = entry[1];
+    if (libCurrentGroup !== 'all' && libCurrentGroup !== groupId) return;
+    var exercises = group.exercises.filter(function(ex) {
+      if (!libSearchQuery) return true;
+      return ex.name.toLowerCase().indexOf(libSearchQuery) !== -1
+          || ex.focus.toLowerCase().indexOf(libSearchQuery) !== -1
+          || ex.equipment.toLowerCase().indexOf(libSearchQuery) !== -1;
+    });
+    if (!exercises.length) return;
+    html += '<div class="lib-group-label">' + group.emoji + ' ' + group.label + '</div>';
+    exercises.forEach(function(ex) {
+      html += '<div class="lib-card" data-group="' + groupId + '" data-exid="' + ex.id + '" onclick="openLibDetail(this.dataset.group, this.dataset.exid)">'
+            + '<div class="lib-thumb">'
+            + '<img data-lazysrc="' + ex.img + '" alt="" style="opacity:0;transition:opacity .3s">'
+            + '<div class="lib-thumb-placeholder" style="display:none">' + group.emoji + '</div>'
+            + '</div>'
+            + '<div class="lib-info">'
+            + '<div class="lib-name">' + ex.name + '</div>'
+            + '<div class="lib-equip">🔧 ' + ex.equipment + '</div>'
+            + '<div class="lib-focus">' + ex.focus + '</div>'
+            + '</div>'
+            + '<div class="lib-arrow">›</div>'
+            + '</div>';
+      total++;
+    });
+  });
+
+  if (!total) {
+    html = '<div class="lib-empty"><div class="lib-empty-icon">🔍</div>Aucun exercice trouvé<br><span style="font-size:11px">Essaie un autre terme</span></div>';
+  }
+  wrap.innerHTML = html;
+  setupLibImgObserver();
+}
+
+function setupLibImgObserver() {
+  var imgs = document.querySelectorAll('.lib-thumb img[data-lazysrc]');
+  if (!imgs.length) return;
+
+  function loadImg(img) {
+    var src = img.dataset.lazysrc;
+    if (!src) return;
+    img.removeAttribute('data-lazysrc');
+    fetch(src, { mode: 'cors', cache: 'force-cache' })
+      .then(function(r){ if (!r.ok) throw new Error(''); return r.blob(); })
+      .then(function(blob){
+        img.src = URL.createObjectURL(blob);
+        img.style.opacity = '1';
+      })
+      .catch(function(){ libThumbError(img); });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          loadImg(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '80px' });
+    imgs.forEach(function(img){ observer.observe(img); });
+  } else {
+    imgs.forEach(loadImg); // fallback navigateurs anciens
+  }
+}
+
+function openLibDetail(groupId, exId) {
+  var group = EXERCISE_LIBRARY[groupId];
+  if (!group) return;
+  var ex = group.exercises.find(function(e){ return e.id === exId; });
+  if (!ex) return;
+
+  document.getElementById('lib-detail-group').textContent = group.emoji + ' ' + group.label.toUpperCase();
+  document.getElementById('lib-detail-name').textContent  = ex.name;
+  document.getElementById('lib-detail-equip').textContent = '🔧 ' + ex.equipment;
+  document.getElementById('lib-detail-rest').textContent  = '⏱ ' + ex.rest + 's récup recommandé';
+  document.getElementById('lib-detail-focus').textContent = ex.focus;
+  document.getElementById('lib-detail-tip').innerHTML     = ex.tip;
+
+  document.getElementById('lib-detail-pts').innerHTML = ex.points.map(function(p, i) {
+    return '<div class="lib-detail-pt"><div class="lib-detail-pt-num">' + (i+1) + '</div><div>' + p + '</div></div>';
+  }).join('');
+
+  var thumbImg = document.getElementById('lib-detail-thumb-img');
+  thumbImg.src = ex.img;
+  thumbImg.onerror = function(){ this.style.display = 'none'; };
+
+  var imgWrap = document.getElementById('lib-detail-img-wrap');
+  imgWrap.innerHTML = '<div style="color:var(--dim);font-size:11px;padding:16px">Chargement...</div>';
+  fetch(ex.img, { mode: 'cors', cache: 'force-cache' })
+    .then(function(r){ if (!r.ok) throw new Error(''); return r.blob(); })
+    .then(function(blob){
+      var url = URL.createObjectURL(blob);
+      imgWrap.innerHTML = '<img src="' + url + '" alt="' + ex.name + '" style="width:100%;max-height:200px;object-fit:contain;display:block;background:var(--s2);padding:8px">';
+    })
+    .catch(function(){
+      imgWrap.innerHTML = '<div style="color:var(--dim);font-size:11px;padding:16px;text-align:center">Image indisponible</div>';
+    });
+
+  document.getElementById('lib-detail-modal').classList.add('show');
+}
+
+function closeLibDetail() {
+  document.getElementById('lib-detail-modal').classList.remove('show');
+}
+
+function initLibrary() {
+  renderLibPills();
+  renderLibList();
+}
+
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+initCounts();
+
+// Initialiser les variantes
+initVariants();
+
+// Boutons schéma
+initSchemaButtons();
+
+// Initialiser le suivi de charges
+initWeightTracking();
+
+// Ajouter bouton focus + long-press sur chaque card
+document.querySelectorAll('.card').forEach(card => {
+  addFocusBtn(card);
+  addLongPress(card);
+});
+
+
+// Set starting accents (jambes)
+const a0 = ACCENTS.jambes;
+document.documentElement.style.setProperty('--acc',  a0.acc);
+document.documentElement.style.setProperty('--acc2', a0.acc2);
+document.documentElement.style.setProperty('--acc-r', a0.r);
+</script>
+</body>
+</html>
