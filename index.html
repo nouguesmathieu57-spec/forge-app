@@ -1740,17 +1740,6 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   <meta name="apple-mobile-web-app-title" content="FORGE">
   <link rel="apple-touch-icon" href="icon-192.png">
   <script>
-window.addEventListener('error', function(e) {
-  var msg = e.message + ' @ ' + e.filename + ':' + e.lineno + ':' + e.colno;
-  if (e.error && e.error.stack) msg += '\nStack: ' + e.error.stack.split('\n').slice(0,4).join(' | ');
-  console.error('FORGE ERROR:', msg);
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#E53935;color:#fff;padding:8px 12px;font-size:11px;z-index:9999;font-family:monospace;white-space:pre-wrap;word-break:break-all';
-  d.textContent = msg;
-  document.body && document.body.appendChild(d);
-});
-</script>
-<script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
