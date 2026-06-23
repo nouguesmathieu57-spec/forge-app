@@ -1732,6 +1732,86 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   padding-bottom: 30px;
   box-sizing: border-box;
 }
+
+/* ══ HYDRATATION ════════════════════════════════════ */
+.hydra-wrap{
+  background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:12px 14px;margin-bottom:8px;
+}
+.hydra-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hydra-icon{font-size:22px}
+.hydra-info{flex:1}
+.hydra-title{
+  font-family:'Bebas Neue',sans-serif;font-size:15px;
+  color:var(--wht);letter-spacing:.5px;
+}
+.hydra-amount{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;
+  color:#4FC3F7;line-height:1;margin-top:2px;
+}
+.hydra-pct{font-size:10px;color:var(--dim);margin-top:1px}
+
+/* Barre de remplissage eau */
+.hydra-bar-wrap{
+  height:10px;background:var(--s4);border-radius:6px;
+  overflow:hidden;margin-bottom:12px;position:relative;
+}
+.hydra-bar-fill{
+  height:100%;border-radius:6px;
+  background:linear-gradient(90deg,#0288D1,#4FC3F7);
+  transition:width .5s cubic-bezier(.34,1.56,.64,1);
+  position:relative;overflow:hidden;
+}
+.hydra-bar-fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.3) 50%,transparent 100%);
+  animation:hydra-shine 2s ease infinite;
+}
+@keyframes hydra-shine{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(200%)}
+}
+.hydra-bar-fill.full{background:linear-gradient(90deg,#0277BD,#00BCD4)}
+.hydra-bar-fill.over{background:linear-gradient(90deg,#00ACC1,#26C6DA)}
+
+/* Boutons eau */
+.hydra-btns{display:flex;gap:8px}
+.hydra-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding:10px 4px;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(79,195,247,.3);
+  background:rgba(79,195,247,.08);
+  transition:all .15s;
+}
+.hydra-btn:active{background:rgba(79,195,247,.25);transform:scale(.96)}
+.hydra-btn-icon{font-size:22px;line-height:1}
+.hydra-btn-lbl{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:1px;color:#4FC3F7;
+}
+.hydra-reset{
+  font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;
+  background:none;border:none;color:var(--dim);cursor:pointer;
+  padding:6px 0 0;width:100%;text-align:center;
+}
+
+/* ══ SÉANCE MANQUÉE ══════════════════════════════════ */
+.seance-manquee-wrap{
+  margin-bottom:8px;
+}
+.seance-manquee-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;
+  padding:10px;border-radius:8px;cursor:pointer;
+  border:1px dashed rgba(255,179,0,.4);
+  background:rgba(255,179,0,.06);color:#FFB300;
+  transition:all .15s;
+}
+.seance-manquee-btn.active{
+  background:rgba(255,179,0,.15);border-style:solid;
+  border-color:rgba(255,179,0,.6);
+}
+.seance-manquee-btn:active{opacity:.8}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -6068,6 +6148,7 @@ function renderNutri() {
   }
   upMacro('p',totP,macros.p); upMacro('g',totG,macros.g); upMacro('l',totL,macros.l);
   renderMealsList(meals,today); renderNutriMonth();
+  if (typeof renderHydra === 'function') renderHydra();
 }
 function renderMealsList(meals,today) {
   var wrap=document.getElementById('nutri-meals-list'); if(!wrap)return;
@@ -6568,6 +6649,110 @@ function renderSessionNotes(group) {
     div.appendChild(meta); div.appendChild(txt);
     wrap.appendChild(div);
   });
+}
+
+
+/* ══════════════════════════════════════════════════════
+   HYDRATATION
+══════════════════════════════════════════════════════ */
+var HYDRA_KEY     = 'hydra-log-v1';
+var MANQUEE_KEY   = 'seance-manquee-v1';
+
+function hydraLoad() {
+  try {
+    var s = localStorage.getItem(HYDRA_KEY);
+    if (!s) return { date: '', ml: 0 };
+    var d = JSON.parse(s);
+    if (d.date !== localDateKey(new Date())) return { date: localDateKey(new Date()), ml: 0 };
+    return d;
+  } catch(e) { return { date: '', ml: 0 }; }
+}
+function hydraSave(ml) {
+  try {
+    localStorage.setItem(HYDRA_KEY, JSON.stringify({ date: localDateKey(new Date()), ml: ml }));
+  } catch(e) {}
+}
+
+function manqueeLoad() {
+  try {
+    var s = localStorage.getItem(MANQUEE_KEY);
+    if (!s) return false;
+    var d = JSON.parse(s);
+    return d.date === localDateKey(new Date()) && d.manquee === true;
+  } catch(e) { return false; }
+}
+function manqueeSave(val) {
+  try {
+    localStorage.setItem(MANQUEE_KEY, JSON.stringify({ date: localDateKey(new Date()), manquee: val }));
+  } catch(e) {}
+}
+
+/* isTrainingDay tient compte de la séance manquée */
+function isTrainingDayEffectif() {
+  if (manqueeLoad()) return false;
+  return isTrainingDay();
+}
+
+function addWater(ml) {
+  var data = hydraLoad();
+  data.ml  = (data.ml || 0) + ml;
+  hydraSave(data.ml);
+  renderHydra();
+  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+  showToast('💧 +' + ml + 'ml ajouté !', 'rgba(79,195,247,.9)');
+}
+
+function resetWater() {
+  hydraSave(0);
+  renderHydra();
+}
+
+function toggleSeanceManquee() {
+  var actuel = manqueeLoad();
+  manqueeSave(!actuel);
+  renderHydra();
+  renderNutri();
+  var txt = !actuel
+    ? '⚠️ Macros ajustées en mode repos'
+    : '✅ Séance rétablie';
+  showToast(txt, 'rgba(255,179,0,.95)');
+}
+
+function renderHydra() {
+  var data      = hydraLoad();
+  var ml        = data.ml || 0;
+  var training  = isTrainingDayEffectif();
+  var goal      = training ? 2500 : 2000;
+  var pct       = Math.min(Math.round(ml / goal * 100), 100);
+  var manquee   = manqueeLoad();
+
+  // Objectif
+  var gEl = document.getElementById('hydra-goal');
+  if (gEl) gEl.textContent = goal;
+  var cEl = document.getElementById('hydra-current');
+  if (cEl) cEl.textContent = ml;
+  var pEl = document.getElementById('hydra-pct');
+  if (pEl) pEl.textContent = pct + '% de l’objectif' + (pct >= 100 ? ' ✅' : '');
+
+  // Barre
+  var bar = document.getElementById('hydra-bar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.className   = 'hydra-bar-fill' + (pct >= 100 ? ' full' : '') + (ml > goal ? ' over' : '');
+  }
+
+  // Bouton séance manquée (visible uniquement si jour d'entraînement OU déjà manquée)
+  var wrap = document.getElementById('seance-manquee-wrap');
+  var btn  = document.getElementById('seance-manquee-btn');
+  var icon = document.getElementById('seance-manquee-icon');
+  var txt  = document.getElementById('seance-manquee-txt');
+  if (wrap) {
+    var showBtn = isTrainingDay(); // toujours basé sur le planning, pas l'état manquée
+    wrap.style.display = showBtn ? 'block' : 'none';
+  }
+  if (btn)  btn.classList.toggle('active', manquee);
+  if (icon) icon.textContent = manquee ? '✅' : '⚠️';
+  if (txt)  txt.textContent  = manquee ? 'SÉANCE MARQUÉE COMME RATÉE — MACROS REPOS' : 'J’AI RATÉ MA SÉANCE';
 }
 
 
