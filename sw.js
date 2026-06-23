@@ -1,5 +1,11 @@
 const CACHE = 'football-gym-v16';
-const ASSETS = ['/'];
+const ASSETS = [
+  '/forge-app/',
+  '/forge-app/index.html',
+  '/forge-app/manifest.json',
+  '/forge-app/icon-192.png',
+  '/forge-app/icon-512.png',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -27,7 +33,7 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return resp;
-      }).catch(() => new Response('', { status: 503 }));
+      }).catch(() => caches.match('/forge-app/index.html'));
     })
   );
 });
