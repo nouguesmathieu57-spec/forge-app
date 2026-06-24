@@ -245,7 +245,7 @@ body{
 /* ── TIMER OVERLAY ─────────────────────────────────────── */
 #timer-overlay{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;top:0;right:0;bottom:0;left:0;
   background:rgba(8,8,8,.96);
   z-index:300;
   flex-direction:column;
@@ -880,7 +880,7 @@ body{
    SCHÉMA POPUP
 ══════════════════════════════════════════════════════ */
 #schema-modal{
-  display:none;position:fixed;inset:0;
+  display:none;position:fixed;top:0;right:0;bottom:0;left:0;
   background:rgba(8,8,8,.92);z-index:500;
   align-items:center;justify-content:center;
   padding:16px;
@@ -1057,7 +1057,7 @@ body{
 
 /* ══ POPUP DÉTAIL EXERCICE ═══════════════════════════ */
 #lib-detail-modal{
-  display:none;position:fixed;inset:0;
+  display:none;position:fixed;top:0;right:0;bottom:0;left:0;
   background:rgba(8,8,8,.92);z-index:600;
   align-items:flex-end;justify-content:center;
 }
@@ -1588,7 +1588,7 @@ body{
 .nutri-day-cell.on-target{background:rgba(0,200,83,.15);color:#00C853;border-color:rgba(0,200,83,.4)}
 .nutri-day-cell.empty-cell{background:transparent;border:none}
 .nutri-month-wd{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;color:var(--dim);padding-bottom:3px}
-#nutri-profile-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:700;align-items:flex-end;justify-content:center;overflow-y:auto}
+#nutri-profile-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:1000;align-items:flex-end;justify-content:center;overflow-y:auto}
 #nutri-profile-modal.show{display:flex}
 .nutri-profile-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px 16px 40px;max-height:95vh;overflow-y:auto}
 .nutri-profile-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--wht);letter-spacing:1px;margin-bottom:16px;text-align:center}
@@ -1611,7 +1611,7 @@ body{
 .home-weight-save:active{opacity:.8}
 .home-weight-chart-btn{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;background:var(--s3);border:1px solid var(--s4);color:var(--dim);padding:3px 8px;border-radius:6px;cursor:pointer}
 .home-weight-reminder{font-size:10px;color:var(--dim);margin-top:4px;display:flex;align-items:center;gap:4px}
-#weight-chart-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:600;align-items:flex-end;justify-content:center}
+#weight-chart-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:1000;align-items:flex-end;justify-content:center}
 #weight-chart-modal.show{display:flex}
 .weight-chart-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
 .weight-chart-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0;flex-shrink:0}
@@ -1653,7 +1653,7 @@ body{
 .notes-existing-meta{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--dim);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
 .notes-del-btn{background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;padding:0 2px}
 /* Histoire notes popup */
-#notes-history-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:600;align-items:flex-end;justify-content:center}
+#notes-history-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:1000;align-items:flex-end;justify-content:center}
 #notes-history-modal.show{display:flex}
 .notes-history-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
 .notes-history-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0;flex-shrink:0}
@@ -1680,7 +1680,7 @@ body{
 #nav-back .nav-badge.show{ background:#2979FF }
 #nav-bras .nav-badge.show{ background:#E53935 }
 
-#prog-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:600;align-items:flex-end;justify-content:center}
+#prog-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:1000;align-items:flex-end;justify-content:center}
 #prog-modal.show{display:flex}
 
 /* ── TIMER GLOBAL SÉANCE ──────────────────────────── */
@@ -1889,7 +1889,7 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
 
 /* Modal choix session */
 #planning-edit-modal{
-  display:none;position:fixed;inset:0;
+  display:none;position:fixed;top:0;right:0;bottom:0;left:0;
   background:rgba(8,8,8,.92);z-index:700;
   align-items:flex-end;justify-content:center;
 }
@@ -1920,8 +1920,8 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
 
 /* ══ BACKUP / RESTORE ══════════════════════════════ */
 #backup-modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(8,8,8,.96);z-index:900;
+  display:none;position:fixed;top:0;right:0;bottom:0;left:0;
+  background:rgba(8,8,8,.96);z-index:1000;
   align-items:flex-end;justify-content:center;
 }
 #backup-modal.show{display:flex}
