@@ -3972,21 +3972,41 @@ function renderFocus() {
 function focusSaveWeights(skey, setsCount) {
   const tracker = document.getElementById('focus-sets-tracker');
   if (!tracker) return;
-  const inputs  = tracker.querySelectorAll('.weight-input');
+  const inputs   = tracker.querySelectorAll('.weight-input');
   const repInpsF = tracker.querySelectorAll('.rep-input');
-  const weights = [...inputs].map(i => parseFloat(i.value) || 0);
-  const repsF   = [...repInpsF].map(i => parseFloat(i.value) || 0);
-  const today   = localDateKey(new Date());
+  const weights  = [...inputs].map(i => parseFloat(i.value) || 0);
+  const repsF    = [...repInpsF].map(i => parseFloat(i.value) || 0);
+  const today    = localDateKey(new Date());
 
-  try { localStorage.setItem(skey, JSON.stringify({ weights, date: today })); } catch(e) {}
+  // Sauvegarder avec historique complet
+  var histData = { weights: weights, reps: repsF, date: today, history: [] };
+  try {
+    var existing = localStorage.getItem(skey);
+    if (existing) {
+      var parsed = JSON.parse(existing);
+      histData.history = parsed.history || [];
+      histData.history = histData.history.filter(function(h){ return h.date !== today; });
+    }
+  } catch(e2) {}
+  histData.history.unshift({ date: today, weights: weights, reps: repsF, max: Math.max.apply(null, weights) });
+  histData.history = histData.history.slice(0, 10);
+  try { localStorage.setItem(skey, JSON.stringify(histData)); } catch(e) {}
 
-  // Sync avec la carte principale
+  // Sync poids ET reps vers la carte principale
   document.querySelectorAll('.weight-tracker').forEach(wDiv => {
     if (wDiv.dataset.skey !== skey) return;
-    const cardInputs = wDiv.querySelectorAll('.weight-input');
-    const cardLasts  = wDiv.querySelectorAll('.weight-last');
-    const dateEl     = wDiv.querySelector('.weight-date');
+    const cardInputs  = wDiv.querySelectorAll('.weight-input');
+    const cardRepInps = wDiv.querySelectorAll('.rep-input');
+    const cardLasts   = wDiv.querySelectorAll('.weight-last');
+    const dateEl      = wDiv.querySelector('.weight-date');
+
+    // Mettre à jour les poids
     cardInputs.forEach((inp, i) => { if (weights[i] != null) inp.value = weights[i]; });
+
+    // Mettre à jour les reps
+    cardRepInps.forEach((inp, i) => { if (repsF[i] != null && repsF[i] > 0) inp.value = repsF[i]; });
+
+    // Mettre à jour les indicateurs "dernière séance"
     cardLasts.forEach((el, i) => {
       const prev = parseFloat(el.dataset.last);
       el.dataset.last = weights[i];
@@ -4104,7 +4124,11 @@ function switchTab(tab) {
   }
 
   // Render selon le tab
-  if (tab === 'home') renderHome();
+  if (tab === 'home') {
+    renderHome();
+    renderWeightCard();
+    updateHomeNotesCount();
+  }
 
   const a = (ACCENTS && ACCENTS[tab]) ? ACCENTS[tab] : (ACCENTS && ACCENTS.jambes ? ACCENTS.jambes : { acc:'#00C853', acc2:'#007B33', r:'0,200,83' });
   document.documentElement.style.setProperty('--acc',  a.acc);
@@ -4223,7 +4247,7 @@ function calRender() {
       try { navigator.vibrate && navigator.vibrate(15); } catch(err){}
       updateMonthProg();
       // Mettre à jour la barre de prog de l'accueil si visible
-      if (current === 'home') renderHome();
+      renderHome(); renderWeightCard();
     });
 
     grid.appendChild(cell);
@@ -5971,13 +5995,13 @@ function resetLibReplace(card) {
    PAGE ACCUEIL — logique
 ══════════════════════════════════════════════════════ */
 var HOME_SCHEDULE = {
-  1: { tab:'jambes', label:'Séance Jambes',    emoji:'🦵', color:'#00C853', duration:'~70 min',  accr:'0,200,83'   },
-  2: { tab:null,     label:'Entraînement Foot', emoji:'⚽', color:'#2979FF', duration:'Terrain',  accr:'41,121,255' },
-  3: { tab:'back',   label:'Séance Back',       emoji:'🔙', color:'#2979FF', duration:'~65 min',  accr:'41,121,255' },
-  4: { tab:'bras',   label:'Bras & Pecs',       emoji:'💪', color:'#E53935', duration:'~65 min',  accr:'229,57,53'  },
-  5: { tab:null,     label:'Entraînement Foot', emoji:'⚽', color:'#2979FF', duration:'Terrain',  accr:'41,121,255' },
-  6: { tab:'libre',  label:'Séance Libre',      emoji:'✦',  color:'#FFB300', duration:'Libre',    accr:'255,179,0'  },
-  0: { tab:null,     label:'Jour de Match',     emoji:'🏆', color:'#FFD600', duration:'Match',    accr:'255,214,0'  },
+  1: { tab:null,     label:'Repos',             emoji:'\u2744',  color:'#6495ED', duration:'Récupération', accr:'100,149,237' },
+  2: { tab:'jambes', label:'Séance Jambes', emoji:'\uD83E\uDDB5', color:'#00C853', duration:'~70 min',   accr:'0,200,83'    },
+  3: { tab:'back',   label:'Séance Back',   emoji:'\uD83D\uDD19',   color:'#2979FF', duration:'~65 min',   accr:'41,121,255'  },
+  4: { tab:'bras',   label:'Bras & Pecs',        emoji:'\uD83D\uDCAA',   color:'#E53935', duration:'~65 min',   accr:'229,57,53'   },
+  5: { tab:null,     label:'Entraînement Foot', emoji:'\u26BD', color:'#2979FF', duration:'Terrain',  accr:'41,121,255'  },
+  6: { tab:'libre',  label:'Séance Libre',  emoji:'\u2746',  color:'#FFB300', duration:'Libre',     accr:'255,179,0'   },
+  0: { tab:null,     label:'Jour de Match',      emoji:'\uD83C\uDFC6',  color:'#FFD600', duration:'Match',     accr:'255,214,0'   },
 };
 
 var JOURS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
@@ -6117,7 +6141,7 @@ function autoValidateCalendar(group) {
   if (current === 'planning') calRender();
 
   // Refresh accueil si ouvert
-  if (current === 'home') renderHome();
+  renderHome();
 
   // Toast de confirmation
   var emoji = group === 'jambes' ? '🦵' : group === 'back' ? '🔙' : '💪';
@@ -6334,13 +6358,13 @@ initCounts();
 var JOURS_COURTS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 
 var SESSION_OPTIONS = [
-  { key:'jambes', emoji:'\uD83E\uDDB5', name:'Jambes',       sub:'Quadri · Ischio · Fessiers', tab:'jambes', color:'#00C853' },
-  { key:'back',   emoji:'\uD83D\uDD19', name:'Back',          sub:'Dos · Trapèzes · Lombaires', tab:'back', color:'#2979FF' },
-  { key:'bras',   emoji:'\uD83D\uDCAA', name:'Bras & Pecs',   sub:'Pecto · Épaules · Biceps', tab:'bras', color:'#E53935' },
-  { key:'foot',   emoji:'⚽',        name:'Foot',          sub:'Entraînement ou match', tab:null, color:'#2979FF' },
-  { key:'libre',  emoji:'❆',        name:'Séance Libre', sub:'Exercices personnalisés', tab:'libre', color:'#FFB300' },
-  { key:'match',  emoji:'\u26BD',  name:'Match',         sub:'Jour de compétition', tab:null, color:'#FFD600' },
-  { key:'repos',  emoji:'\u2744',  name:'Repos',         sub:'Récupération', tab:null, color:'#666666' },
+  { key:'jambes', emoji:'\uD83E\uDDB5', name:'Jambes',       sub:'Quadri · Ischio · Fessiers',    tab:'jambes', color:'#00C853', accr:'0,200,83',    duration:'~70 min'      },
+  { key:'back',   emoji:'\uD83D\uDD19', name:'Back',          sub:'Dos · Trapèzes · Lombaires', tab:'back',   color:'#2979FF', accr:'41,121,255',  duration:'~65 min'      },
+  { key:'bras',   emoji:'\uD83D\uDCAA', name:'Bras & Pecs',   sub:'Pecto · Épaules · Biceps',  tab:'bras',   color:'#E53935', accr:'229,57,53',   duration:'~65 min'      },
+  { key:'foot',   emoji:'\u26BD',        name:'Foot',           sub:'Entraînement ou match',               tab:null,     color:'#2979FF', accr:'41,121,255',  duration:'Terrain'      },
+  { key:'libre',  emoji:'\u2746',        name:'Séance Libre', sub:'Exercices personnalisés',          tab:'libre',  color:'#FFB300', accr:'255,179,0',   duration:'Libre'        },
+  { key:'match',  emoji:'\u26BD',        name:'Match',          sub:'Jour de compétition',                 tab:null,     color:'#FFD600', accr:'255,214,0',   duration:'Match'        },
+  { key:'repos',  emoji:'\u2744',        name:'Repos',          sub:'Récupération',                   tab:null,     color:'#6495ED', accr:'100,149,237', duration:'Récupération' },
 ];
 
 initVariants();
@@ -6365,6 +6389,21 @@ document.querySelectorAll('.card').forEach(card => {
 initSwipe();
 
 // Planning modifiable
+
+/* Migration planning — réinitialise si l'ancien planning incorrect est détecté */
+(function() {
+  try {
+    var saved = localStorage.getItem(PLANNING_KEY);
+    if (saved) {
+      var s = JSON.parse(saved);
+      if (s[1] === 'jambes' && s[2] === 'foot') {
+        // Ancien planning incorrect → réinitialiser avec le bon
+        localStorage.removeItem(PLANNING_KEY);
+      }
+    }
+  } catch(e) {}
+})();
+
 planningUpdateHomeSchedule();
 
 // Purge notes 30j
@@ -6643,7 +6682,7 @@ function getDayType() {
   if (dow === 6) return 'repos'; // Samedi = repos par défaut
   var sched = HOME_SCHEDULE[dow];
   if (!sched) return 'repos';
-  if (sched.tab === null && sched.emoji === '⚽') return 'foot'; // jour foot
+  if (sched.tab === null && (sched.label.indexOf('Foot')!==-1||sched.label.indexOf('Match')!==-1)) return 'foot';
   if (sched.tab !== null) return 'muscu'; // jour gym
   return 'repos';
 }
@@ -6652,7 +6691,8 @@ function renderNutri() {
   if (!profile) { openNutriProfile(); return; }
   var today=localDateKey(new Date()), isTraining=isTrainingDay();
   var dow=new Date().getDay(), sched=HOME_SCHEDULE[dow];
-  var macros=calcMacros(profile,isTraining), meals=mealsLoad(today);
+  var dayType=getDayType();
+  var macros=calcMacros(profile,isTraining,dayType), meals=mealsLoad(today);
   var badge=document.getElementById('nutri-day-badge');
   if (badge) {
     var lbl  = sched ? sched.label : 'Repos';
@@ -7311,10 +7351,9 @@ function planningSaveSchedule(schedule) {
 }
 
 function planningGetDefaultSchedule() {
-  // Basé sur HOME_SCHEDULE existant
   return {
-    1: 'jambes',
-    2: 'foot',
+    1: 'repos',
+    2: 'jambes',
     3: 'back',
     4: 'bras',
     5: 'foot',
@@ -7335,19 +7374,17 @@ function planningGetSession(dow) {
 
 /* Mettre à jour HOME_SCHEDULE dynamiquement */
 function planningUpdateHomeSchedule() {
-  var schedule = planningGetSchedule();
-  var labelMap = {
-    jambes:'Séance Jambes', back:'Séance Back', bras:'Bras & Pecs',
-    foot:'Entraînement Foot', libre:'Séance Libre', match:'Jour de Match', repos:'Repos'
-  };
   [0,1,2,3,4,5,6].forEach(function(dow) {
     var sess = planningGetSession(dow);
-    if (HOME_SCHEDULE[dow]) {
-      HOME_SCHEDULE[dow].tab   = sess.tab;
-      HOME_SCHEDULE[dow].label = sess.name;
-      HOME_SCHEDULE[dow].emoji = sess.emoji;
-      HOME_SCHEDULE[dow].color = sess.color;
-    }
+    if (!sess) return;
+    HOME_SCHEDULE[dow] = {
+      tab:      sess.tab,
+      label:    sess.name,
+      emoji:    sess.emoji,
+      color:    sess.color,
+      accr:     sess.accr     || '100,149,237',
+      duration: sess.duration || sess.sub || ''
+    };
   });
 }
 
