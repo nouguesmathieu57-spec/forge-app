@@ -1917,6 +1917,68 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   color:var(--wht);letter-spacing:.5px;
 }
 .planning-session-opt-sub{font-size:10px;color:var(--dim);margin-top:2px}
+
+/* ══ BACKUP / RESTORE ══════════════════════════════ */
+#backup-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,8,8,.96);z-index:900;
+  align-items:flex-end;justify-content:center;
+}
+#backup-modal.show{display:flex}
+.backup-sheet{
+  background:var(--s1);border-radius:16px 16px 0 0;
+  width:100%;max-width:480px;
+  padding:0 0 40px;
+  padding-bottom:env(safe-area-inset-bottom,40px);
+}
+.backup-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 16px}
+.backup-title{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;
+  color:var(--wht);letter-spacing:1px;
+  padding:0 16px 14px;border-bottom:1px solid var(--s4);
+}
+.backup-section{padding:14px 16px 0}
+.backup-sec-title{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;
+  letter-spacing:3px;color:var(--dim);margin-bottom:10px;
+}
+.backup-btn{
+  display:flex;align-items:center;gap:12px;
+  width:100%;background:var(--s2);border:1px solid var(--s4);
+  border-radius:10px;padding:14px 16px;cursor:pointer;
+  margin-bottom:8px;transition:border-color .15s;
+}
+.backup-btn:active{border-color:var(--acc)}
+.backup-btn-icon{font-size:22px;flex-shrink:0}
+.backup-btn-info{flex:1;text-align:left}
+.backup-btn-name{
+  font-family:'Bebas Neue',sans-serif;font-size:15px;
+  letter-spacing:1px;color:var(--wht);
+}
+.backup-btn-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.backup-close{
+  margin:14px 16px 0;
+  width:calc(100% - 32px);
+  font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;
+  background:var(--s3);border:1px solid var(--s4);color:var(--dim);
+  padding:11px;border-radius:8px;cursor:pointer;
+}
+.backup-status{
+  margin:10px 16px 0;padding:10px 12px;border-radius:8px;
+  font-size:12px;text-align:center;display:none;
+}
+.backup-status.ok{background:rgba(0,200,83,.15);color:#00C853;border:1px solid rgba(0,200,83,.3);display:block}
+.backup-status.err{background:rgba(229,57,53,.15);color:#E53935;border:1px solid rgba(229,57,53,.3);display:block}
+/* Icone backup sur home */
+.home-backup-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:10px 14px 0;padding:10px;border-radius:10px;
+  background:var(--s2);border:1px solid var(--s4);
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;
+  color:var(--dim);cursor:pointer;width:calc(100% - 28px);
+  transition:border-color .15s;
+}
+.home-backup-btn:active{border-color:#FFB300;color:#FFB300}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -7180,6 +7242,88 @@ function selectPlanningSession(sessionKey) {
   renderPlanningWeek();
   renderHome(); // planning → home sync voulu
   showToast('✅ Planning mis à jour', 'rgba(0,200,83,.9)');
+}
+
+
+/* ══ EXPORT / IMPORT DONNÉES ══════════════════════ */
+function openBackup() {
+  document.getElementById('backup-status').className = 'backup-status';
+  document.getElementById('backup-modal').classList.add('show');
+}
+function closeBackup() {
+  document.getElementById('backup-modal').classList.remove('show');
+}
+
+function exportData() {
+  // Lire TOUT le localStorage sans exception
+  var data = { _version: 2, _date: new Date().toISOString(), _app: 'FORGE' };
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    try { data[key] = JSON.parse(localStorage.getItem(key)); }
+    catch(e) { data[key] = localStorage.getItem(key); }
+  }
+
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+
+  // Date pour le nom de fichier
+  var d   = new Date();
+  var ds  = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var filename = 'forge-backup-' + ds + '.json';
+
+  var a = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+
+  // Status
+  var n = Object.keys(data).filter(function(k){ return !k.startsWith('_'); }).length;
+  showBackupStatus('ok', '✓ ' + n + ' entrées exportées — Sauvegarde dans Fichiers iPhone');
+  showToast('⬇️ Sauvegarde téléchargée', 'rgba(0,200,83,.9)');
+}
+
+function importData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data._app || data._app !== 'FORGE') {
+        showBackupStatus('err', '⚠️ Fichier invalide — Sélectionne un fichier forge-backup.json');
+        return;
+      }
+      // Restaurer TOUTES les clés sauf les métadonnées
+      var count = 0;
+      Object.keys(data).forEach(function(key) {
+        if (key.startsWith('_')) return;
+        try {
+          localStorage.setItem(key, typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]));
+          count++;
+        } catch(e2) {}
+      });
+      showBackupStatus('ok', '✓ ' + count + ' entrées restaurées ! Rechargement…');
+      showToast('✅ Données restaurées', 'rgba(0,200,83,.9)');
+      // Recharger l'app après 1.5s pour tout rafraîchir
+      setTimeout(function(){ window.location.reload(); }, 1500);
+    } catch(err) {
+      showBackupStatus('err', '⚠️ Erreur : ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  // Reset input pour permettre de re-sélectionner le même fichier
+  input.value = '';
+}
+
+function showBackupStatus(type, msg) {
+  var el = document.getElementById('backup-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'backup-status ' + type;
 }
 
 
