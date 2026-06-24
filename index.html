@@ -3390,6 +3390,46 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
 </div>
 
 
+<!-- MODAL BACKUP -->
+<div id="backup-modal" onclick="if(event.target===this)closeBackup()">
+  <div class="backup-sheet">
+    <div class="backup-handle"></div>
+    <div class="backup-title">&#x1F4BE; SAUVEGARDE DES DONN&#xC9;ES</div>
+
+    <div class="backup-section">
+      <div class="backup-sec-title">EXPORTER</div>
+      <div class="backup-btn" onclick="exportData()">
+        <div class="backup-btn-icon">&#x2B07;&#xFE0F;</div>
+        <div class="backup-btn-info">
+          <div class="backup-btn-name">T&#xE9;l&#xE9;charger la sauvegarde</div>
+          <div class="backup-btn-sub">Tout le localStorage &middot; Format JSON &middot; Fichiers iPhone</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="backup-section" style="margin-top:6px">
+      <div class="backup-sec-title">IMPORTER</div>
+      <div class="backup-btn" onclick="document.getElementById('backup-file-input').click()">
+        <div class="backup-btn-icon">&#x2B06;&#xFE0F;</div>
+        <div class="backup-btn-info">
+          <div class="backup-btn-name">Restaurer une sauvegarde</div>
+          <div class="backup-btn-sub">S&#xE9;lectionne ton fichier forge-backup.json</div>
+        </div>
+      </div>
+      <input type="file" id="backup-file-input" accept=".json" style="display:none" onchange="importData(this)">
+    </div>
+
+    <div id="backup-status" class="backup-status"></div>
+
+    <div class="backup-section" style="margin-top:4px;font-size:10px;color:var(--dim);line-height:1.6">
+      &#x26A0;&#xFE0F; L&#x2019;import remplace TOUTES les donn&#xE9;es actuelles sans exception.
+    </div>
+
+    <button class="backup-close" onclick="closeBackup()">FERMER</button>
+  </div>
+</div>
+
+
 <script>
 /* ══════════════════════════════════════════════════════
    ACCENT TOKENS
