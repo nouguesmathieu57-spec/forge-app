@@ -1315,7 +1315,7 @@ body{
 }
 
 /* ── NAV CACHÉE SUR HOME ────────────────────────────── */
-#nav.hidden{ display:none }
+#nav.hidden{ display:none !important; height:0 !important; overflow:hidden }
 #scroll-area.no-nav{ padding-bottom:20px }
 
 
@@ -4247,7 +4247,7 @@ function calRender() {
       try { navigator.vibrate && navigator.vibrate(15); } catch(err){}
       updateMonthProg();
       // Mettre à jour la barre de prog de l'accueil si visible
-      renderHome(); renderWeightCard();
+      if (current === 'home') { renderHome(); renderWeightCard(); }
     });
 
     grid.appendChild(cell);
@@ -6141,7 +6141,7 @@ function autoValidateCalendar(group) {
   if (current === 'planning') calRender();
 
   // Refresh accueil si ouvert
-  renderHome();
+  if (current === 'home') renderHome();
 
   // Toast de confirmation
   var emoji = group === 'jambes' ? '🦵' : group === 'back' ? '🔙' : '💪';
@@ -6159,7 +6159,7 @@ function validateFootDay() {
   map[todayKey] = !wasValidated;
   calSaveDone(map);
   if (current === 'planning') calRender();
-  renderHome();
+  if (current === 'home') renderHome();
   if (!wasValidated) {
     showToast('⚽ Entraînement validé !');
     try { navigator.vibrate && navigator.vibrate([50, 80, 150]); } catch(e) {}
@@ -7489,7 +7489,7 @@ function selectPlanningSession(sessionKey) {
   closePlanningEdit();
   planningUpdateHomeSchedule();
   renderPlanningWeek();
-  renderHome();
+  renderHome(); // planning → home sync voulu
   showToast('✅ Planning mis à jour', 'rgba(0,200,83,.9)');
 }
 
