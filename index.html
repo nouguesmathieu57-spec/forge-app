@@ -1979,6 +1979,45 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
   transition:border-color .15s;
 }
 .home-backup-btn:active{border-color:#FFB300;color:#FFB300}
+
+/* ── MODAL OPEN : cacher la nav ─────────────────────── */
+body.modal-open #nav { display:none !important; }
+
+/* ══ ADAPTATIF PAR OS ══════════════════════════════ */
+
+/* iOS Safari — safe area et corrections spécifiques */
+.os-ios #nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(68px + env(safe-area-inset-bottom, 0px));
+}
+.os-ios #scroll-area {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+}
+/* iOS PWA — cacher la barre nav du bas plus agressivement dans les modals */
+.os-ios.is-pwa body.modal-open #nav {
+  display: none !important;
+  visibility: hidden !important;
+}
+/* iOS : fix position fixed dans les modals */
+.os-ios .notes-history-sheet,
+.os-ios .weight-chart-sheet,
+.os-ios .backup-sheet,
+.os-ios .prog-sheet,
+.os-ios .nutri-profile-sheet {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Android Chrome — vibrations OK, pas de corrections spéciales */
+.os-android #nav {
+  height: 68px;
+}
+
+/* Desktop — curseur pointer sur les éléments cliquables */
+.os-desktop .nav-btn,
+.os-desktop .home-card,
+.os-desktop .backup-btn {
+  cursor: pointer;
+}
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -1992,6 +2031,22 @@ body{height:100%;height:-webkit-fill-available;overflow:hidden}
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
+  </script>
+
+  <script>
+    /* Détection OS — injectée tôt pour éviter le flash */
+    (function() {
+      var ua  = navigator.userAgent || '';
+      var ios = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      var android = /Android/.test(ua);
+      var pwa = window.navigator.standalone === true ||
+                window.matchMedia('(display-mode: standalone)').matches;
+      document.documentElement.classList.add(
+        ios     ? 'os-ios'     :
+        android ? 'os-android' : 'os-desktop'
+      );
+      if (pwa) document.documentElement.classList.add('is-pwa');
+    })();
   </script>
 </head>
 <body>
@@ -3816,7 +3871,7 @@ function focusSaveWeights(skey, setsCount) {
     if (dateEl) dateEl.textContent = today;
   });
 
-  try { navigator.vibrate && navigator.vibrate([40, 60, 120]); } catch(e) {}
+  vibrate([40, 60, 120]);
 
   const btn = tracker.parentElement.querySelector('[onclick*="focusSaveWeights"]');
   if (btn) {
@@ -4221,7 +4276,7 @@ function selectVariant(box, varName, situation, activeItem) {
   box.classList.remove('open');
   if (btn) btn.textContent = 'VARIANTES / ALTERNATIVES';
   if (document.getElementById('schema-modal').classList.contains('show')) openSchema(varName);
-  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+  vibrate(20);
 }
 
 function resetVariant(box) {
@@ -4372,7 +4427,7 @@ function saveWeights(btn) {
   const msg = wDiv.querySelector('.weight-saved-msg');
   if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 1800); }
 
-  try { navigator.vibrate && navigator.vibrate([40, 60, 120]); } catch(e) {}
+  vibrate([40, 60, 120]);
 }
 
 const EXERCISE_SCHEMAS = {
@@ -5782,7 +5837,7 @@ function resetLibReplace(card) {
   // Restaurer le weight tracker sur l'exercice original
   if (origName) reloadWeightTracker(card, origName);
 
-  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+  vibrate(20);
 }
 
 
@@ -6257,7 +6312,7 @@ function saveNote(group) {
   if (inp) inp.value = '';
   updateNotesCount(group); renderSessionNotes(group); updateHomeNotesCount();
   showToast('Note sauvegardée !', 'rgba(255,214,0,.95)');
-  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+  vibrate(20);
 }
 
 function deleteNote(id, group) {
@@ -6269,9 +6324,9 @@ function openNotesHistory() {
   notesCurrentFilter = 'all';
   document.querySelectorAll('.notes-filter-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.session==='all'); });
   renderNotesHistory();
-  document.getElementById('notes-history-modal').classList.add('show');
+  modalOpen('notes-history-modal');
 }
-function closeNotesHistory() { document.getElementById('notes-history-modal').classList.remove('show'); }
+function closeNotesHistory() { modalClose('notes-history-modal'); }
 function filterNotes(btn) {
   notesCurrentFilter = btn.dataset.session;
   document.querySelectorAll('.notes-filter-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.session===notesCurrentFilter); });
@@ -6684,9 +6739,9 @@ function openNutriProfile() {
       if(r.dataset.field==='objectif')r.classList.toggle('selected',r.dataset.val===profile.objectif);
     });
   }
-  document.getElementById('nutri-profile-modal').classList.add('show');
+  modalOpen('nutri-profile-modal');
 }
-function closeNutriProfile() { document.getElementById('nutri-profile-modal').classList.remove('show'); }
+function closeNutriProfile() { modalClose('nutri-profile-modal'); }
 function selectRadio(el) {
   var field=el.dataset.field;
   document.querySelectorAll('.nutri-radio[data-field="'+field+'"]').forEach(function(r){r.classList.remove('selected');});
@@ -6790,10 +6845,9 @@ function saveWeight() {
 }
 function openWeightChart() {
   try { renderWeightChart(wcPeriod); } catch(e) { console.error('renderWeightChart error:', e); }
-  var modal = document.getElementById('weight-chart-modal');
-  if (modal) modal.classList.add('show');
+  modalOpen('weight-chart-modal');
 }
-function closeWeightChart(){document.getElementById('weight-chart-modal').classList.remove('show');}
+function closeWeightChart(){modalClose('weight-chart-modal');}
 function selectWeightPeriod(btn){
   document.querySelectorAll('.weight-period-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active'); wcPeriod=parseInt(btn.dataset.days); renderWeightChart(wcPeriod);
@@ -6908,9 +6962,9 @@ function openProgModal(skey, exName) {
       } else rmEl.style.display='none';
     } else { rmEl.innerHTML='<div style="font-size:11px;color:var(--dim);font-style:italic;text-align:center;padding:8px">Remplis les reps pour voir ton 1RM</div>'; rmEl.style.display='block'; }
   }
-  document.getElementById('prog-modal').classList.add('show');
+  modalOpen('prog-modal');
 }
-function closeProgModal() { document.getElementById('prog-modal').classList.remove('show'); }
+function closeProgModal() { modalClose('prog-modal'); }
 
 function buildProgChart(history, acc) {
   if (!history||history.length<2) return '<div class="prog-no-data">Pas encore assez de donnees<br><span style="font-size:11px">Fais au moins 2 seances pour voir la courbe</span></div>';
@@ -7177,7 +7231,7 @@ function addWater(ml) {
   data.ml  = (data.ml || 0) + ml;
   hydraSave(data.ml);
   renderHydra();
-  try { navigator.vibrate && navigator.vibrate(20); } catch(e) {}
+  vibrate(20);
   showToast('💧 +' + ml + 'ml ajouté !', 'rgba(79,195,247,.9)');
 }
 
@@ -7375,11 +7429,11 @@ function openPlanningEdit(dow) {
     opts.appendChild(div);
   });
 
-  document.getElementById("planning-edit-modal").classList.add("show");
+  modalOpen("planning-edit-modal");
 }
 
 function closePlanningEdit() {
-  document.getElementById('planning-edit-modal').classList.remove('show');
+  modalClose('planning-edit-modal');
 }
 
 function selectPlanningSession(sessionKey) {
@@ -7398,10 +7452,10 @@ function selectPlanningSession(sessionKey) {
 /* ══ EXPORT / IMPORT DONNÉES ══════════════════════ */
 function openBackup() {
   document.getElementById('backup-status').className = 'backup-status';
-  document.getElementById('backup-modal').classList.add('show');
+  modalOpen('backup-modal');
 }
 function closeBackup() {
-  document.getElementById('backup-modal').classList.remove('show');
+  modalClose('backup-modal');
 }
 
 function exportData() {
@@ -7474,6 +7528,36 @@ function showBackupStatus(type, msg) {
   if (!el) return;
   el.textContent = msg;
   el.className   = 'backup-status ' + type;
+}
+
+
+/* ── Helpers modal (cache/montre la nav) ── */
+function modalOpen(el) {
+  if (typeof el === 'string') el = document.getElementById(el);
+  if (el) el.classList.add('show');
+  document.body.classList.add('modal-open');
+}
+function modalClose(el) {
+  if (typeof el === 'string') el = document.getElementById(el);
+  if (el) el.classList.remove('show');
+  // Ne retirer modal-open que si aucun autre modal n'est ouvert
+  var stillOpen = document.querySelector(
+    '#nutri-profile-modal.show,#weight-chart-modal.show,#prog-modal.show,' +
+    '#notes-history-modal.show,#backup-modal.show,#planning-edit-modal.show'
+  );
+  if (!stillOpen) document.body.classList.remove('modal-open');
+}
+
+
+/* ══ OS DETECTION ══════════════════════════════════ */
+var IS_IOS     = document.documentElement.classList.contains('os-ios');
+var IS_ANDROID = document.documentElement.classList.contains('os-android');
+var IS_PWA     = document.documentElement.classList.contains('is-pwa');
+
+/* Vibration : iOS ne supporte pas vibrate(), on évite l'erreur */
+function vibrate(pattern) {
+  if (IS_IOS) return; // iOS ignore navigator.vibrate
+  try { navigator.vibrate && navigator.vibrate(pattern); } catch(e) {}
 }
 
 
