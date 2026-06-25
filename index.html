@@ -1611,7 +1611,7 @@ body{
 .home-weight-save:active{opacity:.8}
 .home-weight-chart-btn{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;background:var(--s3);border:1px solid var(--s4);color:var(--dim);padding:3px 8px;border-radius:6px;cursor:pointer}
 .home-weight-reminder{font-size:10px;color:var(--dim);margin-top:4px;display:flex;align-items:center;gap:4px}
-#weight-chart-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.92);z-index:1000;align-items:flex-end;justify-content:center}
+#weight-chart-modal{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(8,8,8,.92);z-index:1000;align-items:flex-end;justify-content:center}
 #weight-chart-modal.show{display:flex}
 .weight-chart-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
 .weight-chart-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0;flex-shrink:0}
@@ -2018,6 +2018,323 @@ body.modal-open #nav { display:none !important; }
 .os-desktop .backup-btn {
   cursor: pointer;
 }
+
+/* ══ ÉCRAN DE CONNEXION ════════════════════════════ */
+#login-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #080808;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 30px 20px;
+  padding-top: env(safe-area-inset-top, 30px);
+}
+#login-screen.hidden { display: none }
+
+.login-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px; letter-spacing: 8px;
+  color: #fff; line-height: 1; margin-bottom: 6px;
+}
+.login-logo span { color: #00C853 }
+.login-tagline {
+  font-size: 11px; color: #555; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 50px; text-align: center;
+}
+
+/* Sélection profil */
+.profile-select { width: 100%; max-width: 360px }
+.profile-select-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px; letter-spacing: 3px; color: #444;
+  text-align: center; margin-bottom: 16px;
+}
+.profile-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.profile-card {
+  background: #111; border: 1px solid #222;
+  border-radius: 14px; padding: 16px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: all .2s;
+}
+.profile-card:active { transform: scale(.96) }
+.profile-card.selected { border-width: 2px }
+.profile-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: #000; font-weight: 900;
+}
+.profile-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+  letter-spacing: 1px; color: #fff;
+}
+
+/* PIN */
+.pin-screen { width: 100%; max-width: 320px; display: none }
+.pin-screen.show { display: block }
+.pin-back {
+  font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+  letter-spacing: 2px; color: #555; cursor: pointer;
+  margin-bottom: 20px; display: inline-block;
+}
+.pin-profile-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+  color: #fff; letter-spacing: 2px; margin-bottom: 6px;
+}
+.pin-label {
+  font-size: 11px; color: #555; letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+.pin-dots {
+  display: flex; gap: 14px; justify-content: center;
+  margin-bottom: 32px;
+}
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid #333; transition: all .15s;
+}
+.pin-dot.filled { border-color: var(--pin-color, #00C853); background: var(--pin-color, #00C853) }
+.pin-dot.error  { border-color: #E53935; background: #E53935; animation: shake .3s }
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+.pin-pad {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+}
+.pin-key {
+  height: 58px; border-radius: 12px;
+  background: #161616; border: 1px solid #222;
+  font-family: 'Bebas Neue', sans-serif; font-size: 24px;
+  color: #fff; cursor: pointer; transition: all .1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:active { background: #222; transform: scale(.94) }
+.pin-key.empty { background: transparent; border-color: transparent }
+.pin-key.del   { font-size: 18px }
+.pin-error-msg {
+  text-align: center; font-size: 12px; color: #E53935;
+  margin-top: 14px; height: 16px;
+}
+
+/* Bouton changer PIN dans settings */
+.change-pin-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--s2); border: 1px solid var(--s4);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  margin: 10px 14px 0; width: calc(100% - 28px);
+  font-family: 'Bebas Neue', sans-serif; font-size: 12px;
+  letter-spacing: 2px; color: var(--dim);
+}
+.change-pin-btn:active { border-color: var(--acc) }
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(229,57,53,.1); border: 1px solid rgba(229,57,53,.3);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  margin: 8px 14px 0; width: calc(100% - 28px);
+  font-family: 'Bebas Neue', sans-serif; font-size: 12px;
+  letter-spacing: 2px; color: #E53935;
+}
+
+/* Indicateur profil actif en haut de la home */
+#active-profile-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; margin-bottom: 4px;
+}
+.apb-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: #000;
+}
+.apb-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+  color: var(--dim); letter-spacing: 1px; flex: 1;
+}
+.apb-logout {
+  font-family: 'Bebas Neue', sans-serif; font-size: 9px;
+  letter-spacing: 1px; color: #333; cursor: pointer;
+  padding: 3px 8px; border: 1px solid #222; border-radius: 6px;
+}
+
+/* ══ REPAS TYPES ════════════════════════════════════ */
+.mt-section { padding: 14px 14px 0 }
+.mt-create-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; background: var(--s2); border: 1px dashed rgba(255,107,53,.4);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  font-family: 'Bebas Neue', sans-serif; font-size: 12px;
+  letter-spacing: 2px; color: #FF6B35; margin-bottom: 10px;
+  transition: background .15s;
+}
+.mt-create-btn:active { background: rgba(255,107,53,.1) }
+.mt-item {
+  background: var(--s2); border: 1px solid var(--s4);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+}
+.mt-item-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+}
+.mt-item-emoji { font-size: 20px; flex-shrink: 0 }
+.mt-item-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+  color: var(--wht); letter-spacing: .5px; flex: 1;
+}
+.mt-item-macros { font-size: 10px; color: var(--dim); margin-bottom: 8px }
+.mt-item-btns { display: flex; gap: 6px }
+.mt-add-btn {
+  flex: 1; font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+  letter-spacing: 1.5px; background: #FF6B35; color: #fff;
+  border: none; border-radius: 7px; padding: 8px; cursor: pointer;
+}
+.mt-add-btn:active { opacity: .8 }
+.mt-del-btn {
+  background: var(--s3); border: 1px solid var(--s4); color: var(--dim);
+  border-radius: 7px; padding: 8px 12px; cursor: pointer; font-size: 13px;
+}
+.mt-empty { text-align: center; color: var(--dim); font-size: 12px; padding: 12px 0 }
+
+/* Modal création repas type */
+#mt-modal {
+  display: none; position: fixed; top:0;right:0;bottom:0;left:0;
+  background: rgba(8,8,8,.92); z-index: 1000;
+  align-items: flex-end; justify-content: center;
+}
+#mt-modal.show { display: flex }
+.mt-sheet {
+  background: var(--s1); border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+.mt-sheet-handle { width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0 }
+.mt-sheet-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px 10px; border-bottom: 1px solid var(--s4);
+}
+.mt-sheet-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+  color: var(--wht); letter-spacing: 1px; flex: 1;
+}
+.mt-sheet-close {
+  background: var(--s3); border: none; color: var(--dim);
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px;
+}
+.mt-field { padding: 12px 16px 0 }
+.mt-field-lbl {
+  font-family: 'Bebas Neue', sans-serif; font-size: 10px;
+  letter-spacing: 2px; color: var(--dim); margin-bottom: 6px; display: block;
+}
+.mt-name-row { display: flex; gap: 8px }
+.mt-emoji-pick {
+  width: 48px; height: 42px; background: var(--s2);
+  border: 1px solid var(--s4); border-radius: 8px;
+  font-size: 20px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.mt-name-input {
+  flex: 1; background: var(--s2); border: 1px solid var(--s4);
+  border-radius: 8px; padding: 10px 12px; color: var(--txt);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+}
+.mt-name-input:focus { border-color: rgba(255,107,53,.5) }
+/* Food items dans le modal */
+.mt-food-list { padding: 0 16px }
+.mt-food-item {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--s2); border: 1px solid var(--s3);
+  border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+}
+.mt-food-item-name { flex: 1; font-size: 12px; color: var(--txt) }
+.mt-food-item-qty {
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #FF6B35;
+}
+.mt-food-item-del { background:none;border:none;color:var(--dim);cursor:pointer;font-size:13px }
+/* Add food dans modal */
+.mt-add-food-row {
+  display: flex; gap: 6px; padding: 8px 16px; align-items: center; flex-wrap: nowrap;
+}
+.mt-food-search {
+  flex: 1; background: var(--s2); border: 1px solid var(--s4);
+  border-radius: 8px; padding: 8px 10px; color: var(--txt);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+}
+.mt-food-search:focus { border-color: rgba(255,107,53,.4) }
+.mt-food-search-wrap { position: relative; flex: 1 }
+#mt-food-drop {
+  display: none; position: absolute; bottom: 100%; left: 0; right: 0;
+  background: var(--s1); border: 1px solid var(--s4);
+  border-radius: 8px 8px 0 0; max-height: 180px; overflow-y: auto; z-index: 10;
+}
+.mt-drop-item { padding: 9px 12px; cursor: pointer; border-bottom: 1px solid var(--s3); font-size: 12px; color: var(--txt) }
+.mt-drop-item:active { background: var(--s3) }
+.mt-qty-input {
+  width: 60px; background: var(--s2); border: 1px solid var(--s4);
+  border-radius: 8px; padding: 8px 6px; color: var(--txt);
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+  text-align: center; outline: none; -moz-appearance: textfield;
+}
+.mt-qty-input::-webkit-inner-spin-button { -webkit-appearance: none }
+.mt-save-btn {
+  margin: 12px 16px; width: calc(100% - 32px);
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px;
+  background: #FF6B35; color: #fff; border: none;
+  border-radius: 8px; padding: 13px; cursor: pointer;
+}
+.mt-save-btn:active { opacity: .8 }
+/* Emoji picker */
+#mt-emoji-picker {
+  display: none; flex-wrap: wrap; gap: 6px;
+  padding: 10px 16px; background: var(--s2);
+  border-top: 1px solid var(--s4);
+}
+#mt-emoji-picker.show { display: flex }
+.mt-ep-btn {
+  font-size: 22px; background: var(--s3); border: none;
+  border-radius: 8px; padding: 6px 8px; cursor: pointer;
+}
+
+/* ══ THEME COULEUR ══════════════════════════════════ */
+.theme-palette {
+  display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0;
+}
+.theme-swatch {
+  width: 36px; height: 36px; border-radius: 50%;
+  cursor: pointer; border: 3px solid transparent;
+  transition: all .15s; flex-shrink: 0;
+}
+.theme-swatch.active {
+  border-color: #fff;
+  transform: scale(1.15);
+}
+.theme-swatch:active { transform: scale(.9) }
+
+/* ══ COULEUR PROFIL — persiste à travers les tabs ══ */
+:root { --profile-color: #00C853; --profile-rgb: 0,200,83 }
+
+/* Home — cartes et badges */
+.home-card-badge          { background: rgba(var(--profile-rgb),.15) !important; color: var(--profile-color) !important }
+.home-card:active         { border-color: var(--profile-color) !important }
+.home-backup-btn          { border-color: var(--profile-color) !important; color: var(--profile-color) !important }
+
+/* Carte séance du jour */
+#seance-du-jour           { border-color: rgba(var(--profile-rgb),.3) !important }
+.sdj-progress-bar         { background: var(--profile-color) !important }
+.sdj-go-btn               { background: var(--profile-color) !important; color: #000 !important }
+
+/* Profile badge */
+.apb-avatar               { background: var(--profile-color) !important }
+.apb-name                 { color: var(--profile-color) !important }
+
+/* Login screen */
+.login-logo span          { color: var(--profile-color) !important }
+.pin-dot.filled           { background: var(--profile-color) !important; border-color: var(--profile-color) !important }
+
+/* Boutons globaux */
+.nutri-save-btn           { background: var(--profile-color) !important }
+.backup-btn:active        { border-color: var(--profile-color) !important }
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -2050,6 +2367,63 @@ body.modal-open #nav { display:none !important; }
   </script>
 </head>
 <body>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ÉCRAN DE CONNEXION FORGE
+═══════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <!-- Logo -->
+  <div class="login-logo">FOR<span>G</span>E</div>
+  <div class="login-tagline">Forge ton corps · Lib&#xE8;re ta force</div>
+
+  <!-- S&#xE9;lection profil -->
+  <div class="profile-select" id="profile-select-view">
+    <div class="profile-select-title">CHOISIS TON PROFIL</div>
+    <div class="profile-cards">
+      <div class="profile-card" onclick="selectProfile('mathieu')" style="border-color:#1a3a1a">
+        <div class="profile-avatar" style="background:#00C853">M</div>
+        <div class="profile-name">Mathieu</div>
+      </div>
+      <div class="profile-card" onclick="selectProfile('brigitte')" style="border-color:#3a1a0a">
+        <div class="profile-avatar" style="background:#FF6B35">B</div>
+        <div class="profile-name">Brigitte</div>
+      </div>
+      <div class="profile-card" onclick="selectProfile('allison')" style="border-color:#1e0a3a">
+        <div class="profile-avatar" style="background:#A259FF">A</div>
+        <div class="profile-name">Allison</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saisie PIN -->
+  <div class="pin-screen" id="pin-screen-view">
+    <div class="pin-back" onclick="backToProfiles()">&#x2190; CHANGER DE PROFIL</div>
+    <div class="pin-profile-name" id="pin-profile-name">MATHIEU</div>
+    <div class="pin-label">ENTRE TON CODE PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pin-dot-0"></div>
+      <div class="pin-dot" id="pin-dot-1"></div>
+      <div class="pin-dot" id="pin-dot-2"></div>
+      <div class="pin-dot" id="pin-dot-3"></div>
+    </div>
+    <div class="pin-pad">
+      <div class="pin-key" onclick="pinKey('1')">1</div>
+      <div class="pin-key" onclick="pinKey('2')">2</div>
+      <div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div>
+      <div class="pin-key" onclick="pinKey('5')">5</div>
+      <div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div>
+      <div class="pin-key" onclick="pinKey('8')">8</div>
+      <div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key empty"></div>
+      <div class="pin-key" onclick="pinKey('0')">0</div>
+      <div class="pin-key del" onclick="pinDelete()">&#x232B;</div>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+  </div>
+</div>
 
 <div id="app-bg"></div>
 <div id="toast"></div>
@@ -3060,6 +3434,16 @@ body.modal-open #nav { display:none !important; }
       <div class="macro-bar-wrap"><div class="macro-bar-fill" id="nutri-l-bar" style="width:0%;background:#2979FF"></div></div>
     </div>
   </div>
+
+  <!-- REPAS TYPES -->
+  <div class="mt-section">
+    <div class="nutri-sec-title">Repas types</div>
+    <div class="mt-create-btn" onclick="openMtModal()">
+      + CR&#xC9;ER UN REPAS TYPE
+    </div>
+    <div id="mt-list"></div>
+  </div>
+
   <div class="nutri-sec" style="margin-top:14px">
     <div class="nutri-sec-title">Ajouter un repas</div>
     <div class="nutri-log-form">
@@ -3209,39 +3593,7 @@ body.modal-open #nav { display:none !important; }
     <div class="weight-chart-wrap" id="wc-chart"></div>
     <div style="padding:0 14px 6px"><div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:var(--dim);margin-bottom:6px">HISTORIQUE</div></div>
     <div class="weight-history-list" id="wc-history"></div>
-    
-    </div><!-- /suivi mois wrap -->
-
-
-    <div class="hydra-wrap">
-      <div class="hydra-top">
-        <div class="hydra-icon">&#x1F4A7;</div>
-        <div class="hydra-info">
-          <div class="hydra-title">EAU DU JOUR</div>
-          <div class="hydra-amount"><span id="hydra-current">0</span> ml / <span id="hydra-goal">2500</span> ml</div>
-          <div class="hydra-pct" id="hydra-pct">0% de l&#x2019;objectif</div>
-        </div>
-      </div>
-      <div class="hydra-bar-wrap">
-        <div class="hydra-bar-fill" id="hydra-bar" style="width:0%"></div>
-      </div>
-      <div class="hydra-btns">
-        <button class="hydra-btn" onclick="addWater(250)"><span class="hydra-btn-icon">&#x1FAD7;</span><span class="hydra-btn-lbl">+250ml</span></button>
-        <button class="hydra-btn" onclick="addWater(500)"><span class="hydra-btn-icon">&#x1F376;</span><span class="hydra-btn-lbl">+500ml</span></button>
-        <button class="hydra-btn" onclick="addWater(750)"><span class="hydra-btn-icon">&#x1FAD9;</span><span class="hydra-btn-lbl">+750ml</span></button>
-        <button class="hydra-btn" onclick="addWater(1000)"><span class="hydra-btn-icon">&#x1F9F4;</span><span class="hydra-btn-lbl">+1L</span></button>
-      </div>
-      <button class="hydra-reset" onclick="resetWater()">&#x21BA; Remettre &agrave; z&eacute;ro</button>
-    </div>
-    <div class="seance-manquee-wrap" id="seance-manquee-wrap" style="display:none">
-      <button class="seance-manquee-btn" id="seance-manquee-btn" onclick="toggleSeanceManquee()">
-        <span id="seance-manquee-icon">&#x26A0;&#xFE0F;</span>
-        <span id="seance-manquee-txt">J&#x2019;AI RAT&#x00C9; MA S&#x00C9;ANCE</span>
-      </button>
-    </div>
-  </div>
-
-<div style="height:20px"></div>
+    <div style="height:20px"></div>
   </div>
 </div>
 
@@ -3371,6 +3723,60 @@ body.modal-open #nav { display:none !important; }
   </div>
 </div>
 
+
+<!-- MODAL REPAS TYPE -->
+<div id="mt-modal" onclick="if(event.target===this)closeMtModal()">
+  <div class="mt-sheet">
+    <div class="mt-sheet-handle"></div>
+    <div class="mt-sheet-head">
+      <div class="mt-sheet-title">REPAS TYPE</div>
+      <button class="mt-sheet-close" onclick="closeMtModal()">&#x2715;</button>
+    </div>
+    <div class="mt-field">
+      <label class="mt-field-lbl">NOM DU REPAS</label>
+      <div class="mt-name-row">
+        <div class="mt-emoji-pick" id="mt-emoji-display" onclick="toggleMtEmojiPicker()">&#x1F37D;&#xFE0F;</div>
+        <input class="mt-name-input" id="mt-name-input" type="text" placeholder="Ex: Petit-d&#xE9;j habituel">
+      </div>
+    </div>
+    <div id="mt-emoji-picker">
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F373;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F37D;&#xFE0F;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F35A;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F957;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F96E;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F953;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F969;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F35C;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F951;</button>
+      <button class="mt-ep-btn" onclick="setMtEmoji(this.textContent)">&#x1F34C;</button>
+    </div>
+    <div class="mt-field" style="margin-top:12px">
+      <label class="mt-field-lbl">ALIMENTS (<span id="mt-item-count">0</span>)</label>
+    </div>
+    <div id="mt-food-list" class="mt-food-list"></div>
+    <div style="padding:6px 16px 4px;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;color:var(--dim)">
+      AJOUTER UN ALIMENT
+    </div>
+    <div class="mt-add-food-row">
+      <div class="mt-food-search-wrap">
+        <input class="mt-food-search" id="mt-food-search" type="text"
+               placeholder="Rechercher..." oninput="mtFoodSearch(this.value)" autocomplete="off">
+        <div id="mt-food-drop"></div>
+      </div>
+      <input class="mt-qty-input" id="mt-qty" type="number" value="100" min="1" max="2000" placeholder="g">
+      <button onclick="mtAddCurrentFood()" style="background:#FF6B35;border:none;color:#fff;
+        border-radius:8px;width:38px;height:38px;font-size:20px;cursor:pointer;flex-shrink:0;
+        display:flex;align-items:center;justify-content:center;">+</button>
+    </div>
+    <div style="padding:0 16px 4px;font-size:10px;color:var(--dim)">
+      Sélectionne un aliment, règle la quantité et appuie sur +
+    </div>
+    <button class="mt-save-btn" onclick="saveMealTemplate()">&#x1F4BE; SAUVEGARDER LE REPAS</button>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
 <!-- ══ BOTTOM NAV ═══════════════════════════════════════ -->
 
 
@@ -3480,6 +3886,33 @@ body.modal-open #nav { display:none !important; }
       &#x26A0;&#xFE0F; L&#x2019;import remplace TOUTES les donn&#xE9;es actuelles sans exception.
     </div>
 
+    <div class="backup-section" style="margin-top:6px">
+      <div class="backup-sec-title">APPARENCE</div>
+      <div style="background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:12px 14px;margin-bottom:8px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--dim);margin-bottom:10px">COULEUR DU TH&#xC8;ME</div>
+        <div class="theme-palette" id="theme-palette">
+          <div class="theme-swatch" data-color="#00C853" data-rgb="0,200,83"     style="background:#00C853" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#FF6B35" data-rgb="255,107,53"   style="background:#FF6B35" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#A259FF" data-rgb="162,89,255"   style="background:#A259FF" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#2979FF" data-rgb="41,121,255"   style="background:#2979FF" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#E53935" data-rgb="229,57,53"    style="background:#E53935" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#FFD600" data-rgb="255,214,0"    style="background:#FFD600" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#FF4081" data-rgb="255,64,129"   style="background:#FF4081" onclick="setThemeColor(this)"></div>
+          <div class="theme-swatch" data-color="#00BCD4" data-rgb="0,188,212"    style="background:#00BCD4" onclick="setThemeColor(this)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="backup-section" style="margin-top:6px">
+      <div class="backup-sec-title">S&#xC9;CURIT&#xC9;</div>
+      <div class="backup-btn" onclick="closeBackup();openChangePin()">
+        <div class="backup-btn-icon">&#x1F511;</div>
+        <div class="backup-btn-info">
+          <div class="backup-btn-name">Modifier mon code PIN</div>
+          <div class="backup-btn-sub">Changer le code PIN du profil actuel</div>
+        </div>
+      </div>
+    </div>
     <button class="backup-close" onclick="closeBackup()">FERMER</button>
   </div>
 </div>
@@ -3841,7 +4274,7 @@ function focusSaveWeights(skey, setsCount) {
   } catch(e2) {}
   histData.history.unshift({ date: today, weights: weights, reps: repsF, max: Math.max.apply(null, weights) });
   histData.history = histData.history.slice(0, 10);
-  try { localStorage.setItem(skey, JSON.stringify(histData)); } catch(e) {}
+  try { localStorage.setItem(pkSkey(skey), JSON.stringify(histData)); } catch(e) {}
 
   // Sync poids ET reps vers la carte principale
   document.querySelectorAll('.weight-tracker').forEach(wDiv => {
@@ -4404,7 +4837,7 @@ function saveWeights(btn) {
   } catch(e2) {}
   histData.history.unshift({ date: today, weights, reps, max: Math.max(...weights) });
   histData.history = histData.history.slice(0, 10);
-  try { localStorage.setItem(skey, JSON.stringify(histData)); } catch(e) {}
+  try { localStorage.setItem(pkSkey(skey), JSON.stringify(histData)); } catch(e) {}
 
   // Mettre à jour les labels "dernière fois" + couleur progression
   lasts.forEach((el, i) => {
@@ -6435,144 +6868,250 @@ function purgeOldNotes() {
 
 /* ══ FOOD DATABASE ══ */
 var FOOD_DB = [
-  /* VIANDES */
-  {name:"Poulet (blanc cuit)",p:31,g:0,l:3.6,cat:"Viandes"},
-  {name:"Poulet (cuisse cuite)",p:25,g:0,l:8,cat:"Viandes"},
-  {name:"Dinde (blanc)",p:29,g:0,l:2,cat:"Viandes"},
-  {name:"Boeuf hache 5%",p:21,g:0,l:5,cat:"Viandes"},
-  {name:"Boeuf hache 15%",p:19,g:0,l:15,cat:"Viandes"},
-  {name:"Boeuf hache 20%",p:17,g:0,l:20,cat:"Viandes"},
-  {name:"Steak de boeuf",p:22,g:0,l:8,cat:"Viandes"},
+  /* ── VIANDES ─────────────────────────────────────── */
+  {name:"Poulet blanc cuit",p:31,g:0,l:3.6,cat:"Viandes"},
+  {name:"Poulet cuisse cuite",p:25,g:0,l:8,cat:"Viandes"},
+  {name:"Poulet entier r\u00f4ti",p:24,g:0,l:11,cat:"Viandes"},
+  {name:"Dinde blanc",p:29,g:0,l:2,cat:"Viandes"},
+  {name:"Dinde haché",p:20,g:0,l:7,cat:"Viandes"},
+  {name:"Boeuf hach\u00e9 5%",p:21,g:0,l:5,cat:"Viandes"},
+  {name:"Boeuf hach\u00e9 15%",p:19,g:0,l:15,cat:"Viandes"},
+  {name:"Boeuf hach\u00e9 20%",p:17,g:0,l:20,cat:"Viandes"},
+  {name:"Steak boeuf",p:22,g:0,l:8,cat:"Viandes"},
+  {name:"Filet de boeuf",p:23,g:0,l:4,cat:"Viandes"},
+  {name:"Entrecôte",p:19,g:0,l:18,cat:"Viandes"},
+  {name:"Veau escalope",p:21,g:0,l:3,cat:"Viandes"},
   {name:"Porc filet",p:21,g:0,l:4,cat:"Viandes"},
+  {name:"C\u00f4te de porc",p:20,g:0,l:12,cat:"Viandes"},
+  {name:"Porc lard fum\u00e9",p:12,g:0,l:33,cat:"Viandes"},
+  {name:"Agneau gigot",p:22,g:0,l:8,cat:"Viandes"},
+  {name:"Agneau c\u00f4telette",p:18,g:0,l:20,cat:"Viandes"},
   {name:"Jambon blanc",p:18,g:1,l:3.5,cat:"Viandes"},
   {name:"Jambon sec",p:24,g:0,l:9,cat:"Viandes"},
-  {name:"Lardons fumes",p:12,g:0,l:33,cat:"Viandes"},
-  {name:"Steak hache 15%",p:18,g:0,l:15,cat:"Viandes"},
-  {name:"Veau escalope",p:21,g:0,l:3,cat:"Viandes"},
-  /* POISSONS */
+  {name:"Lardons fum\u00e9s",p:12,g:0,l:33,cat:"Viandes"},
+  {name:"Saucisse de Strasbourg",p:12,g:1,l:22,cat:"Viandes"},
+  {name:"Merguez",p:15,g:2,l:24,cat:"Viandes"},
+  {name:"Chorizo",p:22,g:2,l:38,cat:"Viandes"},
+  {name:"Rillettes de porc",p:14,g:0,l:38,cat:"Viandes"},
+  {name:"Foie de veau",p:20,g:3.8,l:4.8,cat:"Viandes"},
+  /* ── POISSONS & FRUITS DE MER ──────────────────────── */
   {name:"Saumon",p:20,g:0,l:13,cat:"Poissons"},
-  {name:"Saumon fume",p:22,g:0,l:10,cat:"Poissons"},
-  {name:"Thon (conserve au naturel)",p:26,g:0,l:1,cat:"Poissons"},
-  {name:"Thon (conserve huile)",p:24,g:0,l:8,cat:"Poissons"},
+  {name:"Saumon fum\u00e9",p:22,g:0,l:10,cat:"Poissons"},
+  {name:"Thon conserve naturel",p:26,g:0,l:1,cat:"Poissons"},
+  {name:"Thon conserve huile",p:24,g:0,l:8,cat:"Poissons"},
   {name:"Cabillaud",p:18,g:0,l:0.9,cat:"Poissons"},
-  {name:"Crevettes",p:18,g:1.5,l:1.5,cat:"Poissons"},
-  {name:"Sardines (conserve)",p:22,g:0,l:10,cat:"Poissons"},
-  {name:"Maquereau",p:19,g:0,l:14,cat:"Poissons"},
-  {name:"Tilapia",p:20,g:0,l:2,cat:"Poissons"},
+  {name:"Cabillaud pané",p:14,g:15,l:8,cat:"Poissons"},
   {name:"Sole",p:17,g:0,l:1.2,cat:"Poissons"},
-  /* OEUFS */
+  {name:"Dorade",p:20,g:0,l:3.5,cat:"Poissons"},
+  {name:"Maquereau",p:19,g:0,l:14,cat:"Poissons"},
+  {name:"Maquereau conserve",p:17,g:0,l:10,cat:"Poissons"},
+  {name:"Sardines conserve",p:22,g:0,l:10,cat:"Poissons"},
+  {name:"Hareng fum\u00e9",p:21,g:0,l:12,cat:"Poissons"},
+  {name:"Tilapia",p:20,g:0,l:2,cat:"Poissons"},
+  {name:"Truite",p:20,g:0,l:5,cat:"Poissons"},
+  {name:"Lieu noir",p:18,g:0,l:1,cat:"Poissons"},
+  {name:"Crevettes",p:18,g:1.5,l:1.5,cat:"Poissons"},
+  {name:"Coquilles Saint-Jacques",p:17,g:3.5,l:1.5,cat:"Poissons"},
+  {name:"Moules cuites",p:12,g:3.7,l:2.7,cat:"Poissons"},
+  {name:"Calamars",p:16,g:1.5,l:1.4,cat:"Poissons"},
+  {name:"Surimi",p:8,g:12,l:1,cat:"Poissons"},
+  /* ── OEUFS ─────────────────────────────────────────── */
   {name:"Oeuf entier",p:13,g:0.7,l:10,cat:"Oeufs"},
   {name:"Blanc d oeuf",p:11,g:0.7,l:0.2,cat:"Oeufs"},
   {name:"Jaune d oeuf",p:16,g:0.6,l:31,cat:"Oeufs"},
-  /* LAITIERS */
+  {name:"Omelette nature",p:11,g:0.5,l:8,cat:"Oeufs"},
+  /* ── PRODUITS LAITIERS ──────────────────────────────── */
   {name:"Fromage blanc 0%",p:8,g:4.5,l:0.1,cat:"Laitiers"},
   {name:"Fromage blanc 3%",p:7,g:4,l:3,cat:"Laitiers"},
   {name:"Skyr nature",p:11,g:4,l:0.2,cat:"Laitiers"},
   {name:"Yaourt grec",p:9,g:3.6,l:5,cat:"Laitiers"},
   {name:"Yaourt nature",p:4,g:6,l:1.5,cat:"Laitiers"},
+  {name:"Yaourt aux fruits",p:3.5,g:15,l:1.5,cat:"Laitiers"},
+  {name:"Petit-suisse",p:7,g:4,l:8,cat:"Laitiers"},
+  {name:"Faisselle",p:8,g:3,l:5,cat:"Laitiers"},
   {name:"Cottage cheese",p:11,g:3.4,l:4,cat:"Laitiers"},
-  {name:"Lait demi-ecreme",p:3.4,g:5,l:1.5,cat:"Laitiers"},
-  {name:"Lait ecreme",p:3.4,g:5,l:0.1,cat:"Laitiers"},
+  {name:"Lait demi-\u00e9cr\u00e9m\u00e9",p:3.4,g:5,l:1.5,cat:"Laitiers"},
+  {name:"Lait \u00e9cr\u00e9m\u00e9",p:3.4,g:5,l:0.1,cat:"Laitiers"},
+  {name:"Lait entier",p:3.2,g:4.8,l:3.6,cat:"Laitiers"},
+  {name:"Lait d amande",p:0.5,g:1.5,l:1.1,cat:"Laitiers"},
+  {name:"Lait de soja",p:3.3,g:2.5,l:1.8,cat:"Laitiers"},
+  {name:"Lait d avoine",p:1,g:9,l:1.5,cat:"Laitiers"},
   {name:"Emmental",p:27,g:0.5,l:29,cat:"Laitiers"},
   {name:"Parmesan",p:36,g:0,l:26,cat:"Laitiers"},
   {name:"Mozzarella",p:18,g:2.7,l:17,cat:"Laitiers"},
   {name:"Cheddar",p:25,g:0.1,l:33,cat:"Laitiers"},
+  {name:"Camembert",p:21,g:0.5,l:24,cat:"Laitiers"},
+  {name:"Brie",p:19,g:0.5,l:28,cat:"Laitiers"},
+  {name:"Comté",p:29,g:0,l:32,cat:"Laitiers"},
+  {name:"Gruy\u00e8re",p:27,g:0,l:30,cat:"Laitiers"},
   {name:"Ricotta",p:7,g:3,l:10,cat:"Laitiers"},
   {name:"Cream cheese",p:6,g:4,l:33,cat:"Laitiers"},
-  /* FECULENTS */
-  {name:"Riz blanc cuit",p:2.7,g:28,l:0.3,cat:"Feculent"},
-  {name:"Riz complet cuit",p:2.6,g:23,l:0.9,cat:"Feculent"},
-  {name:"Pates cuites",p:5,g:26,l:0.9,cat:"Feculent"},
-  {name:"Pates seches",p:13,g:72,l:1.5,cat:"Feculent"},
-  {name:"Pomme de terre cuite",p:2,g:17,l:0.1,cat:"Feculent"},
-  {name:"Patate douce",p:1.6,g:20,l:0.1,cat:"Feculent"},
-  {name:"Flocons d avoine",p:13,g:62,l:7,cat:"Feculent"},
-  {name:"Pain complet",p:9,g:41,l:2.5,cat:"Feculent"},
-  {name:"Pain de mie blanc",p:8,g:48,l:4,cat:"Feculent"},
-  {name:"Pain baguette",p:8,g:55,l:1.5,cat:"Feculent"},
-  {name:"Quinoa cuit",p:4.4,g:21,l:1.9,cat:"Feculent"},
-  {name:"Mais",p:3.2,g:19,l:1.2,cat:"Feculent"},
-  {name:"Cereales (muesli)",p:10,g:65,l:6,cat:"Feculent"},
-  {name:"Riz soufle (galette)",p:7.5,g:80,l:1.5,cat:"Feculent"},
-  {name:"Couscous cuit",p:3.8,g:23,l:0.6,cat:"Feculent"},
-  {name:"Boulgour cuit",p:3.1,g:19,l:0.5,cat:"Feculent"},
-  /* LEGUMINEUSES */
-  {name:"Lentilles cuites",p:9,g:20,l:0.4,cat:"Legumineuses"},
-  {name:"Pois chiches cuits",p:9,g:27,l:2.6,cat:"Legumineuses"},
-  {name:"Haricots rouges cuits",p:8.7,g:22,l:0.5,cat:"Legumineuses"},
-  {name:"Haricots blancs cuits",p:8,g:21,l:0.5,cat:"Legumineuses"},
-  {name:"Edamame",p:11,g:8,l:5,cat:"Legumineuses"},
-  {name:"Feves cuites",p:7.6,g:15,l:0.5,cat:"Legumineuses"},
-  /* LEGUMES */
-  {name:"Tomate",p:0.9,g:3.9,l:0.2,cat:"Legumes"},
-  {name:"Tomate cerise",p:0.9,g:3.9,l:0.2,cat:"Legumes"},
-  {name:"Brocoli",p:3,g:7,l:0.4,cat:"Legumes"},
-  {name:"Epinards",p:2.9,g:3.6,l:0.4,cat:"Legumes"},
-  {name:"Courgette",p:1.2,g:3.1,l:0.2,cat:"Legumes"},
-  {name:"Carotte",p:0.9,g:10,l:0.2,cat:"Legumes"},
-  {name:"Concombre",p:0.7,g:3.6,l:0.1,cat:"Legumes"},
-  {name:"Poivron rouge",p:1,g:6,l:0.3,cat:"Legumes"},
-  {name:"Poivron vert",p:0.9,g:3.7,l:0.2,cat:"Legumes"},
-  {name:"Haricots verts",p:1.8,g:7,l:0.2,cat:"Legumes"},
-  {name:"Champignons",p:3.1,g:3.3,l:0.3,cat:"Legumes"},
-  {name:"Oignon",p:1.1,g:9.3,l:0.1,cat:"Legumes"},
-  {name:"Ail",p:6,g:33,l:0.5,cat:"Legumes"},
-  {name:"Salade verte",p:1.4,g:2.2,l:0.2,cat:"Legumes"},
-  {name:"Chou-fleur",p:2,g:5,l:0.3,cat:"Legumes"},
-  {name:"Chou vert",p:1.3,g:5.8,l:0.2,cat:"Legumes"},
-  {name:"Asperge",p:2.2,g:3.9,l:0.1,cat:"Legumes"},
-  {name:"Aubergine",p:1,g:5.8,l:0.2,cat:"Legumes"},
-  {name:"Celeri",p:0.7,g:3,l:0.1,cat:"Legumes"},
-  {name:"Poireau",p:1.5,g:6.5,l:0.3,cat:"Legumes"},
-  {name:"Petits pois",p:5.4,g:14,l:0.4,cat:"Legumes"},
-  {name:"Betterave",p:1.7,g:10,l:0.1,cat:"Legumes"},
-  {name:"Radis",p:0.7,g:3.4,l:0.1,cat:"Legumes"},
-  /* FRUITS */
+  {name:"Beurre",p:0.6,g:0.6,l:81,cat:"Laitiers"},
+  {name:"Cr\u00e8me fraiche 15%",p:2.7,g:3.5,l:15,cat:"Laitiers"},
+  {name:"Cr\u00e8me fraiche 30%",p:2,g:3,l:30,cat:"Laitiers"},
+  /* ── FECULENTS ──────────────────────────────────────── */
+  {name:"Riz blanc cuit",p:2.7,g:28,l:0.3,cat:"F\u00e9culents"},
+  {name:"Riz complet cuit",p:2.6,g:23,l:0.9,cat:"F\u00e9culents"},
+  {name:"Riz basmati cuit",p:2.5,g:26,l:0.3,cat:"F\u00e9culents"},
+  {name:"Riz sauvage cuit",p:4,g:21,l:0.3,cat:"F\u00e9culents"},
+  {name:"P\u00e2tes cuites",p:5,g:26,l:0.9,cat:"F\u00e9culents"},
+  {name:"P\u00e2tes bl\u00e9 complet cuites",p:5.5,g:23,l:1,cat:"F\u00e9culents"},
+  {name:"P\u00e2tes s\u00e8ches",p:13,g:72,l:1.5,cat:"F\u00e9culents"},
+  {name:"Gnocchis",p:2.5,g:28,l:0.5,cat:"F\u00e9culents"},
+  {name:"Pomme de terre cuite",p:2,g:17,l:0.1,cat:"F\u00e9culents"},
+  {name:"Pomme de terre vapeur",p:2,g:17,l:0.1,cat:"F\u00e9culents"},
+  {name:"Frites",p:3.5,g:34,l:14,cat:"F\u00e9culents"},
+  {name:"Pur\u00e9e maison",p:2,g:15,l:3,cat:"F\u00e9culents"},
+  {name:"Patate douce",p:1.6,g:20,l:0.1,cat:"F\u00e9culents"},
+  {name:"Flocons d avoine",p:13,g:62,l:7,cat:"F\u00e9culents"},
+  {name:"Muesli",p:10,g:65,l:6,cat:"F\u00e9culents"},
+  {name:"Granola",p:8,g:68,l:9,cat:"F\u00e9culents"},
+  {name:"Corn flakes",p:7,g:84,l:0.8,cat:"F\u00e9culents"},
+  {name:"Pain complet",p:9,g:41,l:2.5,cat:"F\u00e9culents"},
+  {name:"Pain de mie blanc",p:8,g:48,l:4,cat:"F\u00e9culents"},
+  {name:"Pain de mie complet",p:9,g:43,l:3,cat:"F\u00e9culents"},
+  {name:"Baguette",p:8,g:55,l:1.5,cat:"F\u00e9culents"},
+  {name:"Pain aux c\u00e9r\u00e9ales",p:10,g:44,l:4,cat:"F\u00e9culents"},
+  {name:"Tortilla bl\u00e9",p:8,g:49,l:8,cat:"F\u00e9culents"},
+  {name:"Quinoa cuit",p:4.4,g:21,l:1.9,cat:"F\u00e9culents"},
+  {name:"Boulgour cuit",p:3.1,g:19,l:0.5,cat:"F\u00e9culents"},
+  {name:"Couscous cuit",p:3.8,g:23,l:0.6,cat:"F\u00e9culents"},
+  {name:"Polenta cuite",p:1.5,g:15,l:0.5,cat:"F\u00e9culents"},
+  {name:"Galette de riz",p:7.5,g:80,l:1.5,cat:"F\u00e9culents"},
+  {name:"Ma\u00efs en boite",p:3.2,g:19,l:1.2,cat:"F\u00e9culents"},
+  /* ── LEGUMINEUSES ───────────────────────────────────── */
+  {name:"Lentilles cuites",p:9,g:20,l:0.4,cat:"L\u00e9gumineuses"},
+  {name:"Lentilles corail cuites",p:8,g:21,l:0.4,cat:"L\u00e9gumineuses"},
+  {name:"Pois chiches cuits",p:9,g:27,l:2.6,cat:"L\u00e9gumineuses"},
+  {name:"Haricots rouges cuits",p:8.7,g:22,l:0.5,cat:"L\u00e9gumineuses"},
+  {name:"Haricots blancs cuits",p:8,g:21,l:0.5,cat:"L\u00e9gumineuses"},
+  {name:"Fèves cuites",p:7.6,g:15,l:0.5,cat:"L\u00e9gumineuses"},
+  {name:"Edamame",p:11,g:8,l:5,cat:"L\u00e9gumineuses"},
+  {name:"Houmous",p:5,g:11,l:9,cat:"L\u00e9gumineuses"},
+  /* ── LEGUMES ────────────────────────────────────────── */
+  {name:"Tomate",p:0.9,g:3.9,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Tomate cerise",p:0.9,g:3.9,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Tomate s\u00e9ch\u00e9e",p:5,g:24,l:3,cat:"L\u00e9gumes"},
+  {name:"Brocoli",p:3,g:7,l:0.4,cat:"L\u00e9gumes"},
+  {name:"Chou-fleur",p:2,g:5,l:0.3,cat:"L\u00e9gumes"},
+  {name:"Chou vert",p:1.3,g:5.8,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Chou rouge",p:1.4,g:7,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Chou de Bruxelles",p:3.4,g:8,l:0.5,cat:"L\u00e9gumes"},
+  {name:"Epinards",p:2.9,g:3.6,l:0.4,cat:"L\u00e9gumes"},
+  {name:"Salade verte",p:1.4,g:2.2,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Roquette",p:2.6,g:3.7,l:0.7,cat:"L\u00e9gumes"},
+  {name:"M\u00e2che",p:2,g:0.4,l:0.4,cat:"L\u00e9gumes"},
+  {name:"Courgette",p:1.2,g:3.1,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Aubergine",p:1,g:5.8,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Poivron rouge",p:1,g:6,l:0.3,cat:"L\u00e9gumes"},
+  {name:"Poivron vert",p:0.9,g:3.7,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Poivron jaune",p:1,g:6.3,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Carotte",p:0.9,g:10,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Concombre",p:0.7,g:3.6,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Haricots verts",p:1.8,g:7,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Petits pois",p:5.4,g:14,l:0.4,cat:"L\u00e9gumes"},
+  {name:"Champignons de Paris",p:3.1,g:3.3,l:0.3,cat:"L\u00e9gumes"},
+  {name:"Champignons port obello",p:3.9,g:5,l:0.4,cat:"L\u00e9gumes"},
+  {name:"Oignon",p:1.1,g:9.3,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Oignon rouge",p:1,g:10,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Echalote",p:1.5,g:8.5,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Ail",p:6,g:33,l:0.5,cat:"L\u00e9gumes"},
+  {name:"Poireau",p:1.5,g:6.5,l:0.3,cat:"L\u00e9gumes"},
+  {name:"Celeri branche",p:0.7,g:3,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Celeri rave",p:1.5,g:7,l:0.3,cat:"L\u00e9gumes"},
+  {name:"Asperge",p:2.2,g:3.9,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Artichaut",p:2.8,g:12,l:0.2,cat:"L\u00e9gumes"},
+  {name:"F\u00e9noul",p:1.2,g:7,l:0.2,cat:"L\u00e9gumes"},
+  {name:"Betterave",p:1.7,g:10,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Radis",p:0.7,g:3.4,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Navet",p:0.9,g:6.4,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Bette",p:1.8,g:3.7,l:0.1,cat:"L\u00e9gumes"},
+  {name:"Endive",p:0.9,g:4,l:0.1,cat:"L\u00e9gumes"},
+  /* ── FRUITS ─────────────────────────────────────────── */
   {name:"Banane",p:1.1,g:23,l:0.3,cat:"Fruits"},
   {name:"Pomme",p:0.3,g:14,l:0.2,cat:"Fruits"},
+  {name:"Poire",p:0.4,g:15,l:0.1,cat:"Fruits"},
   {name:"Orange",p:1,g:12,l:0.2,cat:"Fruits"},
+  {name:"Mandarine",p:0.9,g:13,l:0.2,cat:"Fruits"},
+  {name:"Citron",p:1,g:9,l:0.3,cat:"Fruits"},
+  {name:"Pamplemousse",p:0.8,g:11,l:0.1,cat:"Fruits"},
   {name:"Kiwi",p:1.1,g:15,l:0.5,cat:"Fruits"},
   {name:"Fraises",p:0.8,g:8,l:0.3,cat:"Fruits"},
+  {name:"Framboises",p:1.2,g:12,l:0.7,cat:"Fruits"},
   {name:"Myrtilles",p:0.7,g:14,l:0.3,cat:"Fruits"},
-  {name:"Mangue",p:0.8,g:15,l:0.4,cat:"Fruits"},
-  {name:"Ananas",p:0.5,g:13,l:0.1,cat:"Fruits"},
+  {name:"Mûres",p:1.4,g:10,l:0.5,cat:"Fruits"},
+  {name:"Cerises",p:1,g:16,l:0.2,cat:"Fruits"},
   {name:"Raisin",p:0.6,g:18,l:0.2,cat:"Fruits"},
-  {name:"Peche",p:0.9,g:10,l:0.1,cat:"Fruits"},
-  {name:"Poire",p:0.4,g:15,l:0.1,cat:"Fruits"},
-  {name:"Pastèque",p:0.6,g:7.6,l:0.2,cat:"Fruits"},
-  {name:"Citron",p:1,g:9,l:0.3,cat:"Fruits"},
-  /* MATIERES GRASSES */
-  {name:"Avocat",p:2,g:9,l:15,cat:"Lipides"},
+  {name:"Mango",p:0.8,g:15,l:0.4,cat:"Fruits"},
+  {name:"Ananas",p:0.5,g:13,l:0.1,cat:"Fruits"},
+  {name:"Papaye",p:0.6,g:10,l:0.1,cat:"Fruits"},
+  {name:"P\u00eache",p:0.9,g:10,l:0.1,cat:"Fruits"},
+  {name:"Nectarine",p:1,g:11,l:0.2,cat:"Fruits"},
+  {name:"Abricot",p:1.4,g:11,l:0.4,cat:"Fruits"},
+  {name:"Prune",p:0.7,g:11,l:0.3,cat:"Fruits"},
+  {name:"Figue",p:0.7,g:16,l:0.2,cat:"Fruits"},
+  {name:"Past\u00e8que",p:0.6,g:7.6,l:0.2,cat:"Fruits"},
+  {name:"Melon",p:0.6,g:8,l:0.2,cat:"Fruits"},
+  {name:"Avocat",p:2,g:9,l:15,cat:"Fruits"},
+  {name:"Datte",p:2.5,g:75,l:0.4,cat:"Fruits"},
+  {name:"Raisin sec",p:2.5,g:79,l:0.5,cat:"Fruits"},
+  {name:"Abricot sec",p:3.4,g:63,l:0.5,cat:"Fruits"},
+  /* ── MATIERES GRASSES ───────────────────────────────── */
   {name:"Huile d olive",p:0,g:0,l:100,cat:"Lipides"},
   {name:"Huile de coco",p:0,g:0,l:100,cat:"Lipides"},
-  {name:"Beurre",p:0.6,g:0.6,l:81,cat:"Lipides"},
-  {name:"Beurre de cacahuete",p:25,g:20,l:50,cat:"Lipides"},
+  {name:"Huile de tournesol",p:0,g:0,l:100,cat:"Lipides"},
+  {name:"Huile de colza",p:0,g:0,l:100,cat:"Lipides"},
+  {name:"Beurre de cacahu\u00e8te",p:25,g:20,l:50,cat:"Lipides"},
+  {name:"Beurre d amande",p:21,g:19,l:55,cat:"Lipides"},
+  {name:"Tahini (p\u00e2te s\u00e9same)",p:17,g:21,l:54,cat:"Lipides"},
   {name:"Amandes",p:21,g:22,l:50,cat:"Lipides"},
   {name:"Noix",p:15,g:14,l:65,cat:"Lipides"},
   {name:"Noix de cajou",p:18,g:30,l:44,cat:"Lipides"},
   {name:"Noisettes",p:15,g:17,l:61,cat:"Lipides"},
+  {name:"Pistaches",p:20,g:28,l:45,cat:"Lipides"},
+  {name:"Noix de macadamia",p:8,g:14,l:76,cat:"Lipides"},
   {name:"Graines de chia",p:17,g:42,l:31,cat:"Lipides"},
   {name:"Graines de lin",p:18,g:29,l:42,cat:"Lipides"},
-  /* SAUCES & CONDIMENTS */
+  {name:"Graines de courge",p:30,g:11,l:49,cat:"Lipides"},
+  {name:"Graines de tournesol",p:21,g:20,l:51,cat:"Lipides"},
+  /* ── SAUCES & CONDIMENTS ─────────────────────────────── */
   {name:"Ketchup",p:1.5,g:25,l:0.2,cat:"Sauces"},
   {name:"Mayonnaise",p:1.6,g:2.7,l:75,cat:"Sauces"},
+  {name:"Mayonnaise all\u00e9g\u00e9e",p:1.5,g:10,l:35,cat:"Sauces"},
   {name:"Moutarde",p:4,g:6,l:3,cat:"Sauces"},
   {name:"Sauce soja",p:8,g:8,l:0,cat:"Sauces"},
+  {name:"Sauce tomar\u00e9 (coulis)",p:1.5,g:7,l:0.4,cat:"Sauces"},
+  {name:"Vinaigrette",p:0.2,g:3,l:25,cat:"Sauces"},
   {name:"Vinaigre balsamique",p:0.5,g:17,l:0,cat:"Sauces"},
-  {name:"Creme fraiche 15%",p:2.7,g:3.5,l:15,cat:"Sauces"},
-  {name:"Creme fraiche 30%",p:2,g:3,l:30,cat:"Sauces"},
-  /* DIVERS */
+  {name:"Sauce worcestershire",p:2.7,g:22,l:0,cat:"Sauces"},
+  {name:"Sauce pesto",p:4,g:4,l:32,cat:"Sauces"},
+  {name:"Sauce b\u00e9chamel",p:3.5,g:8,l:6,cat:"Sauces"},
+  {name:"Sauce curry",p:1.5,g:12,l:8,cat:"Sauces"},
+  /* ── BOISSONS ───────────────────────────────────────── */
+  {name:"Jus d orange",p:0.7,g:10,l:0.2,cat:"Boissons"},
+  {name:"Jus de pomme",p:0.1,g:11,l:0.1,cat:"Boissons"},
+  {name:"Smoothie banane",p:1.5,g:18,l:0.5,cat:"Boissons"},
+  {name:"Boisson sportive isotonique",p:0,g:6,l:0,cat:"Boissons"},
+  /* ── DIVERS ─────────────────────────────────────────── */
   {name:"Chocolat noir 70%",p:7,g:46,l:42,cat:"Divers"},
+  {name:"Chocolat noir 85%",p:9,g:34,l:51,cat:"Divers"},
   {name:"Chocolat au lait",p:6,g:57,l:30,cat:"Divers"},
   {name:"Miel",p:0.3,g:82,l:0,cat:"Divers"},
   {name:"Sucre",p:0,g:100,l:0,cat:"Divers"},
+  {name:"Sirop d agave",p:0,g:77,l:0,cat:"Divers"},
   {name:"Confiture",p:0.5,g:65,l:0.1,cat:"Divers"},
   {name:"Nutella",p:6,g:58,l:30,cat:"Divers"},
-  /* SUPPLEMENTS */
-  {name:"Whey proteine",p:80,g:7,l:5,cat:"Supplements"},
-  {name:"Caseine",p:78,g:6,l:3,cat:"Supplements"},
-  {name:"Barre proteinee",p:30,g:40,l:8,cat:"Supplements"},
-  {name:"Gainer",p:20,g:60,l:4,cat:"Supplements"},
+  {name:"Cr\u00eape nature",p:6,g:33,l:5,cat:"Divers"},
+  {name:"Galette sar rasin",p:5,g:22,l:2,cat:"Divers"},
+  {name:"Pizza margherita",p:9,g:30,l:7,cat:"Divers"},
+  {name:"Hamburger maison",p:15,g:28,l:12,cat:"Divers"},
+  /* ── SUPPLEMENTS ─────────────────────────────────────── */
+  {name:"Whey prot\u00e9ine",p:80,g:7,l:5,cat:"Suppl\u00e9ments"},
+  {name:"Cas\u00e9ine",p:78,g:6,l:3,cat:"Suppl\u00e9ments"},
+  {name:"Barre prot\u00e9in\u00e9e",p:30,g:40,l:8,cat:"Suppl\u00e9ments"},
+  {name:"Gainer",p:20,g:60,l:4,cat:"Suppl\u00e9ments"},
+  {name:"BCAA poudre",p:85,g:5,l:0,cat:"Suppl\u00e9ments"},
+  {name:"Cr\u00e9atine monohydrate",p:100,g:0,l:0,cat:"Suppl\u00e9ments"},
 ];
 var nutriSelectedFood = null;
 
@@ -6681,7 +7220,7 @@ function renderNutri() {
     if(bar){bar.style.width=target>0?Math.min(Math.round(eaten/target*100),100)+'%':'0%';}
   }
   upMacro('p',totP,macros.p); upMacro('g',totG,macros.g); upMacro('l',totL,macros.l);
-  renderMealsList(meals,today); renderNutriMonth();
+  renderMealsList(meals,today); renderNutriMonth(); renderMealTemplates();
   if (typeof renderHydra === 'function') renderHydra();
 }
 function renderMealsList(meals,today) {
@@ -7452,6 +7991,9 @@ function selectPlanningSession(sessionKey) {
 /* ══ EXPORT / IMPORT DONNÉES ══════════════════════ */
 function openBackup() {
   document.getElementById('backup-status').className = 'backup-status';
+  // Marquer la couleur active
+  var t = themeLoad(); var activeColor = t ? t.color : (CURRENT_PROFILE && PROFILE_DEFAULT_COLORS[CURRENT_PROFILE] ? PROFILE_DEFAULT_COLORS[CURRENT_PROFILE].color : null);
+  if (activeColor) document.querySelectorAll('.theme-swatch').forEach(function(s){s.classList.toggle('active',s.dataset.color===activeColor);});
   modalOpen('backup-modal');
 }
 function closeBackup() {
@@ -7558,6 +8100,584 @@ var IS_PWA     = document.documentElement.classList.contains('is-pwa');
 function vibrate(pattern) {
   if (IS_IOS) return; // iOS ignore navigator.vibrate
   try { navigator.vibrate && navigator.vibrate(pattern); } catch(e) {}
+}
+
+
+/* ══════════════════════════════════════════════════════
+   SYSTÈME DE PROFILS — PIN + données isolées
+══════════════════════════════════════════════════════ */
+
+var PROFILES_KEY    = 'forge_profiles_v1';
+var CURRENT_PROFILE = null;
+
+var PROFILE_CONFIG = {
+  mathieu:  { name:'Mathieu',  color:'#00C853', initial:'M' },
+  brigitte: { name:'Brigitte', color:'#FF6B35', initial:'B' },
+  allison:  { name:'Allison',  color:'#A259FF', initial:'A' },
+};
+
+/* ── Storage des PIN ────────────────────────────────── */
+function profilesLoad() {
+  try {
+    var s = localStorage.getItem(PROFILES_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  // PINs par défaut : 0000 pour tous
+  return { mathieu:'0000', brigitte:'0000', allison:'0000' };
+}
+function profilesSave(data) {
+  try { localStorage.setItem(PROFILES_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+/* ── Préfixe clé localStorage par profil ───────────── */
+function pKey(key) {
+  return CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' + key : key;
+}
+
+/* ── Overrides storage — toutes les fonctions utilisent pKey ── */
+var _origWeightLoad = weightLoad;
+weightLoad = function() {
+  try { var s=localStorage.getItem(pKey(WEIGHT_KEY)); return s?JSON.parse(s):[]; } catch(e){ return []; }
+};
+var _origWeightSave = weightSave;
+weightSave = function(entries) {
+  try { localStorage.setItem(pKey(WEIGHT_KEY), JSON.stringify(entries)); } catch(e) {}
+};
+
+var _origNotesLoad = notesLoad;
+notesLoad = function() {
+  try { var s=localStorage.getItem(pKey(NOTES_KEY)); return s?JSON.parse(s):[]; } catch(e){ return []; }
+};
+var _origNotesSave = notesSave;
+notesSave = function(notes) {
+  var cutoff=localDateKey(new Date(Date.now()-30*86400000));
+  notes=notes.filter(function(n){return n.date>=cutoff;});
+  try { localStorage.setItem(pKey(NOTES_KEY), JSON.stringify(notes)); } catch(e) {}
+};
+
+var _origNutriLoad = nutriProfileLoad;
+nutriProfileLoad = function() {
+  try { var s=localStorage.getItem(pKey(NUTRI_PROFILE_KEY)); return s?JSON.parse(s):null; } catch(e){ return null; }
+};
+var _origNutriSave = nutriProfileSave;
+nutriProfileSave = function(p) {
+  try { localStorage.setItem(pKey(NUTRI_PROFILE_KEY), JSON.stringify(p)); } catch(e) {}
+};
+
+var _origMealsLoad = mealsLoad;
+mealsLoad = function(dateKey) {
+  try {
+    var s=localStorage.getItem(pKey(NUTRI_MEALS_KEY));
+    var d=s?JSON.parse(s):{}; return d[dateKey]||[];
+  } catch(e){ return []; }
+};
+var _origMealsSave = mealsSave;
+mealsSave = function(dateKey, meals) {
+  try {
+    var s=localStorage.getItem(pKey(NUTRI_MEALS_KEY));
+    var data=s?JSON.parse(s):{};
+    data[dateKey]=meals;
+    localStorage.setItem(pKey(NUTRI_MEALS_KEY), JSON.stringify(data));
+  } catch(e) {}
+};
+
+/* calGetDone / calSaveDone */
+var _origCalGet = calGetDone;
+calGetDone = function() {
+  try { var s=localStorage.getItem(pKey('cal-done-v1')); return s?JSON.parse(s):{}; } catch(e){ return {}; }
+};
+var _origCalSave = calSaveDone;
+calSaveDone = function(map) {
+  try { localStorage.setItem(pKey('cal-done-v1'), JSON.stringify(map)); } catch(e) {}
+};
+
+/* checksLoad / checksSave */
+var _origChecksLoad = checksLoad;
+checksLoad = function() {
+  try {
+    var raw=localStorage.getItem(pKey(CHECKS_KEY));
+    if (!raw) return {};
+    var data=JSON.parse(raw);
+    if (data.date!==localDateKey(new Date())) return {};
+    return data.checks||{};
+  } catch(e){ return {}; }
+};
+var _origChecksSave = checksSave;
+checksSave = function() {
+  var today=localDateKey(new Date()), checks={};
+  document.querySelectorAll('.card .cb').forEach(function(cb){
+    var card=cb.closest('.card');
+    var group=card?card.dataset.group:'';
+    var exName=card&&card.querySelector('.ex-name')?card.querySelector('.ex-name').textContent.trim():'';
+    if (!group||!exName) return;
+    checks[group+'||'+exName]=cb.classList.contains('done');
+  });
+  try { localStorage.setItem(pKey(CHECKS_KEY), JSON.stringify({date:today,checks:checks})); } catch(e) {}
+};
+
+/* Planning */
+var _origPlanLoad = planningGetSchedule;
+planningGetSchedule = function() {
+  try {
+    var s=localStorage.getItem(pKey(PLANNING_KEY));
+    return s ? JSON.parse(s) : planningGetDefaultSchedule();
+  } catch(e){ return planningGetDefaultSchedule(); }
+};
+var _origPlanSave = planningSaveSchedule;
+planningSaveSchedule = function(schedule) {
+  try { localStorage.setItem(pKey(PLANNING_KEY), JSON.stringify(schedule)); } catch(e) {}
+};
+
+/* Weight tracker per exercise — override localStorage calls avec pKey dans skey */
+function pkSkey(skey) {
+  return CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' + skey : skey;
+}
+
+/* ── Écran PIN ──────────────────────────────────────── */
+var pinBuffer     = '';
+var pinTarget     = null; // profil en cours d'auth
+var pinMode       = 'login'; // 'login' | 'change_old' | 'change_new' | 'change_confirm'
+var pinChangeNew  = '';
+
+function selectProfile(profileId) {
+  pinTarget  = profileId;
+  pinBuffer  = '';
+  pinMode    = 'login';
+  var cfg    = PROFILE_CONFIG[profileId];
+  document.getElementById('pin-profile-name').textContent = cfg.name.toUpperCase();
+  document.getElementById('pin-profile-name').style.color = cfg.color;
+  document.querySelectorAll('.pin-dot').forEach(function(d){
+    d.classList.remove('filled','error');
+    d.style.setProperty('--pin-color', cfg.color);
+  });
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('profile-select-view').style.display = 'none';
+  document.getElementById('pin-screen-view').classList.add('show');
+}
+
+function backToProfiles() {
+  pinBuffer = '';
+  pinTarget = null;
+  document.getElementById('pin-screen-view').classList.remove('show');
+  document.getElementById('profile-select-view').style.display = '';
+  document.getElementById('pin-error').textContent = '';
+  document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled','error');});
+}
+
+function pinKey(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots(false);
+  if (pinBuffer.length === 4) {
+    setTimeout(function(){ checkPin(); }, 120);
+  }
+}
+
+function pinDelete() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots(false);
+}
+
+function updatePinDots(error) {
+  for (var i = 0; i < 4; i++) {
+    var dot = document.getElementById('pin-dot-' + i);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+    dot.classList.toggle('error', error);
+  }
+}
+
+function checkPin() {
+  var profiles = profilesLoad();
+  var correct  = profiles[pinTarget];
+
+  if (pinMode === 'login') {
+    if (pinBuffer === correct) {
+      loginSuccess(pinTarget);
+    } else {
+      pinError('Code incorrect. R\u00e9essaie.');
+    }
+
+  } else if (pinMode === 'change_old') {
+    if (pinBuffer === correct) {
+      pinBuffer = '';
+      pinMode   = 'change_new';
+      document.getElementById('pin-label').textContent = 'NOUVEAU CODE PIN';
+      document.getElementById('pin-error').textContent = '';
+      updatePinDots(false);
+    } else {
+      pinError('Code incorrect.');
+    }
+
+  } else if (pinMode === 'change_new') {
+    pinChangeNew = pinBuffer;
+    pinBuffer    = '';
+    pinMode      = 'change_confirm';
+    document.getElementById('pin-label').textContent = 'CONFIRME LE CODE';
+    document.getElementById('pin-error').textContent = '';
+    updatePinDots(false);
+
+  } else if (pinMode === 'change_confirm') {
+    if (pinBuffer === pinChangeNew) {
+      var profiles2 = profilesLoad();
+      profiles2[CURRENT_PROFILE] = pinBuffer;
+      profilesSave(profiles2);
+      // Fermer le modal et revenir à l'app
+      modalClose('backup-modal');
+      pinMode   = 'login';
+      pinBuffer = '';
+      showToast('\u2713 Code PIN modifi\u00e9 !', 'rgba(0,200,83,.9)');
+    } else {
+      pinError('Les codes ne correspondent pas.');
+    }
+  }
+}
+
+function pinError(msg) {
+  updatePinDots(true);
+  document.getElementById('pin-error').textContent = msg;
+  setTimeout(function(){
+    pinBuffer = '';
+    updatePinDots(false);
+    document.getElementById('pin-error').textContent = '';
+  }, 900);
+}
+
+function loginSuccess(profileId) {
+  CURRENT_PROFILE = profileId;
+  var cfg = PROFILE_CONFIG[profileId];
+  document.getElementById('login-screen').classList.add('hidden');
+  // Ajouter badge profil sur home
+  renderProfileBadge();
+  // Appliquer le thème du profil
+  loadProfileTheme();
+
+  // Charger les données du profil
+  planningUpdateHomeSchedule();
+  // Recharger le weight tracker avec les données du bon profil
+  if (typeof initWeightTracking === 'function') initWeightTracking();
+  if (typeof initProgButtons    === 'function') initProgButtons();
+  renderHome();
+  renderWeightCard();
+  updateHomeNotesCount();
+  checksRestore();
+  ['jambes','back','bras'].forEach(function(g){
+    if (typeof updateNavBadge === 'function') updateNavBadge(g);
+  });
+}
+
+function renderProfileBadge() {
+  var existing = document.getElementById('active-profile-badge');
+  if (existing) existing.remove();
+  if (!CURRENT_PROFILE) return;
+  var cfg = PROFILE_CONFIG[CURRENT_PROFILE];
+  var el  = document.createElement('div');
+  el.id   = 'active-profile-badge';
+  el.innerHTML =
+    '<div class="apb-avatar" style="background:'+cfg.color+'">'+cfg.initial+'</div>'
+    + '<div class="apb-name" onclick="logout()" style="cursor:pointer">'+cfg.name.toUpperCase()+'</div>';
+  var homePage = document.getElementById('page-home');
+  if (homePage) homePage.insertBefore(el, homePage.firstChild);
+}
+
+function logout() {
+  CURRENT_PROFILE = null;
+  pinBuffer = '';
+  pinTarget = null;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('pin-screen-view').classList.remove('show');
+  document.getElementById('profile-select-view').style.display = '';
+  var badge = document.getElementById('active-profile-badge');
+  if (badge) badge.remove();
+}
+
+/* ── Changer PIN depuis la home ─────────────────────── */
+function openChangePin() {
+  if (!CURRENT_PROFILE) return;
+  pinMode   = 'change_old';
+  pinBuffer = '';
+  var cfg   = PROFILE_CONFIG[CURRENT_PROFILE];
+  document.getElementById('pin-label').textContent = 'ANCIEN CODE PIN';
+  document.getElementById('pin-profile-name').textContent = cfg.name.toUpperCase();
+  document.getElementById('pin-profile-name').style.color = cfg.color;
+  document.querySelectorAll('.pin-dot').forEach(function(d){
+    d.classList.remove('filled','error');
+    d.style.setProperty('--pin-color', cfg.color);
+  });
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('profile-select-view').style.display = 'none';
+  document.getElementById('pin-screen-view').classList.add('show');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+/* ── Override export/import pour scope profil ───────── */
+var _origExport = exportData;
+exportData = function() {
+  var data = { _version:2, _date:new Date().toISOString(), _app:'FORGE', _profile: CURRENT_PROFILE };
+  var prefix = CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' : '';
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (!prefix || key.startsWith(prefix)) {
+      var exportKey = prefix ? key.slice(prefix.length) : key;
+      try { data[exportKey] = JSON.parse(localStorage.getItem(key)); }
+      catch(e) { data[exportKey] = localStorage.getItem(key); }
+    }
+  }
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], { type:'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var d    = new Date();
+  var ds   = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  var filename = 'forge-backup-'+(CURRENT_PROFILE||'all')+'-'+ds+'.json';
+  var a = document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  var n = Object.keys(data).filter(function(k){return !k.startsWith('_');}).length;
+  showBackupStatus('ok', '\u2713 '+n+' entr\u00e9es export\u00e9es');
+  showToast('\u2B07\uFE0F Sauvegarde t\u00e9l\u00e9charg\u00e9e','rgba(0,200,83,.9)');
+};
+
+var _origImport = importData;
+importData = function(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data._app || data._app !== 'FORGE') {
+        showBackupStatus('err','\u26A0\uFE0F Fichier invalide'); return;
+      }
+      var prefix = CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' : '';
+      var count  = 0;
+      Object.keys(data).forEach(function(key) {
+        if (key.startsWith('_')) return;
+        var storageKey = prefix + key;
+        try {
+          localStorage.setItem(storageKey,
+            typeof data[key]==='string' ? data[key] : JSON.stringify(data[key]));
+          count++;
+        } catch(e2) {}
+      });
+      showBackupStatus('ok', '\u2713 '+count+' entr\u00e9es restaur\u00e9es !');
+      showToast('\u2705 Donn\u00e9es restaur\u00e9es','rgba(0,200,83,.9)');
+      setTimeout(function(){
+        loginSuccess(CURRENT_PROFILE);
+      }, 1200);
+    } catch(err) {
+      showBackupStatus('err','\u26A0\uFE0F Erreur : '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+};
+
+
+/* ══ REPAS TYPES ══════════════════════════════════ */
+var MT_KEY         = 'meal-templates-v1';
+var mtCurrentItems = [];
+var mtCurrentEmoji = '\uD83C\uDF7D\uFE0F';
+var mtSelectedFood = null;
+
+function mtLoad() {
+  try { var s=localStorage.getItem(pKey(MT_KEY)); return s?JSON.parse(s):[]; } catch(e){ return []; }
+}
+function mtSave(t) {
+  try { localStorage.setItem(pKey(MT_KEY), JSON.stringify(t)); } catch(e) {}
+}
+
+function renderMealTemplates() {
+  var list = document.getElementById('mt-list'); if(!list) return;
+  var templates = mtLoad();
+  if (!templates.length) {
+    list.innerHTML = '<div class="mt-empty">Aucun repas type enregistr\u00e9</div>';
+    return;
+  }
+  list.innerHTML = templates.map(function(t, idx) {
+    var totP=0,totG=0,totL=0;
+    (t.items||[]).forEach(function(i){totP+=i.p||0;totG+=i.g||0;totL+=i.l||0;});
+    var kcal=Math.round(totP*4+totG*4+totL*9);
+    return '<div class="mt-item">'
+      +'<div class="mt-item-header">'
+      +'<div class="mt-item-emoji">'+(t.emoji||'\uD83C\uDF7D')+'</div>'
+      +'<div class="mt-item-name">'+t.name+'</div>'
+      +'</div>'
+      +'<div class="mt-item-macros">P:'+Math.round(totP)+'g \u00b7 G:'+Math.round(totG)+'g \u00b7 L:'+Math.round(totL)+'g \u00b7 '+kcal+' kcal \u00b7 '+(t.items||[]).length+' aliment'+((t.items.length>1)?'s':'')+'</div>'
+      +'<div class="mt-item-btns">'
+      +'<button class="mt-add-btn" data-idx="'+idx+'" onclick="addTemplateToLog(parseInt(this.dataset.idx))">+ AJOUTER AU LOG</button>'
+      +'<button class="mt-del-btn" data-idx="'+idx+'" onclick="deleteTemplate(parseInt(this.dataset.idx))">\uD83D\uDDD1</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function addTemplateToLog(idx) {
+  var templates=mtLoad(), t=templates[idx]; if(!t) return;
+  var today=localDateKey(new Date()), meals=mealsLoad(today);
+  (t.items||[]).forEach(function(item){
+    meals.push({name:item.name,p:item.p,g:item.g,l:item.l});
+  });
+  mealsSave(today,meals); renderNutri();
+  showToast((t.emoji||'')+' '+t.name+' ajout\u00e9 !','rgba(255,107,53,.96)');
+  vibrate(30);
+}
+
+function deleteTemplate(idx) {
+  var templates=mtLoad(); templates.splice(idx,1); mtSave(templates); renderMealTemplates();
+}
+
+function openMtModal() {
+  mtCurrentItems=[]; mtSelectedFood=null;
+  mtCurrentEmoji='\uD83C\uDF7D\uFE0F';
+  document.getElementById('mt-name-input').value='';
+  document.getElementById('mt-food-search').value='';
+  document.getElementById('mt-food-drop').style.display='none';
+  document.getElementById('mt-emoji-picker').classList.remove('show');
+  document.getElementById('mt-emoji-display').textContent=mtCurrentEmoji;
+  renderMtFoodList();
+  modalOpen('mt-modal');
+}
+function closeMtModal() {
+  modalClose('mt-modal');
+  document.getElementById('mt-food-drop').style.display='none';
+}
+function toggleMtEmojiPicker() {
+  document.getElementById('mt-emoji-picker').classList.toggle('show');
+}
+function setMtEmoji(emoji) {
+  mtCurrentEmoji=emoji;
+  document.getElementById('mt-emoji-display').textContent=emoji;
+  document.getElementById('mt-emoji-picker').classList.remove('show');
+}
+
+function mtFoodSearch(val) {
+  var drop=document.getElementById('mt-food-drop'); if(!drop) return;
+  var q=(val||'').toLowerCase().trim();
+  if (!q){drop.style.display='none';return;}
+  var matches=FOOD_DB.filter(function(f){return f.name.toLowerCase().indexOf(q)!==-1;}).slice(0,8);
+  if (!matches.length){drop.style.display='none';return;}
+  drop.innerHTML=matches.map(function(f){
+    var safe=f.name.replace(/'/g,'&#39;');
+    return '<div class="mt-drop-item" onclick="mtSelectFood(\''+safe+'\')">'
+      +f.name+' <span style="color:var(--dim);font-size:10px">\u00b7 P:'+f.p+' G:'+f.g+' L:'+f.l+'</span></div>';
+  }).join('');
+  drop.style.display='block';
+}
+
+function mtSelectFood(name) {
+  document.getElementById('mt-food-search').value=name;
+  document.getElementById('mt-food-drop').style.display='none';
+  mtSelectedFood=FOOD_DB.find(function(f){return f.name===name;});
+  document.getElementById('mt-qty').focus();
+}
+
+function renderMtFoodList() {
+  var el=document.getElementById('mt-food-list'); if(!el) return;
+  var cnt=document.getElementById('mt-item-count'); if(cnt) cnt.textContent=mtCurrentItems.length;
+  if (!mtCurrentItems.length){el.innerHTML='';return;}
+  el.innerHTML=mtCurrentItems.map(function(item,i){
+    return '<div class="mt-food-item">'
+      +'<div class="mt-food-item-name">'+item.name+'</div>'
+      +'<div class="mt-food-item-qty">'+item.qty+'g</div>'
+      +'<button class="mt-food-item-del" data-i="'+i+'" onclick="mtRemoveItem(parseInt(this.dataset.i))">\u2715</button>'
+      +'</div>';
+  }).join('');
+}
+
+function mtRemoveItem(i) { mtCurrentItems.splice(i,1); renderMtFoodList(); }
+
+function mtAddCurrentFood() {
+  if (!mtSelectedFood) {
+    var name=(document.getElementById('mt-food-search').value||'').trim();
+    if (!name) return;
+    mtSelectedFood=FOOD_DB.find(function(f){return f.name.toLowerCase()===name.toLowerCase();})||{name:name,p:0,g:0,l:0};
+  }
+  var qtyEl=document.getElementById('mt-qty');
+  var srchEl=document.getElementById('mt-food-search');
+  var qty=qtyEl?parseFloat(qtyEl.value)||100:100;
+  var mul=qty/100;
+  mtCurrentItems.push({
+    name:mtSelectedFood.name,
+    p:Math.round(mtSelectedFood.p*mul*10)/10,
+    g:Math.round(mtSelectedFood.g*mul*10)/10,
+    l:Math.round(mtSelectedFood.l*mul*10)/10,
+    qty:qty
+  });
+  if(srchEl) srchEl.value='';
+  if(qtyEl)  qtyEl.value='100';
+  mtSelectedFood=null;
+  renderMtFoodList();
+}
+
+function saveMealTemplate() {
+  if (mtSelectedFood||(document.getElementById('mt-food-search').value||'').trim()) mtAddCurrentFood();
+  var name=(document.getElementById('mt-name-input').value||'').trim();
+  if (!name){showToast('\u26A0\uFE0F Donne un nom au repas','rgba(229,57,53,.9)');return;}
+  if (!mtCurrentItems.length){showToast('\u26A0\uFE0F Ajoute au moins un aliment','rgba(229,57,53,.9)');return;}
+  var templates=mtLoad();
+  templates.push({id:Date.now(),name:name,emoji:mtCurrentEmoji,items:mtCurrentItems.slice()});
+  mtSave(templates); closeMtModal(); renderMealTemplates();
+  showToast('\u2713 Repas type sauvegard\u00e9 !','rgba(255,107,53,.96)');
+}
+
+// Fermer dropdown si click ailleurs
+document.addEventListener('click', function(e) {
+  var drop=document.getElementById('mt-food-drop');
+  if (drop&&!e.target.closest('#mt-food-drop')&&e.target.id!=='mt-food-search') drop.style.display='none';
+});
+
+// Ajouter aliment avec Enter sur qty
+document.addEventListener('keydown', function(e) {
+  if (e.key==='Enter'&&document.activeElement&&document.activeElement.id==='mt-qty') mtAddCurrentFood();
+});
+
+
+/* ══ THEME COULEUR PAR PROFIL ══════════════════════ */
+var THEME_KEY = 'forge-theme-v1';
+
+var PROFILE_DEFAULT_COLORS = {
+  mathieu:  { color:'#00C853', rgb:'0,200,83'   },
+  brigitte: { color:'#FF6B35', rgb:'255,107,53' },
+  allison:  { color:'#A259FF', rgb:'162,89,255' },
+};
+
+function themeLoad() {
+  try {
+    var s = localStorage.getItem(pKey(THEME_KEY));
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+function themeSave(color, rgb) {
+  try { localStorage.setItem(pKey(THEME_KEY), JSON.stringify({color:color,rgb:rgb})); } catch(e) {}
+}
+
+function applyTheme(color, rgb) {
+  var root = document.documentElement;
+  // Utilise --profile-color qui persiste entre les tabs
+  root.style.setProperty('--profile-color', color);
+  root.style.setProperty('--profile-rgb',   rgb);
+  // Marquer le swatch actif
+  document.querySelectorAll('.theme-swatch').forEach(function(s) {
+    s.classList.toggle('active', s.dataset.color === color);
+  });
+}
+
+function setThemeColor(el) {
+  var color = el.dataset.color;
+  var rgb   = el.dataset.rgb;
+  applyTheme(color, rgb);
+  themeSave(color, rgb);
+  showToast('\uD83C\uDFA8 Th\u00e8me appliqu\u00e9 !', 'rgba('+rgb+',.9)');
+  vibrate(20);
+}
+
+function loadProfileTheme() {
+  var saved = themeLoad();
+  if (saved) {
+    applyTheme(saved.color, saved.rgb);
+  } else if (CURRENT_PROFILE && PROFILE_DEFAULT_COLORS[CURRENT_PROFILE]) {
+    var def = PROFILE_DEFAULT_COLORS[CURRENT_PROFILE];
+    applyTheme(def.color, def.rgb);
+  }
 }
 
 
