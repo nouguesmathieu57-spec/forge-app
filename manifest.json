@@ -1,7 +1,7 @@
 {
-  "name": "FORGE",
-  "short_name": "FORGE",
-  "description": "Préparation physique football — Séances, Planning, Bibliothèque",
+  "name": "RIZE",
+  "short_name": "RIZE",
+  "description": "Application de suivi fitness & nutrition — Rise every day",
   "start_url": "/forge-app/",
   "scope": "/forge-app/",
   "display": "standalone",

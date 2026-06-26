@@ -1,9 +1,22 @@
+<!--
+  ╔══════════════════════════════════════════════════════╗
+  ║                       RIZE                          ║
+  ║         Application de suivi fitness & nutrition     ║
+  ╠══════════════════════════════════════════════════════╣
+  ║  © 2026 Mathieu Nouguès — Tous droits réservés      ║
+  ║  Contact : nouguesmathieu57@gmail.com               ║
+  ║                                                      ║
+  ║  Ce logiciel est protégé par le droit d'auteur.     ║
+  ║  Toute reproduction, distribution ou modification   ║
+  ║  sans autorisation écrite est interdite.            ║
+  ╚══════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>FORGE</title>
+<title>RIZE</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ────────────────────────────────────────────── */
@@ -2335,12 +2348,94 @@ body.modal-open #nav { display:none !important; }
 /* Boutons globaux */
 .nutri-save-btn           { background: var(--profile-color) !important }
 .backup-btn:active        { border-color: var(--profile-color) !important }
+
+/* ── HEADER CARD BOUTONS — compact mobile ───────────── */
+.card-header {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 12px 6px; flex-wrap: nowrap;
+}
+.card-header .prog-btn,
+.card-header .schema-btn,
+.card-header .replace-btn,
+.card-header .focus-btn-inline {
+  width: 28px; height: 28px;
+  font-size: 13px; padding: 0;
+  background: var(--s3); border: 1px solid var(--s4);
+  border-radius: 6px; cursor: pointer; color: var(--dim);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: color .15s;
+}
+.card-header .prog-btn:active,
+.card-header .schema-btn:active,
+.card-header .replace-btn:active,
+.card-header .focus-btn-inline:active { color: var(--acc) }
+
+.card-header .ex-info { flex: 1; min-width: 0 }
+.card-header .ex-name {
+  font-size: 14px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+/* Checkbox */
+.card-header .cb {
+  width: 26px; height: 26px; flex-shrink: 0;
+}
+
+/* ══ MENTIONS LÉGALES ══════════════════════════════ */
+#legal-modal {
+  display: none; position: fixed; top:0;right:0;bottom:0;left:0;
+  background: rgba(8,8,8,.96); z-index: 1000;
+  align-items: flex-end; justify-content: center;
+}
+#legal-modal.show { display: flex }
+.legal-sheet {
+  background: var(--s1); border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 88vh; overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+.legal-handle { width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0 }
+.legal-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px 10px; border-bottom: 1px solid var(--s4);
+}
+.legal-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+  color: var(--wht); letter-spacing: 1px; flex: 1;
+}
+.legal-close {
+  background: var(--s3); border: none; color: var(--dim);
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px;
+}
+.legal-body { padding: 16px; }
+.legal-section { margin-bottom: 20px }
+.legal-section-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+  letter-spacing: 2px; color: var(--acc); margin-bottom: 8px;
+  border-bottom: 1px solid var(--s4); padding-bottom: 4px;
+}
+.legal-text {
+  font-size: 12px; color: var(--dim); line-height: 1.7;
+}
+.legal-text a { color: var(--acc); text-decoration: none }
+.legal-text strong { color: var(--txt) }
+.legal-footer {
+  text-align: center; font-size: 10px; color: #333;
+  padding: 10px 16px 0; border-top: 1px solid var(--s3);
+  font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px;
+}
+/* Lien mentions légales en bas de home */
+.legal-link {
+  text-align: center; font-size: 10px; color: #333;
+  padding: 8px; cursor: pointer; letter-spacing: 1px;
+  font-family: 'Bebas Neue', sans-serif;
+}
+.legal-link:active { color: var(--dim) }
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="FORGE">
+  <meta name="apple-mobile-web-app-title" content="RIZE">
   <link rel="apple-touch-icon" href="icon-192.png">
   <script>
     if ('serviceWorker' in navigator) {
@@ -2370,12 +2465,12 @@ body.modal-open #nav { display:none !important; }
 
 
 <!-- ═══════════════════════════════════════════════════
-     ÉCRAN DE CONNEXION FORGE
+     ÉCRAN DE CONNEXION RIZE
 ═══════════════════════════════════════════════════ -->
 <div id="login-screen">
   <!-- Logo -->
-  <div class="login-logo">FOR<span>G</span>E</div>
-  <div class="login-tagline">Forge ton corps · Lib&#xE8;re ta force</div>
+  <div class="login-logo">RI<span>Z</span>E</div>
+  <div class="login-tagline">Rise every day</div>
 
   <!-- S&#xE9;lection profil -->
   <div class="profile-select" id="profile-select-view">
@@ -2438,7 +2533,7 @@ body.modal-open #nav { display:none !important; }
 
   <div class="home-header">
     <div class="home-title">FOR<span>GE</span></div>
-    <div class="home-slogan">Forge ton corps. Libère ta force.</div>
+    <div class="home-slogan">Rise every day</div>
     <div class="home-date" id="home-date">—</div>
   </div>
 
@@ -2525,8 +2620,11 @@ body.modal-open #nav { display:none !important; }
     </div>
 
   </div>
+  <!-- Mentions légales -->
+  <div class="legal-link" onclick="openLegal()">MENTIONS L&Eacute;GALES &middot; &copy; 2026 MATHIEU NOUGU&Egrave;S</div>
+
   <!-- Bouton sauvegarde données -->
-  <div class="home-backup-btn" onclick="openBackup()" style="margin-bottom:10px">
+  <div class="home-backup-btn"  onclick="openBackup()" style="margin-bottom:10px">
     &#x1F4BE; SAUVEGARDER / RESTAURER LES DONN&#xC9;ES
   </div>
 
@@ -3777,6 +3875,71 @@ body.modal-open #nav { display:none !important; }
   </div>
 </div>
 
+
+<!-- MODAL MENTIONS LÉGALES -->
+<div id="legal-modal" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-sheet">
+    <div class="legal-handle"></div>
+    <div class="legal-head">
+      <div class="legal-title">MENTIONS L&Eacute;GALES</div>
+      <button class="legal-close" onclick="closeLegal()">&#x2715;</button>
+    </div>
+    <div class="legal-body">
+      <div class="legal-section">
+        <div class="legal-section-title">&#x00C9;DITEUR</div>
+        <div class="legal-text">
+          <strong>Application RIZE</strong><br>
+          &Eacute;diteur : <strong>Mathieu Nougu&egrave;s</strong><br>
+          Contact : <a href="mailto:nouguesmathieu57@gmail.com">nouguesmathieu57@gmail.com</a><br>
+          Statut : Particulier
+        </div>
+      </div>
+      <div class="legal-section">
+        <div class="legal-section-title">H&Eacute;BERGEMENT</div>
+        <div class="legal-text">
+          H&eacute;berg&eacute; sur <strong>GitHub Pages</strong> — GitHub, Inc.<br>
+          88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA
+        </div>
+      </div>
+      <div class="legal-section">
+        <div class="legal-section-title">DONN&Eacute;ES PERSONNELLES — RGPD</div>
+        <div class="legal-text">
+          RIZE ne collecte <strong>aucune donn&eacute;e personnelle</strong> sur ses serveurs.<br><br>
+          Toutes les donn&eacute;es (poids, nutrition, s&eacute;ances, notes, profils) sont
+          <strong>stock&eacute;es uniquement sur votre appareil</strong> via localStorage.<br><br>
+          Aucune information n&rsquo;est transmise &agrave; des tiers.
+          Aucun cookie de traçage n&rsquo;est utilis&eacute;.<br><br>
+          Suppression : effacez les donn&eacute;es de votre navigateur.
+        </div>
+      </div>
+      <div class="legal-section">
+        <div class="legal-section-title">PROPRI&Eacute;T&Eacute; INTELLECTUELLE</div>
+        <div class="legal-text">
+          &copy; 2026 Mathieu Nougu&egrave;s — Tous droits r&eacute;serv&eacute;s.<br><br>
+          Code, design, textes et structure prot&eacute;g&eacute;s par le droit d&rsquo;auteur.
+          Toute reproduction sans autorisation &eacute;crite est interdite.
+        </div>
+      </div>
+      <div class="legal-section">
+        <div class="legal-section-title">RESPONSABILIT&Eacute;</div>
+        <div class="legal-text">
+          RIZE est un outil de suivi sportif et nutritionnel.
+          Les informations ne constituent pas des conseils m&eacute;dicaux.
+          Consultez un professionnel de sant&eacute; avant tout changement.
+        </div>
+      </div>
+      <div class="legal-section">
+        <div class="legal-section-title">CONTACT</div>
+        <div class="legal-text">
+          <a href="mailto:nouguesmathieu57@gmail.com">nouguesmathieu57@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <div class="legal-footer">&copy; 2026 MATHIEU NOUGU&Egrave;S &mdash; RIZE</div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
 <!-- ══ BOTTOM NAV ═══════════════════════════════════════ -->
 
 
@@ -4283,26 +4446,32 @@ function focusSaveWeights(skey, setsCount) {
     const cardRepInps = wDiv.querySelectorAll('.rep-input');
     const cardLasts   = wDiv.querySelectorAll('.weight-last');
     const dateEl      = wDiv.querySelector('.weight-date');
-
-    // Mettre à jour les poids
+    // Poids
     cardInputs.forEach((inp, i) => { if (weights[i] != null) inp.value = weights[i]; });
-
-    // Mettre à jour les reps
-    cardRepInps.forEach((inp, i) => { if (repsF[i] != null && repsF[i] > 0) inp.value = repsF[i]; });
-
-    // Mettre à jour les indicateurs "dernière séance"
+    // Reps
+    cardRepInps.forEach((inp, i) => { if (repsF && repsF[i] != null && repsF[i] > 0) inp.value = repsF[i]; });
+    // Indicateurs dernière séance
     cardLasts.forEach((el, i) => {
       const prev = parseFloat(el.dataset.last);
       el.dataset.last = weights[i];
       el.textContent  = '\u2196 ' + weights[i] + ' kg';
       el.className    = 'weight-last';
-      if (!isNaN(prev)) {
+      if (!isNaN(prev) && weights[i] != null) {
         if (weights[i] > prev)      el.classList.add('up');
         else if (weights[i] < prev) el.classList.add('down');
       }
     });
     if (dateEl) dateEl.textContent = today;
   });
+  // Sync aussi les checkboxes si toutes les séries sont complètes
+  const focusCard = document.querySelector('.card[data-skey="'+skey+'"]') ||
+    [...document.querySelectorAll('.weight-tracker')].find(w=>w.dataset.skey===skey)?.closest('.card');
+  if (focusCard) {
+    const cb = focusCard.querySelector('.cb');
+    if (cb && !cb.classList.contains('done') && weights.every(w => w > 0)) {
+      // Proposer validation automatique
+    }
+  }
 
   vibrate([40, 60, 120]);
 
@@ -4750,7 +4919,22 @@ function initWeightTracking() {
         seriesCount = parseInt(val ? val.textContent : '0') || 0;
       }
     });
-    if (seriesCount === 0) return; // pas de séries = pas de poids (cardio, étirements)
+    if (seriesCount === 0) return; // pas de séries = pas de poids
+    if (card.querySelector('.weight-tracker')) {
+      // Tracker déjà présent — recharger les valeurs seulement
+      const existSkey = card.querySelector('.weight-tracker').dataset.skey;
+      const existRaw  = localStorage.getItem(pkSkey(existSkey));
+      if (existRaw) {
+        try {
+          const existData = JSON.parse(existRaw);
+          const wInputs   = card.querySelectorAll('.weight-input');
+          const rInputs   = card.querySelectorAll('.rep-input');
+          if (existData.weights) wInputs.forEach((inp,i) => { if (existData.weights[i] != null) inp.value = existData.weights[i]; });
+          if (existData.reps)    rInputs.forEach((inp,i) => { if (existData.reps[i]    != null) inp.value = existData.reps[i];    });
+        } catch(e) {}
+      }
+      return;
+    }
 
     const exName    = card.querySelector('.ex-name')?.textContent?.trim() || 'ex';
     const group     = card.dataset.group || 'gym';
@@ -8002,7 +8186,7 @@ function closeBackup() {
 
 function exportData() {
   // Lire TOUT le localStorage sans exception
-  var data = { _version: 2, _date: new Date().toISOString(), _app: 'FORGE' };
+  var data = { _version: 2, _date: new Date().toISOString(), _app: 'RIZE' };
   for (var i = 0; i < localStorage.length; i++) {
     var key = localStorage.key(i);
     try { data[key] = JSON.parse(localStorage.getItem(key)); }
@@ -8039,7 +8223,7 @@ function importData(input) {
   reader.onload = function(e) {
     try {
       var data = JSON.parse(e.target.result);
-      if (!data._app || data._app !== 'FORGE') {
+      if (!data._app || data._app !== 'RIZE') {
         showBackupStatus('err', '⚠️ Fichier invalide — Sélectionne un fichier forge-backup.json');
         return;
       }
@@ -8413,7 +8597,7 @@ function openChangePin() {
 /* ── Override export/import pour scope profil ───────── */
 var _origExport = exportData;
 exportData = function() {
-  var data = { _version:2, _date:new Date().toISOString(), _app:'FORGE', _profile: CURRENT_PROFILE };
+  var data = { _version:2, _date:new Date().toISOString(), _app:'RIZE', _profile: CURRENT_PROFILE };
   var prefix = CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' : '';
   for (var i = 0; i < localStorage.length; i++) {
     var key = localStorage.key(i);
@@ -8445,7 +8629,7 @@ importData = function(input) {
   reader.onload = function(e) {
     try {
       var data = JSON.parse(e.target.result);
-      if (!data._app || data._app !== 'FORGE') {
+      if (!data._app || data._app !== 'RIZE') {
         showBackupStatus('err','\u26A0\uFE0F Fichier invalide'); return;
       }
       var prefix = CURRENT_PROFILE ? 'u_' + CURRENT_PROFILE + '_' : '';
@@ -8680,6 +8864,10 @@ function loadProfileTheme() {
   }
 }
 
+
+/* ══ MENTIONS LÉGALES ══════════════════════════════ */
+function openLegal()  { modalOpen('legal-modal');  }
+function closeLegal() { modalClose('legal-modal'); }
 
 </script>
 </body>
