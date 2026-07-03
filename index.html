@@ -2430,6 +2430,85 @@ body.modal-open #nav { display:none !important; }
   font-family: 'Bebas Neue', sans-serif;
 }
 .legal-link:active { color: var(--dim) }
+
+/* ══ NUTRITION V2 — récents / edit / copier hier ══ */
+.recent-foods-row {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding: 0 0 8px; -webkit-overflow-scrolling: touch;
+}
+.recent-foods-row::-webkit-scrollbar { display: none }
+.recent-chip {
+  flex-shrink: 0; font-size: 11px; color: var(--txt);
+  background: var(--s3); border: 1px solid var(--s4);
+  border-radius: 20px; padding: 5px 11px; cursor: pointer;
+  white-space: nowrap; transition: border-color .15s;
+}
+.recent-chip:active { border-color: #FF6B35; color: #FF6B35 }
+.meal-edit {
+  background: none; border: none; color: var(--dim);
+  font-size: 13px; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+}
+.meal-edit:active { color: #FF6B35 }
+.meal-item.editing { border-color: rgba(255,107,53,.5) }
+.copy-yesterday-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; background: var(--s2); border: 1px dashed var(--s4);
+  border-radius: 8px; padding: 9px; cursor: pointer; margin-bottom: 8px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+  letter-spacing: 1.5px; color: var(--dim); transition: all .15s;
+}
+.copy-yesterday-btn:active { border-color: #FF6B35; color: #FF6B35 }
+
+/* ══ VUE PRINCIPALE ÉPURÉE ══════════════════════════
+   Le tracker séries/poids reste dans le DOM (synchro focus,
+   popup progression, data-skey) mais n'est visible qu'en focus */
+.card .weight-tracker { display: none !important }
+
+/* ══ RECORDS PERSONNELS ═════════════════════════════ */
+#records-modal {
+  display: none; position: fixed; top:0;right:0;bottom:0;left:0;
+  background: rgba(8,8,8,.92); z-index: 1000;
+  align-items: flex-end; justify-content: center;
+}
+#records-modal.show { display: flex }
+.records-sheet {
+  background: var(--s1); border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 480px; max-height: 88vh;
+  display: flex; flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.records-handle { width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0;flex-shrink:0 }
+.records-head {
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px 10px;border-bottom:1px solid var(--s4);flex-shrink:0;
+}
+.records-title { font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--wht);letter-spacing:1px;flex:1 }
+.records-close { background:var(--s3);border:none;color:var(--dim);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px }
+.records-list { flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 20px }
+.records-group-label {
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;
+  padding:12px 16px 6px;
+}
+.record-item {
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-bottom:1px solid var(--s3);
+}
+.record-name { flex:1;font-size:13px;color:var(--txt) }
+.record-date { font-size:10px;color:var(--dim) }
+.record-weight {
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:#FFB300;
+  white-space:nowrap;
+}
+.records-empty { text-align:center;color:var(--dim);font-size:12px;padding:40px 20px;line-height:1.8 }
+/* Reste à consommer */
+.nutri-remaining {
+  margin-top:8px;padding:9px 12px;border-radius:8px;
+  background:var(--s2);border:1px solid var(--s4);
+  font-size:11.5px;color:var(--dim);text-align:center;line-height:1.6;
+}
+.nutri-remaining strong { color:var(--txt) }
+.nutri-remaining.over { border-color:rgba(229,57,53,.4) }
+.nutri-remaining.over strong { color:#E53935 }
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#080808">
@@ -2495,7 +2574,7 @@ body.modal-open #nav { display:none !important; }
   <div class="pin-screen" id="pin-screen-view">
     <div class="pin-back" onclick="backToProfiles()">&#x2190; CHANGER DE PROFIL</div>
     <div class="pin-profile-name" id="pin-profile-name">MATHIEU</div>
-    <div class="pin-label">ENTRE TON CODE PIN</div>
+    <div class="pin-label" id="pin-label">ENTRE TON CODE PIN</div>
     <div class="pin-dots">
       <div class="pin-dot" id="pin-dot-0"></div>
       <div class="pin-dot" id="pin-dot-1"></div>
@@ -2617,6 +2696,13 @@ body.modal-open #nav { display:none !important; }
       <div class="home-card-name" style="color:#FFD600">Journal</div>
       <div class="home-card-sub" id="home-notes-count">Aucune note</div>
       <span class="home-card-badge" style="background:rgba(255,214,0,.15);color:#FFD600">Historique</span>
+    </div>
+
+    <div class="home-card" onclick="openRecords()" style="border-color:rgba(255,179,0,.25)">
+      <span class="home-card-emoji">&#x1F3C6;</span>
+      <div class="home-card-name" style="color:#FFB300">Records</div>
+      <div class="home-card-sub" id="home-records-count">Aucun record</div>
+      <span class="home-card-badge" style="background:rgba(255,179,0,.15);color:#FFB300">Best</span>
     </div>
 
   </div>
@@ -3531,6 +3617,7 @@ body.modal-open #nav { display:none !important; }
       </div>
       <div class="macro-bar-wrap"><div class="macro-bar-fill" id="nutri-l-bar" style="width:0%;background:#2979FF"></div></div>
     </div>
+    <div class="nutri-remaining" id="nutri-remaining" style="display:none"></div>
   </div>
 
   <!-- REPAS TYPES -->
@@ -3545,6 +3632,7 @@ body.modal-open #nav { display:none !important; }
   <div class="nutri-sec" style="margin-top:14px">
     <div class="nutri-sec-title">Ajouter un repas</div>
     <div class="nutri-log-form">
+      <div class="recent-foods-row" id="recent-foods-row"></div>
       <div class="nutri-search-wrap">
         <input class="nutri-log-name" id="nutri-food-name" type="text" placeholder="Rechercher un aliment..." oninput="nutriSearch(this.value)" autocomplete="off">
         <div id="nutri-food-drop"></div>
@@ -3569,6 +3657,9 @@ body.modal-open #nav { display:none !important; }
         </div>
       </div>
       <button class="nutri-add-btn" onclick="addMeal()">+ AJOUTER</button>
+    </div>
+    <div class="copy-yesterday-btn" id="copy-yesterday-btn" onclick="copyYesterdayMeals()" style="display:none">
+      &#x1F4CB; REPRENDRE LES REPAS D&#x2019;HIER
     </div>
     <div id="nutri-meals-list"></div>
   </div>
@@ -3937,6 +4028,19 @@ body.modal-open #nav { display:none !important; }
     </div>
     <div class="legal-footer">&copy; 2026 MATHIEU NOUGU&Egrave;S &mdash; RIZE</div>
     <div style="height:16px"></div>
+  </div>
+</div>
+
+
+<!-- MODAL RECORDS PERSONNELS -->
+<div id="records-modal" onclick="if(event.target===this)closeRecords()">
+  <div class="records-sheet">
+    <div class="records-handle"></div>
+    <div class="records-head">
+      <div class="records-title">&#x1F3C6; MES RECORDS</div>
+      <button class="records-close" onclick="closeRecords()">&#x2715;</button>
+    </div>
+    <div class="records-list" id="records-list"></div>
   </div>
 </div>
 
@@ -4356,7 +4460,7 @@ function renderFocus() {
   const skey = wDiv ? wDiv.dataset.skey : null;
   let wtData = null;
   if (skey) {
-    try { const s = localStorage.getItem(skey); if (s) wtData = JSON.parse(s); } catch(e) {}
+    try { const s = localStorage.getItem(pkSkey(skey)); if (s) wtData = JSON.parse(s); } catch(e) {}
   }
   const hasWeight = !!wDiv;
 
@@ -4428,7 +4532,7 @@ function focusSaveWeights(skey, setsCount) {
   // Sauvegarder avec historique complet
   var histData = { weights: weights, reps: repsF, date: today, history: [] };
   try {
-    var existing = localStorage.getItem(skey);
+    var existing = localStorage.getItem(pkSkey(skey));
     if (existing) {
       var parsed = JSON.parse(existing);
       histData.history = parsed.history || [];
@@ -4438,6 +4542,7 @@ function focusSaveWeights(skey, setsCount) {
   histData.history.unshift({ date: today, weights: weights, reps: repsF, max: Math.max.apply(null, weights) });
   histData.history = histData.history.slice(0, 10);
   try { localStorage.setItem(pkSkey(skey), JSON.stringify(histData)); } catch(e) {}
+  recordCheck(skey, weights);
 
   // Sync poids ET reps vers la carte principale
   document.querySelectorAll('.weight-tracker').forEach(wDiv => {
@@ -4581,6 +4686,7 @@ function switchTab(tab) {
     renderHome();
     renderWeightCard();
     updateHomeNotesCount();
+    updateHomeRecordsCount();
   }
 
   const a = (ACCENTS && ACCENTS[tab]) ? ACCENTS[tab] : (ACCENTS && ACCENTS.jambes ? ACCENTS.jambes : { acc:'#00C853', acc2:'#007B33', r:'0,200,83' });
@@ -4831,7 +4937,7 @@ function reloadWeightTracker(card, exName) {
   wDiv.dataset.skey = skey;
 
   let data = null;
-  try { const s = localStorage.getItem(skey); if (s) data = JSON.parse(s); } catch(e) {}
+  try { const s = localStorage.getItem(pkSkey(skey)); if (s) data = JSON.parse(s); } catch(e) {}
 
   const inputs = wDiv.querySelectorAll('.weight-input');
   const lasts  = wDiv.querySelectorAll('.weight-last');
@@ -5013,7 +5119,7 @@ function saveWeights(btn) {
   const reps = Array.from(repInps).map(i => parseFloat(i.value)||0);
   var histData = { weights, reps, date: today, history: [] };
   try {
-    var existing = localStorage.getItem(skey);
+    var existing = localStorage.getItem(pkSkey(skey));
     if (existing) {
       var parsed = JSON.parse(existing);
       histData.history = (parsed.history || []).filter(h => h.date !== today);
@@ -5022,6 +5128,7 @@ function saveWeights(btn) {
   histData.history.unshift({ date: today, weights, reps, max: Math.max(...weights) });
   histData.history = histData.history.slice(0, 10);
   try { localStorage.setItem(pkSkey(skey), JSON.stringify(histData)); } catch(e) {}
+  recordCheck(skey, weights);
 
   // Mettre à jour les labels "dernière fois" + couleur progression
   lasts.forEach((el, i) => {
@@ -6997,6 +7104,19 @@ function checksSave() {
   try { localStorage.setItem(CHECKS_KEY, JSON.stringify({ date: today, checks: checks })); } catch(e) {}
 }
 
+
+function checksReset() {
+  document.querySelectorAll('.card .cb.done').forEach(function(cb) {
+    cb.classList.remove('done');
+    var card = cb.closest('.card');
+    if (card) card.classList.remove('done-card');
+  });
+  ['jambes','back','bras'].forEach(function(g) {
+    if (state[g]) state[g].done = 0;
+    if (typeof updateProgress === 'function') updateProgress(g);
+  });
+}
+
 function checksRestore() {
   var saved = checksLoad();
   if (!Object.keys(saved).length) return;
@@ -7005,7 +7125,7 @@ function checksRestore() {
     var group  = card ? card.dataset.group : '';
     var exName = card && card.querySelector('.ex-name') ? card.querySelector('.ex-name').textContent.trim() : '';
     var key    = group + '||' + exName;
-    if (saved[key]) {
+    if (saved[key] && !cb.classList.contains('done')) {
       cb.classList.add('done');
       card.classList.add('done-card');
       if (state[group]) state[group].done++;
@@ -7404,19 +7524,49 @@ function renderNutri() {
     if(bar){bar.style.width=target>0?Math.min(Math.round(eaten/target*100),100)+'%':'0%';}
   }
   upMacro('p',totP,macros.p); upMacro('g',totG,macros.g); upMacro('l',totL,macros.l);
-  renderMealsList(meals,today); renderNutriMonth(); renderMealTemplates();
+  // Reste à consommer
+  var remEl = document.getElementById('nutri-remaining');
+  if (remEl) {
+    var rP = Math.round(macros.p - totP);
+    var rG = Math.round(macros.g - totG);
+    var rL = Math.round(macros.l - totL);
+    var rK = Math.round(macros.kcal - totK);
+    remEl.style.display = 'block';
+    if (rK >= 0) {
+      remEl.className = 'nutri-remaining';
+      remEl.innerHTML = 'Reste à consommer : <strong>'
+        + Math.max(0,rP) + 'g P · ' + Math.max(0,rG) + 'g G · '
+        + Math.max(0,rL) + 'g L</strong> · <strong>' + rK + ' kcal</strong>';
+    } else {
+      remEl.className = 'nutri-remaining over';
+      remEl.innerHTML = 'Objectif dépassé de <strong>' + Math.abs(rK) + ' kcal</strong>';
+    }
+  }
+  renderMealsList(meals,today); renderNutriMonth(); renderMealTemplates(); renderRecentFoods();
   if (typeof renderHydra === 'function') renderHydra();
 }
 function renderMealsList(meals,today) {
   var wrap=document.getElementById('nutri-meals-list'); if(!wrap)return;
-  if (!meals.length) { wrap.innerHTML='<div class="nutri-empty-meals">Aucun repas log</div>'; return; }
+  // Bouton copier hier : visible si hier a des repas ET aujourd'hui vide
+  var cyBtn=document.getElementById('copy-yesterday-btn');
+  if (cyBtn) {
+    var yKey=localDateKey(new Date(Date.now()-86400000));
+    var yMeals=mealsLoad(yKey);
+    cyBtn.style.display=(yMeals.length&&!meals.length)?'flex':'none';
+  }
+  if (!meals.length) { wrap.innerHTML='<div class="nutri-empty-meals">Aucun repas log\u00e9</div>'; return; }
   var html='';
   meals.forEach(function(m,i){
     var kcal=(m.p||0)*4+(m.g||0)*4+(m.l||0)*9;
-    html+='<div class="meal-item"><div style="flex:1"><div class="meal-name">'+(m.name||'Repas')+'</div><div class="meal-macros">P:'+(m.p||0)+'g G:'+(m.g||0)+'g L:'+(m.l||0)+'g '+Math.round(kcal)+'kcal</div></div><button class="meal-del" data-idx="'+i+'" onclick="deleteMeal(parseInt(this.dataset.idx))">&#x1F5D1;</button></div>';
+    var editing=(editingMealIdx===i)?' editing':'';
+    html+='<div class="meal-item'+editing+'"><div style="flex:1"><div class="meal-name">'+(m.name||'Repas')+'</div><div class="meal-macros">P:'+(m.p||0)+'g G:'+(m.g||0)+'g L:'+(m.l||0)+'g '+Math.round(kcal)+'kcal</div></div>'
+      +'<button class="meal-edit" data-idx="'+i+'" onclick="editMeal(parseInt(this.dataset.idx))">\u270F\uFE0F</button>'
+      +'<button class="meal-del" data-idx="'+i+'" onclick="deleteMeal(parseInt(this.dataset.idx))">\uD83D\uDDD1</button></div>';
   });
   wrap.innerHTML=html;
 }
+var editingMealIdx = null;
+
 function addMeal() {
   var name=(document.getElementById('nutri-food-name').value||'').trim();
   var p=parseFloat(document.getElementById('nutri-input-p').value)||0;
@@ -7424,16 +7574,90 @@ function addMeal() {
   var l=parseFloat(document.getElementById('nutri-input-l').value)||0;
   if (!name&&p===0&&g===0&&l===0) return;
   var today=localDateKey(new Date()); var meals=mealsLoad(today);
-  meals.push({name:name||'Repas',p:p,g:g,l:l});
+  var entry={name:name||'Repas',p:p,g:g,l:l};
+  if (editingMealIdx!==null && meals[editingMealIdx]) {
+    meals[editingMealIdx]=entry;
+    showToast('\u270F\uFE0F Repas modifi\u00e9','rgba(255,107,53,.96)');
+  } else {
+    meals.push(entry);
+    showToast('Repas ajout\u00e9','rgba(255,107,53,.96)');
+  }
   mealsSave(today,meals);
+  recentFoodAdd(entry);
+  cancelEditMeal();
   document.getElementById('nutri-food-name').value='';
   ['p','g','l'].forEach(function(x){document.getElementById('nutri-input-'+x).value='0';});
   clearFoodSelection(); renderNutri();
-  showToast('Repas ajoute','rgba(255,107,53,.96)');
+}
+
+function editMeal(idx) {
+  var today=localDateKey(new Date()); var meals=mealsLoad(today);
+  var m=meals[idx]; if(!m) return;
+  editingMealIdx=idx;
+  document.getElementById('nutri-food-name').value=m.name||'';
+  document.getElementById('nutri-input-p').value=m.p||0;
+  document.getElementById('nutri-input-g').value=m.g||0;
+  document.getElementById('nutri-input-l').value=m.l||0;
+  var btn=document.querySelector('.nutri-add-btn');
+  if(btn) btn.textContent='\u2713 MODIFIER';
+  renderMealsList(meals,today);
+  var form=document.querySelector('.nutri-log-form');
+  if(form) form.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function cancelEditMeal() {
+  editingMealIdx=null;
+  var btn=document.querySelector('.nutri-add-btn');
+  if(btn) btn.textContent='+ AJOUTER';
+}
+
+/* ── Aliments récents ── */
+var RECENT_KEY='recent-foods-v1';
+function recentLoad() {
+  try { var s=localStorage.getItem(pKey(RECENT_KEY)); return s?JSON.parse(s):[]; } catch(e){ return []; }
+}
+function recentFoodAdd(entry) {
+  if (!entry.name||entry.name==='Repas') return;
+  var recents=recentLoad().filter(function(r){ return r.name!==entry.name; });
+  recents.unshift({name:entry.name,p:entry.p,g:entry.g,l:entry.l});
+  recents=recents.slice(0,10);
+  try { localStorage.setItem(pKey(RECENT_KEY), JSON.stringify(recents)); } catch(e){}
+}
+function renderRecentFoods() {
+  var row=document.getElementById('recent-foods-row'); if(!row) return;
+  var recents=recentLoad();
+  if (!recents.length) { row.style.display='none'; return; }
+  row.style.display='flex';
+  row.innerHTML=recents.map(function(r,i){
+    return '<div class="recent-chip" data-i="'+i+'" onclick="useRecentFood(parseInt(this.dataset.i))">'+r.name+'</div>';
+  }).join('');
+}
+function useRecentFood(i) {
+  var r=recentLoad()[i]; if(!r) return;
+  document.getElementById('nutri-food-name').value=r.name;
+  document.getElementById('nutri-input-p').value=r.p||0;
+  document.getElementById('nutri-input-g').value=r.g||0;
+  document.getElementById('nutri-input-l').value=r.l||0;
+  vibrate(15);
+}
+
+/* ── Copier les repas d'hier ── */
+function copyYesterdayMeals() {
+  var yKey=localDateKey(new Date(Date.now()-86400000));
+  var yMeals=mealsLoad(yKey);
+  if (!yMeals.length) { showToast('Aucun repas hier','rgba(229,57,53,.9)'); return; }
+  var today=localDateKey(new Date());
+  var meals=mealsLoad(today);
+  yMeals.forEach(function(m){ meals.push({name:m.name,p:m.p,g:m.g,l:m.l}); });
+  mealsSave(today,meals);
+  renderNutri();
+  showToast('\u2713 '+yMeals.length+' repas repris d\u2019hier','rgba(255,107,53,.96)');
+  vibrate(30);
 }
 function deleteMeal(idx) {
   var today=localDateKey(new Date()); var meals=mealsLoad(today);
-  meals.splice(idx,1); mealsSave(today,meals); renderNutri();
+  meals.splice(idx,1); mealsSave(today,meals);
+  cancelEditMeal(); renderNutri();
 }
 function renderNutriMonth() {
   var grid=document.getElementById('nutri-month-grid'); if(!grid)return;
@@ -7666,7 +7890,7 @@ function openProgModal(skey, exName) {
   if (!skey) return;
   var acc = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim() || '#00C853';
   var data = null;
-  try { var s=localStorage.getItem(skey); if(s)data=JSON.parse(s); } catch(e){}
+  try { var s=localStorage.getItem(pkSkey(skey)); if(s)data=JSON.parse(s); } catch(e){}
   document.getElementById('prog-head-name').textContent = exName || '--';
   var history = data && data.history ? data.history : [];
   if (!history.length && data && data.weights) history=[{date:data.date||'',weights:data.weights,max:Math.max.apply(null,data.weights)}];
@@ -8544,6 +8768,8 @@ function loginSuccess(profileId) {
   renderHome();
   renderWeightCard();
   updateHomeNotesCount();
+  updateHomeRecordsCount();
+  checksReset();
   checksRestore();
   ['jambes','back','bras'].forEach(function(g){
     if (typeof updateNavBadge === 'function') updateNavBadge(g);
@@ -8869,10 +9095,95 @@ function loadProfileTheme() {
 function openLegal()  { modalOpen('legal-modal');  }
 function closeLegal() { modalClose('legal-modal'); }
 
+/* ══ RECORDS PERSONNELS ═════════════════════════════ */
+var RECORDS_KEY = 'records-v1';
+function recordsLoad() {
+  try { var s=localStorage.getItem(pKey(RECORDS_KEY)); return s?JSON.parse(s):{}; } catch(e){ return {}; }
+}
+function recordsSave(r) {
+  try { localStorage.setItem(pKey(RECORDS_KEY), JSON.stringify(r)); } catch(e){}
+}
+
+function recordCheck(skey, weights) {
+  var valid = (weights||[]).filter(function(w){ return w>0; });
+  if (!valid.length) return;
+  var maxW = Math.max.apply(null, valid);
+  // Retrouver nom + groupe via le tracker
+  var name = skey, group = '';
+  document.querySelectorAll('.weight-tracker').forEach(function(wDiv){
+    if (wDiv.dataset.skey !== skey) return;
+    var card = wDiv.closest('.card');
+    if (card) {
+      group = card.dataset.group || '';
+      var nEl = card.querySelector('.ex-name');
+      if (nEl) name = nEl.textContent.trim();
+    }
+  });
+  var records = recordsLoad();
+  var prev = records[skey];
+  if (!prev || maxW > prev.best) {
+    records[skey] = { name:name, group:group, best:maxW, date:localDateKey(new Date()) };
+    recordsSave(records);
+    updateHomeRecordsCount();
+    if (prev) {
+      showToast('\uD83C\uDFC6 NOUVEAU RECORD ! '+name+' \u2014 '+maxW+' kg', 'rgba(255,179,0,.95)');
+      vibrate([50,80,50,80,150]);
+    }
+  }
+}
+
+function updateHomeRecordsCount() {
+  var el = document.getElementById('home-records-count');
+  if (!el) return;
+  var n = Object.keys(recordsLoad()).length;
+  el.textContent = n ? (n + ' record' + (n>1?'s':'') + ' perso') : 'Aucun record';
+}
+
+function openRecords() {
+  renderRecords();
+  modalOpen('records-modal');
+}
+function closeRecords() { modalClose('records-modal'); }
+
+function renderRecords() {
+  var list = document.getElementById('records-list');
+  if (!list) return;
+  var records = recordsLoad();
+  var keys = Object.keys(records);
+  if (!keys.length) {
+    list.innerHTML = '<div class="records-empty">\uD83C\uDFC6<br><br>Aucun record pour l\u2019instant.<br>Sauvegarde tes charges en s\u00e9ance,<br>tes records appara\u00eetront ici !</div>';
+    return;
+  }
+  var groups = { jambes:{label:'JAMBES',color:'#00C853',items:[]},
+                 back:{label:'BACK',color:'#2979FF',items:[]},
+                 bras:{label:'BRAS & PECS',color:'#E53935',items:[]},
+                 libre:{label:'S\u00c9ANCE LIBRE',color:'#FFB300',items:[]},
+                 autre:{label:'AUTRES',color:'#999',items:[]} };
+  keys.forEach(function(k){
+    var r = records[k];
+    var g = groups[r.group] ? r.group : 'autre';
+    groups[g].items.push(r);
+  });
+  var html = '';
+  Object.keys(groups).forEach(function(g){
+    var grp = groups[g];
+    if (!grp.items.length) return;
+    grp.items.sort(function(a,b){ return b.best - a.best; });
+    html += '<div class="records-group-label" style="color:'+grp.color+'">'+grp.label+'</div>';
+    grp.items.forEach(function(r){
+      var d = new Date(r.date);
+      var ds = isNaN(d) ? r.date : d.getDate()+'/'+(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2);
+      html += '<div class="record-item">'
+        + '<div style="flex:1"><div class="record-name">'+r.name+'</div>'
+        + '<div class="record-date">'+ds+'</div></div>'
+        + '<div class="record-weight">'+r.best+' kg</div>'
+        + '</div>';
+    });
+  });
+  list.innerHTML = html;
+}
+
+
 </script>
 </body>
 </html>
-  </div>
-
-</div>
-
