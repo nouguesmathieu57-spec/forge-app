@@ -4,7 +4,7 @@
    - assets statiques → cache-first (icons, manifest)
    Le nom du cache reste stable → pas de re-installation requise
 */
-const CACHE       = 'rize-app-v1';      // NE PAS CHANGER ce nom
+const CACHE       = 'rize-app-v2';      // NE PAS CHANGER ce nom
 const STATIC      = [
   '/rize-app/manifest.json',
   '/rize-app/icon-192.png',
