@@ -1572,6 +1572,55 @@ body{
 .macro-bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
 .nutri-log-form{background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:12px 14px;margin-bottom:8px}
 .nutri-search-wrap{position:relative}
+/* ══ SCAN CODE-BARRES ══ */
+.scan-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,107,53,.05));border:1px solid rgba(255,107,53,.4);border-radius:10px;padding:11px;margin-bottom:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#FF6B35;transition:all .15s}
+.scan-btn:active{background:rgba(255,107,53,.2)}
+.scan-btn-icon{font-size:16px}
+#scan-modal{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(8,8,8,.94);z-index:1000;align-items:flex-end;justify-content:center}
+#scan-modal.show{display:flex}
+.scan-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.scan-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.scan-head{display:flex;align-items:center;gap:10px;padding:12px 16px 10px;border-bottom:1px solid var(--s4);flex-shrink:0}
+.scan-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--wht);letter-spacing:1px;flex:1}
+.scan-close{background:var(--s3);border:none;color:var(--dim);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px}
+.scan-body{padding:16px;overflow-y:auto}
+/* Zone caméra (placeholder pour l'instant) */
+.scan-camera-zone{background:#000;border:2px dashed var(--s4);border-radius:12px;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;position:relative;overflow:hidden}
+.scan-camera-icon{font-size:48px;opacity:.4}
+.scan-camera-msg{font-size:12px;color:var(--dim);text-align:center;padding:0 20px;line-height:1.6}
+.scan-soon-badge{position:absolute;top:10px;right:10px;background:rgba(255,179,0,.2);border:1px solid rgba(255,179,0,.4);color:#FFB300;font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:10px}
+/* Cadre de visée (pour plus tard) */
+.scan-viewfinder{position:absolute;width:70%;height:40%;border:2px solid #FF6B35;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.5)}
+.scan-viewfinder::before,.scan-viewfinder::after{content:'';position:absolute;width:20px;height:20px;border-color:#00E676;border-style:solid}
+/* Saisie manuelle du code */
+.scan-manual{background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:14px}
+.scan-manual-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--dim);margin-bottom:8px}
+.scan-manual-row{display:flex;gap:8px}
+.scan-code-input{flex:1;background:var(--s3);border:1px solid var(--s4);border-radius:8px;padding:10px 12px;color:var(--txt);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;letter-spacing:1px}
+.scan-code-input:focus{border-color:rgba(255,107,53,.5)}
+.scan-lookup-btn{background:#FF6B35;border:none;color:#fff;border-radius:8px;padding:0 18px;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+.scan-lookup-btn:active{opacity:.8}
+.scan-lookup-btn:disabled{opacity:.5;cursor:default}
+/* Résultat du scan */
+.scan-result{margin-top:16px;display:none}
+.scan-result.show{display:block}
+.scan-result-card{background:var(--s2);border:1px solid rgba(0,230,118,.3);border-radius:10px;padding:14px}
+.scan-result-name{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--wht);letter-spacing:.5px;margin-bottom:2px}
+.scan-result-brand{font-size:11px;color:var(--dim);margin-bottom:10px}
+.scan-result-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.srm-item{text-align:center;background:var(--s3);border-radius:8px;padding:8px 4px}
+.srm-val{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1}
+.srm-lbl{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.scan-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:8px;padding:10px 12px}
+.scan-qty-row label{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;color:#FF6B35;white-space:nowrap}
+.scan-qty-input{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--wht);background:transparent;border:none;width:60px;outline:none;text-align:center}
+.scan-add-btn{width:100%;background:#00C853;border:none;color:#000;border-radius:8px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;cursor:pointer}
+.scan-add-btn:active{opacity:.85}
+/* États message */
+.scan-status{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:12px;text-align:center;display:none}
+.scan-status.show{display:block}
+.scan-status.loading{background:rgba(255,179,0,.12);color:#FFB300;border:1px solid rgba(255,179,0,.3)}
+.scan-status.error{background:rgba(229,57,53,.12);color:#E53935;border:1px solid rgba(229,57,53,.3)}
 .nutri-log-name{width:100%;background:var(--s3);border:1px solid var(--s4);border-radius:7px;padding:8px 10px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:8px;outline:none;box-sizing:border-box}
 .nutri-log-name:focus{border-color:rgba(255,107,53,.5)}
 #nutri-food-drop{display:none;position:absolute;top:100%;left:0;right:0;background:var(--s1);border:1px solid var(--s4);border-radius:0 0 8px 8px;z-index:50;max-height:220px;overflow-y:auto}
@@ -1601,6 +1650,15 @@ body{
 .nutri-day-cell.on-target{background:rgba(0,200,83,.15);color:#00C853;border-color:rgba(0,200,83,.4)}
 .nutri-day-cell.empty-cell{background:transparent;border:none}
 .nutri-month-wd{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;color:var(--dim);padding-bottom:3px}
+.nutri-stats-card{background:var(--s2);border:1px solid var(--s4);border-radius:10px;padding:12px}
+.nutri-stats-period{display:flex;gap:6px;margin-bottom:12px}
+.nsp-btn{flex:1;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;padding:6px;border-radius:7px;border:1px solid var(--s4);background:var(--s3);color:var(--dim);cursor:pointer;transition:all .15s}
+.nsp-btn.active{background:rgba(255,107,53,.15);border-color:#FF6B35;color:#FF6B35}
+.nutri-stats-avg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.nsa-item{text-align:center;background:var(--s3);border-radius:8px;padding:8px 4px}
+.nsa-val{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1}
+.nsa-lbl{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.nutri-stats-empty{text-align:center;color:var(--dim);font-size:12px;padding:24px 12px}
 #nutri-profile-modal{display:none;position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:1000;align-items:flex-end;justify-content:center;overflow-y:auto}
 #nutri-profile-modal.show{display:flex}
 .nutri-profile-sheet{background:var(--s1);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px 16px 40px;max-height:95vh;overflow-y:auto}
@@ -2726,11 +2784,11 @@ body.modal-open #nav { display:none !important; }
 
   <div class="app-header">
     <div class="hdr-top">
-      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-tag">🦵 Bas du corps</div>
       <div class="hdr-badge">MODÉRÉ</div>
     </div>
     <div class="hdr-title">SÉANCE <span>JAMBES</span></div>
-    <div class="hdr-sub">Maintien de condition physique · Salle de sport</div>
+    <div class="hdr-sub">Quadriceps, ischios, fessiers & mollets</div>
   </div>
 
   <div class="stats-row">
@@ -2900,7 +2958,7 @@ body.modal-open #nav { display:none !important; }
   </div>
 
   <div class="note-box">
-    <div class="note-title">⚡ Conseils Football</div>
+    <div class="note-title">⚡ Conseils</div>
     <ul class="note-list">
       <li>Hydratation : minimum 500ml pendant la séance</li>
       <li>Fréquence : 1 à 2 fois/semaine max</li>
@@ -2937,11 +2995,11 @@ body.modal-open #nav { display:none !important; }
 
   <div class="app-header">
     <div class="hdr-top">
-      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-tag">🔙 Dos</div>
       <div class="hdr-badge">MODÉRÉ</div>
     </div>
     <div class="hdr-title">SÉANCE <span>BACK</span></div>
-    <div class="hdr-sub">Dos, trapèzes & gainage postérieur · Salle de sport</div>
+    <div class="hdr-sub">Dos, trapèzes & gainage postérieur</div>
   </div>
 
   <div class="stats-row">
@@ -3153,11 +3211,11 @@ body.modal-open #nav { display:none !important; }
 
   <div class="app-header">
     <div class="hdr-top">
-      <div class="hdr-tag">⚽ Football</div>
+      <div class="hdr-tag">💪 Haut du corps</div>
       <div class="hdr-badge">MODÉRÉ</div>
     </div>
     <div class="hdr-title">BRAS <span>&</span> PECS</div>
-    <div class="hdr-sub">Pectoraux, biceps, triceps & épaules · Salle de sport</div>
+    <div class="hdr-sub">Pectoraux, biceps, triceps & épaules</div>
   </div>
 
   <div class="stats-row">
@@ -3632,6 +3690,10 @@ body.modal-open #nav { display:none !important; }
   <div class="nutri-sec" style="margin-top:14px">
     <div class="nutri-sec-title">Ajouter un repas</div>
     <div class="nutri-log-form">
+      <button class="scan-btn" onclick="openScanModal()">
+        <span class="scan-btn-icon">📷</span>
+        <span>SCANNER UN CODE-BARRES</span>
+      </button>
       <div class="recent-foods-row" id="recent-foods-row"></div>
       <div class="nutri-search-wrap">
         <input class="nutri-log-name" id="nutri-food-name" type="text" placeholder="Rechercher un aliment..." oninput="nutriSearch(this.value)" autocomplete="off">
@@ -3710,8 +3772,74 @@ body.modal-open #nav { display:none !important; }
     </div>
   </div>
 
+  <!-- Stats nutrition -->
+  <div style="padding:16px 14px 0">
+    <div class="nutri-sec-title" style="margin-bottom:8px">Statistiques caloriques</div>
+    <div class="nutri-stats-card">
+      <div class="nutri-stats-period">
+        <button class="nsp-btn active" data-days="7" onclick="setNutriStatsPeriod(7)">7 jours</button>
+        <button class="nsp-btn" data-days="30" onclick="setNutriStatsPeriod(30)">30 jours</button>
+      </div>
+      <div id="nutri-stats-chart"></div>
+      <div class="nutri-stats-avg" id="nutri-stats-avg"></div>
+    </div>
+  </div>
+
 </div>
   <div style="height:20px"></div>
+</div>
+
+<!-- MODAL SCAN CODE-BARRES -->
+<div id="scan-modal" onclick="if(event.target===this)closeScanModal()">
+  <div class="scan-sheet">
+    <div class="scan-handle"></div>
+    <div class="scan-head">
+      <div class="scan-title">📷 SCANNER UN PRODUIT</div>
+      <button class="scan-close" onclick="closeScanModal()">✕</button>
+    </div>
+    <div class="scan-body">
+
+      <!-- Zone caméra (désactivée pour l'instant) -->
+      <div class="scan-camera-zone">
+        <div class="scan-soon-badge">BIENTÔT</div>
+        <div class="scan-camera-icon">📷</div>
+        <div class="scan-camera-msg">La lecture par caméra arrive prochainement.<br>En attendant, saisis le code-barres à la main ci-dessous 👇</div>
+      </div>
+
+      <!-- Saisie manuelle -->
+      <div class="scan-manual">
+        <div class="scan-manual-title">CODE-BARRES (EAN)</div>
+        <div class="scan-manual-row">
+          <input class="scan-code-input" id="scan-code-input" type="text" inputmode="numeric" placeholder="3017620422003" autocomplete="off">
+          <button class="scan-lookup-btn" id="scan-lookup-btn" onclick="scanLookup()">CHERCHER</button>
+        </div>
+      </div>
+
+      <!-- Statut (loading / erreur) -->
+      <div class="scan-status" id="scan-status"></div>
+
+      <!-- Résultat -->
+      <div class="scan-result" id="scan-result">
+        <div class="scan-result-card">
+          <div class="scan-result-name" id="scan-result-name">—</div>
+          <div class="scan-result-brand" id="scan-result-brand"></div>
+          <div class="scan-result-macros">
+            <div class="srm-item"><div class="srm-val" style="color:#FF6B35" id="scan-kcal">—</div><div class="srm-lbl">kcal /100g</div></div>
+            <div class="srm-item"><div class="srm-val" style="color:#E53935" id="scan-p">—</div><div class="srm-lbl">prot</div></div>
+            <div class="srm-item"><div class="srm-val" style="color:#FFB300" id="scan-g">—</div><div class="srm-lbl">gluc</div></div>
+            <div class="srm-item"><div class="srm-val" style="color:#2979FF" id="scan-l">—</div><div class="srm-lbl">lip</div></div>
+          </div>
+          <div class="scan-qty-row">
+            <label>QUANTITÉ</label>
+            <input class="scan-qty-input" id="scan-qty" type="number" min="1" max="5000" value="100" inputmode="numeric">
+            <span style="font-size:12px;color:var(--dim)">g</span>
+          </div>
+          <button class="scan-add-btn" onclick="scanAddToLog()">➕ AJOUTER AU LOG</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- MODAL PROFIL NUTRITION -->
@@ -4670,10 +4798,13 @@ function switchTab(tab) {
   var appBg = document.getElementById('app-bg');
   if (appBg) appBg.classList.toggle('blurred', tab !== 'home');
 
-  // Nav bas : cachée sur home
+  // Nav bas : cachée sur home ET dans les pages de séance
+  // (on ne navigue pas entre séances : on fait la séance du jour, retour via le bouton 🏠)
+  // Gardée uniquement sur les pages utilitaires : nutrition / planning / biblio
   var nav = document.getElementById('nav');
   var scr = document.getElementById('scroll-area');
-  if (tab === 'home') {
+  var seancePages = ['home','jambes','back','bras','libre'];
+  if (seancePages.indexOf(tab) !== -1) {
     if (nav) nav.classList.add('hidden');
     if (scr) scr.classList.add('no-nav');
   } else {
@@ -4700,6 +4831,11 @@ function switchTab(tab) {
   if (tab === 'libre')  renderLibreSession();
   if (tab === 'nutri')  renderNutri();
   if (tab === 'planning') renderPlanningWeek();
+
+  // Réappliquer les remplacements d'exercices sauvegardés (séances muscu)
+  if (tab === 'jambes' || tab === 'back' || tab === 'bras') {
+    if (typeof replaceRestoreAll === 'function') replaceRestoreAll(tab);
+  }
 
   // Timer : pause si on quitte une séance
   if (typeof timerOnTabChange === 'function') timerOnTabChange(tab);
@@ -6406,6 +6542,96 @@ function findLibGroupForExercise(exName) {
 }
 
 /* Ajouter le bouton Remplacer sur chaque carte */
+/* ══ PERSISTANCE DES REMPLACEMENTS D'EXERCICES (par profil) ══
+   Clé: repl-<group> → { "<index>": {gid, eid} }
+   L'index = position de la carte parmi les .card du groupe (stable). */
+
+function replaceKeyFor(group) { return 'exreplace-' + group + '-v1'; }
+
+function replaceLoad(group) {
+  try {
+    var s = localStorage.getItem(pKey(replaceKeyFor(group)));
+    return s ? JSON.parse(s) : {};
+  } catch(e) { return {}; }
+}
+function replaceSaveAll(group, map) {
+  try { localStorage.setItem(pKey(replaceKeyFor(group)), JSON.stringify(map)); } catch(e) {}
+}
+
+/* Index d'une carte parmi les cartes de son groupe */
+function cardIndexInGroup(card, group) {
+  var cards = Array.prototype.slice.call(
+    document.querySelectorAll('.card[data-group="' + group + '"]')
+  );
+  return cards.indexOf(card);
+}
+
+/* Enregistre un remplacement pour une carte */
+function replaceRemember(card, groupId, exId) {
+  var group = card.dataset.group;
+  if (!group) return;
+  var idx = cardIndexInGroup(card, group);
+  if (idx < 0) return;
+  var map = replaceLoad(group);
+  map[idx] = { gid: groupId, eid: exId };
+  replaceSaveAll(group, map);
+}
+
+/* Oublie le remplacement d'une carte (retour à l'original) */
+function replaceForget(card) {
+  var group = card.dataset.group;
+  if (!group) return;
+  var idx = cardIndexInGroup(card, group);
+  if (idx < 0) return;
+  var map = replaceLoad(group);
+  if (map[idx]) { delete map[idx]; replaceSaveAll(group, map); }
+}
+
+/* Réapplique tous les remplacements sauvegardés d'un groupe de séance.
+   Appelé à l'ouverture de la séance. Silencieux (pas de vibration/toast). */
+/* Remet visuellement toutes les cartes remplacées d'un groupe à leur original,
+   SANS toucher au localStorage (utilisé au changement de profil avant restauration). */
+function replaceRevertVisual(group) {
+  var cards = document.querySelectorAll('.card[data-group="' + group + '"].var-changed');
+  cards.forEach(function(card) {
+    var varBox  = card.querySelector('.variantes-box');
+    var nameEl  = card.querySelector('.ex-name');
+    var focusEl = card.querySelector('.ex-focus');
+    var tipEl   = card.querySelector('.tip');
+    var origName  = varBox ? varBox.dataset.origName  : '';
+    var origFocus = varBox ? varBox.dataset.origFocus : '';
+    var origTip   = varBox ? varBox.dataset.origTip   : '';
+    if (nameEl) {
+      var badge = nameEl.querySelector('.lib-replaced-badge');
+      if (badge) badge.remove();
+      if (origName) nameEl.textContent = origName;
+    }
+    if (focusEl && origFocus) focusEl.textContent = origFocus;
+    if (tipEl   && origTip)   tipEl.innerHTML     = origTip;
+    var resetBtn = card.querySelector('.lib-reset-btn');
+    if (resetBtn) resetBtn.remove();
+    card.classList.remove('var-changed');
+    if (origName) reloadWeightTracker(card, origName);
+  });
+}
+
+function replaceRestoreAll(group) {
+  var map = replaceLoad(group);
+  var keys = Object.keys(map);
+  if (!keys.length) return;
+  var cards = Array.prototype.slice.call(
+    document.querySelectorAll('.card[data-group="' + group + '"]')
+  );
+  keys.forEach(function(idxStr) {
+    var idx = parseInt(idxStr, 10);
+    var card = cards[idx];
+    if (!card) return;
+    var rec = map[idxStr];
+    if (!rec || !rec.gid || !rec.eid) return;
+    applyReplaceToCard(card, rec.gid, rec.eid, true);
+  });
+}
+
 function initReplaceButtons() {
   document.querySelectorAll('.card').forEach(function(card) {
     var header = card.querySelector('.card-header');
@@ -6462,19 +6688,19 @@ function cancelLibReplace() {
 }
 
 /* Appliquer le remplacement */
-function applyLibReplace(groupId, exId) {
-  if (!libReplaceCard) return;
-  var card  = libReplaceCard;
+/* Applique un remplacement à une carte (partagé entre action user et restauration).
+   silent=true : pas de vibration (utilisé au chargement de la séance). */
+function applyReplaceToCard(card, groupId, exId, silent) {
   var group = EXERCISE_LIBRARY[groupId];
-  if (!group) return;
+  if (!group) return false;
   var ex = group.exercises.find(function(e){ return e.id === exId; });
-  if (!ex) return;
+  if (!ex) return false;
 
   var nameEl  = card.querySelector('.ex-name');
   var focusEl = card.querySelector('.ex-focus');
   var tipEl   = card.querySelector('.tip');
 
-  // Sauvegarder les originaux pour le reset variant
+  // Sauvegarder les originaux (une seule fois)
   var varBox = card.querySelector('.variantes-box');
   if (varBox && !varBox.dataset.origName) {
     varBox.dataset.origName  = nameEl  ? nameEl.textContent  : '';
@@ -6483,11 +6709,16 @@ function applyLibReplace(groupId, exId) {
   }
 
   // Appliquer les nouvelles valeurs
-  if (nameEl)  nameEl.textContent  = ex.name;
+  if (nameEl) {
+    // retirer un éventuel ancien badge avant de réécrire le texte
+    var oldBadge = nameEl.querySelector('.lib-replaced-badge');
+    if (oldBadge) oldBadge.remove();
+    nameEl.textContent = ex.name;
+  }
   if (focusEl) focusEl.textContent = ex.focus;
   if (tipEl)   tipEl.innerHTML     = '<strong>💡 ' + group.emoji + ' ' + group.label + ' :</strong> ' + ex.tip;
 
-  // Badge "Remplacé" sur la carte
+  // Badge "BIBLIO"
   card.classList.add('var-changed');
   if (nameEl && !nameEl.querySelector('.lib-replaced-badge')) {
     var badge = document.createElement('span');
@@ -6496,7 +6727,7 @@ function applyLibReplace(groupId, exId) {
     nameEl.appendChild(badge);
   }
 
-  // Bouton ↩ Original sur le card-header
+  // Bouton ↩ Original
   var header = card.querySelector('.card-header');
   if (header && !header.querySelector('.lib-reset-btn')) {
     var resetBtn = document.createElement('button');
@@ -6512,11 +6743,22 @@ function applyLibReplace(groupId, exId) {
     else header.appendChild(resetBtn);
   }
 
-  // Mettre à jour le weight tracker
+  // Weight tracker
   reloadWeightTracker(card, ex.name);
 
-  // Feedback
-  try { navigator.vibrate && navigator.vibrate([40, 60, 150]); } catch(e) {}
+  if (!silent) { try { navigator.vibrate && navigator.vibrate([40, 60, 150]); } catch(e) {} }
+  return true;
+}
+
+function applyLibReplace(groupId, exId) {
+  if (!libReplaceCard) return;
+  var card = libReplaceCard;
+
+  var ok = applyReplaceToCard(card, groupId, exId, false);
+  if (ok) {
+    // ── Persistance : mémoriser le remplacement pour ce profil ──
+    replaceRemember(card, groupId, exId);
+  }
 
   // Fermer et revenir à la séance d'origine
   var prevTab = libReplacePrevTab || card.closest('.tab-page')?.id.replace('page-','') || 'jambes';
@@ -6560,6 +6802,9 @@ function resetLibReplace(card) {
 
   // Restaurer le weight tracker sur l'exercice original
   if (origName) reloadWeightTracker(card, origName);
+
+  // ── Persistance : oublier ce remplacement ──
+  replaceForget(card);
 
   vibrate(20);
 }
@@ -6958,6 +7203,11 @@ document.querySelectorAll('.card').forEach(card => {
   addFocusBtn(card);
   addLongPress(card);
 });
+
+// Restaurer les remplacements d'exercices sauvegardés (au démarrage, les 3 séances)
+if (typeof replaceRestoreAll === 'function') {
+  ['jambes','back','bras'].forEach(function(g){ replaceRestoreAll(g); });
+}
 
 
 // Swipe navigation
@@ -7542,7 +7792,7 @@ function renderNutri() {
       remEl.innerHTML = 'Objectif dépassé de <strong>' + Math.abs(rK) + ' kcal</strong>';
     }
   }
-  renderMealsList(meals,today); renderNutriMonth(); renderMealTemplates(); renderRecentFoods();
+  renderMealsList(meals,today); renderNutriMonth(); renderMealTemplates(); renderRecentFoods(); renderNutriStats();
   if (typeof renderHydra === 'function') renderHydra();
 }
 function renderMealsList(meals,today) {
@@ -7654,6 +7904,152 @@ function copyYesterdayMeals() {
   showToast('\u2713 '+yMeals.length+' repas repris d\u2019hier','rgba(255,107,53,.96)');
   vibrate(30);
 }
+
+/* ══════════════════════════════════════════════════════
+   SCAN CODE-BARRES — Open Food Facts
+   Étape actuelle : saisie manuelle du code + lookup OFF.
+   (La caméra sera branchée dans une étape ultérieure.)
+══════════════════════════════════════════════════════ */
+var scanCurrentProduct = null; // { name, brand, p, g, l, kcal } pour 100g
+
+function openScanModal() {
+  scanCurrentProduct = null;
+  var codeEl = document.getElementById('scan-code-input');
+  if (codeEl) codeEl.value = '';
+  scanHideStatus();
+  var res = document.getElementById('scan-result');
+  if (res) res.classList.remove('show');
+  modalOpen('scan-modal');
+}
+function closeScanModal() {
+  modalClose('scan-modal');
+}
+
+function scanShowStatus(type, msg) {
+  var el = document.getElementById('scan-status');
+  if (!el) return;
+  el.className = 'scan-status show ' + type;
+  el.textContent = msg;
+}
+function scanHideStatus() {
+  var el = document.getElementById('scan-status');
+  if (el) { el.className = 'scan-status'; el.textContent = ''; }
+}
+
+/* Nettoie/valide un code-barres saisi */
+function scanCleanCode(raw) {
+  var code = (raw || '').replace(/[^0-9]/g, '');
+  // EAN-8, EAN-13, UPC-A (8, 12, 13 chiffres) — on accepte 8 à 14
+  if (code.length < 8 || code.length > 14) return null;
+  return code;
+}
+
+/* Interroge Open Food Facts pour un code-barres */
+function scanLookup() {
+  var raw  = document.getElementById('scan-code-input').value;
+  var code = scanCleanCode(raw);
+  if (!code) {
+    scanShowStatus('error', 'Code-barres invalide (8 à 13 chiffres attendus).');
+    return;
+  }
+
+  // Reset résultat précédent
+  var res = document.getElementById('scan-result');
+  if (res) res.classList.remove('show');
+  scanCurrentProduct = null;
+
+  // Désactiver le bouton pendant la requête
+  var btn = document.getElementById('scan-lookup-btn');
+  if (btn) btn.disabled = true;
+  scanShowStatus('loading', '🔎 Recherche du produit…');
+
+  var url = 'https://world.openfoodfacts.org/api/v2/product/' + code +
+            '.json?fields=product_name,brands,nutriments';
+
+  fetch(url, { headers: { 'Accept': 'application/json' } })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      if (btn) btn.disabled = false;
+      if (!data || data.status !== 1 || !data.product) {
+        scanShowStatus('error', '❌ Produit introuvable dans la base Open Food Facts.\nEssaie un autre code ou saisis-le manuellement.');
+        return;
+      }
+      var p = data.product;
+      var n = p.nutriments || {};
+      // Récupérer les valeurs pour 100g (avec fallbacks)
+      var prot = num(n['proteins_100g']);
+      var gluc = num(n['carbohydrates_100g']);
+      var lip  = num(n['fat_100g']);
+      var kcal = num(n['energy-kcal_100g']);
+      if (kcal === 0 && (prot || gluc || lip)) {
+        // Recalcul si l'énergie manque
+        kcal = Math.round(prot*4 + gluc*4 + lip*9);
+      }
+
+      var name = (p.product_name || '').trim() || 'Produit ' + code;
+      var brand = (p.brands || '').split(',')[0].trim();
+
+      scanCurrentProduct = { name:name, brand:brand, p:prot, g:gluc, l:lip, kcal:kcal };
+      scanShowResult();
+      scanHideStatus();
+    })
+    .catch(function(err) {
+      if (btn) btn.disabled = false;
+      scanShowStatus('error', '⚠️ Pas de connexion ou service indisponible.\nLe scan nécessite internet. Réessaie ou saisis les macros à la main.');
+    });
+}
+
+function num(v) {
+  var n = parseFloat(v);
+  return (isNaN(n) || n < 0) ? 0 : Math.round(n * 10) / 10;
+}
+
+function scanShowResult() {
+  if (!scanCurrentProduct) return;
+  var pr = scanCurrentProduct;
+  document.getElementById('scan-result-name').textContent  = pr.name;
+  var brandEl = document.getElementById('scan-result-brand');
+  brandEl.textContent = pr.brand || '';
+  brandEl.style.display = pr.brand ? 'block' : 'none';
+  document.getElementById('scan-kcal').textContent = Math.round(pr.kcal);
+  document.getElementById('scan-p').textContent = pr.p + 'g';
+  document.getElementById('scan-g').textContent = pr.g + 'g';
+  document.getElementById('scan-l').textContent = pr.l + 'g';
+  var qtyEl = document.getElementById('scan-qty');
+  if (qtyEl) qtyEl.value = 100;
+  document.getElementById('scan-result').classList.add('show');
+}
+
+/* Ajoute le produit scanné au log du jour (avec la quantité choisie) */
+function scanAddToLog() {
+  if (!scanCurrentProduct) return;
+  var qtyEl = document.getElementById('scan-qty');
+  var qty = qtyEl ? (parseFloat(qtyEl.value) || 100) : 100;
+  var mul = qty / 100;
+  var pr = scanCurrentProduct;
+
+  var entry = {
+    name: pr.name + (qty !== 100 ? ' (' + qty + 'g)' : ''),
+    p: Math.round(pr.p * mul * 10) / 10,
+    g: Math.round(pr.g * mul * 10) / 10,
+    l: Math.round(pr.l * mul * 10) / 10
+  };
+
+  var today = localDateKey(new Date());
+  var meals = mealsLoad(today);
+  meals.push(entry);
+  mealsSave(today, meals);
+  if (typeof recentFoodAdd === 'function') recentFoodAdd(entry);
+
+  closeScanModal();
+  renderNutri();
+  showToast('\u2713 ' + pr.name + ' ajouté', 'rgba(0,200,83,.92)');
+  vibrate(30);
+}
+
 function deleteMeal(idx) {
   var today=localDateKey(new Date()); var meals=mealsLoad(today);
   meals.splice(idx,1); mealsSave(today,meals);
@@ -7674,6 +8070,121 @@ function renderNutriMonth() {
     html+='<div class="'+cls+'">'+d+'</div>';
   }
   grid.innerHTML=html;
+}
+
+/* ══ STATISTIQUES NUTRITION ══ */
+var nutriStatsPeriod = 7;
+
+function macrosForDay(dateKey) {
+  var meals = mealsLoad(dateKey);
+  var p=0,g=0,l=0;
+  meals.forEach(function(m){ p+=m.p||0; g+=m.g||0; l+=m.l||0; });
+  return { p:p, g:g, l:l, kcal: Math.round(p*4+g*4+l*9), logged: meals.length>0 };
+}
+
+function setNutriStatsPeriod(days) {
+  nutriStatsPeriod = days;
+  document.querySelectorAll('.nsp-btn').forEach(function(b){
+    b.classList.toggle('active', parseInt(b.dataset.days)===days);
+  });
+  renderNutriStats();
+}
+
+function renderNutriStats() {
+  var chart = document.getElementById('nutri-stats-chart');
+  var avgEl = document.getElementById('nutri-stats-avg');
+  if (!chart || !avgEl) return;
+
+  var days = nutriStatsPeriod;
+  var today = new Date();
+  var data = [];
+  for (var i = days-1; i >= 0; i--) {
+    var d = new Date(today.getTime() - i*86400000);
+    var key = localDateKey(d);
+    var m = macrosForDay(key);
+    data.push({ date: d, key: key, kcal: m.kcal, p:m.p, g:m.g, l:m.l, logged: m.logged });
+  }
+
+  var loggedDays = data.filter(function(x){ return x.logged; });
+  if (!loggedDays.length) {
+    chart.innerHTML = '<div class="nutri-stats-empty">Aucun repas enregistr\u00e9 sur la p\u00e9riode.<br>Log tes repas pour voir tes stats \uD83D\uDCCA</div>';
+    avgEl.innerHTML = '';
+    return;
+  }
+
+  // Cible calorique pour ligne de référence
+  var profile = nutriProfileLoad();
+  var target = 0;
+  if (profile) {
+    var macros = calcMacros(profile, isTrainingDayEffectif(), getDayType ? getDayType() : null);
+    target = macros.kcal;
+  }
+
+  chart.innerHTML = buildNutriBarsSVG(data, target);
+
+  // Moyennes sur jours loggés uniquement
+  var sum = loggedDays.reduce(function(a,x){ a.kcal+=x.kcal; a.p+=x.p; a.g+=x.g; a.l+=x.l; return a; },
+    {kcal:0,p:0,g:0,l:0});
+  var n = loggedDays.length;
+  avgEl.innerHTML =
+    '<div class="nsa-item"><div class="nsa-val" style="color:#FF6B35">'+Math.round(sum.kcal/n)+'</div><div class="nsa-lbl">kcal moy</div></div>' +
+    '<div class="nsa-item"><div class="nsa-val" style="color:#E53935">'+Math.round(sum.p/n)+'g</div><div class="nsa-lbl">prot moy</div></div>' +
+    '<div class="nsa-item"><div class="nsa-val" style="color:#FFB300">'+Math.round(sum.g/n)+'g</div><div class="nsa-lbl">gluc moy</div></div>' +
+    '<div class="nsa-item"><div class="nsa-val" style="color:#2979FF">'+Math.round(sum.l/n)+'g</div><div class="nsa-lbl">lip moy</div></div>';
+}
+
+function buildNutriBarsSVG(data, target) {
+  var W=300, H=140, pL=34, pR=10, pT=14, pB=22;
+  var cW=W-pL-pR, cH=H-pT-pB;
+  var kcals = data.map(function(x){ return x.kcal; });
+  var maxK = Math.max.apply(null, kcals.concat([target||0]));
+  maxK = Math.ceil(maxK/500)*500 || 500;
+
+  var n = data.length;
+  var gap = n > 15 ? 1 : 3;
+  var bw = (cW - gap*(n-1)) / n;
+
+  function yS(v){ return pT + cH - (v/maxK)*cH; }
+
+  var svg = '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+
+  // Grille horizontale
+  [0, 0.5, 1].forEach(function(t){
+    var y = pT + t*cH;
+    var v = Math.round(maxK - t*maxK);
+    svg += '<line x1="'+pL+'" y1="'+y+'" x2="'+(W-pR)+'" y2="'+y+'" stroke="#222" stroke-width="1"/>';
+    svg += '<text x="'+(pL-4)+'" y="'+(y+3)+'" text-anchor="end" font-size="8" fill="#555">'+v+'</text>';
+  });
+
+  // Ligne cible
+  if (target > 0) {
+    var ty = yS(target);
+    svg += '<line x1="'+pL+'" y1="'+ty.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+ty.toFixed(1)+'" stroke="#00C853" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>';
+    svg += '<text x="'+(W-pR)+'" y="'+(ty-3).toFixed(1)+'" text-anchor="end" font-size="8" fill="#00C853">cible</text>';
+  }
+
+  // Barres
+  data.forEach(function(x, i){
+    var bx = pL + i*(bw+gap);
+    var by = yS(x.kcal);
+    var bh = (pT+cH) - by;
+    var color = x.logged ? (target && x.kcal > target*1.1 ? '#E53935' : '#FF6B35') : '#2a2a2a';
+    if (x.logged && bh > 0) {
+      svg += '<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="'+color+'"/>';
+    } else {
+      // jour sans repas : petit trait au sol
+      svg += '<rect x="'+bx.toFixed(1)+'" y="'+(pT+cH-2)+'" width="'+bw.toFixed(1)+'" height="2" rx="1" fill="#2a2a2a"/>';
+    }
+    // Labels de dates (espacés si beaucoup de jours)
+    var showLabel = n <= 7 || i===0 || i===n-1 || (n<=30 && i%5===0);
+    if (showLabel) {
+      var lbl = x.date.getDate()+'/'+(x.date.getMonth()+1);
+      svg += '<text x="'+(bx+bw/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8" fill="#555">'+lbl+'</text>';
+    }
+  });
+
+  svg += '</svg>';
+  return svg;
 }
 /* Profil modal */
 function openNutriProfile() {
@@ -8140,7 +8651,7 @@ var MANQUEE_KEY   = 'seance-manquee-v1';
 
 function hydraLoad() {
   try {
-    var s = localStorage.getItem(HYDRA_KEY);
+    var s = localStorage.getItem(pKey(HYDRA_KEY));
     if (!s) return { date: '', ml: 0 };
     var d = JSON.parse(s);
     if (d.date !== localDateKey(new Date())) return { date: localDateKey(new Date()), ml: 0 };
@@ -8149,8 +8660,21 @@ function hydraLoad() {
 }
 function hydraSave(ml) {
   try {
-    localStorage.setItem(HYDRA_KEY, JSON.stringify({ date: localDateKey(new Date()), ml: ml }));
+    localStorage.setItem(pKey(HYDRA_KEY), JSON.stringify({ date: localDateKey(new Date()), ml: ml }));
   } catch(e) {}
+}
+
+/* Objectif hydratation dynamique : 33ml/kg + 500ml si jour d'entraînement */
+function hydraGoal() {
+  var profile = (typeof nutriProfileLoad === 'function') ? nutriProfileLoad() : null;
+  var poids = profile && profile.poids ? parseFloat(profile.poids) : 0;
+  if (!poids || poids < 30) {
+    // Pas de poids renseigné : fallback fixe
+    return isTrainingDayEffectif() ? 2500 : 2000;
+  }
+  var base = Math.round(poids * 33 / 50) * 50; // arrondi aux 50ml
+  if (isTrainingDayEffectif()) base += 500;
+  return base;
 }
 
 function manqueeLoad() {
@@ -8202,7 +8726,7 @@ function renderHydra() {
   var data      = hydraLoad();
   var ml        = data.ml || 0;
   var training  = isTrainingDayEffectif();
-  var goal      = training ? 2500 : 2000;
+  var goal      = hydraGoal();
   var pct       = Math.min(Math.round(ml / goal * 100), 100);
   var manquee   = manqueeLoad();
 
@@ -8774,6 +9298,14 @@ function loginSuccess(profileId) {
   ['jambes','back','bras'].forEach(function(g){
     if (typeof updateNavBadge === 'function') updateNavBadge(g);
   });
+
+  // Remplacements d'exercices : remettre les originaux puis appliquer ceux du profil
+  if (typeof replaceRevertVisual === 'function' && typeof replaceRestoreAll === 'function') {
+    ['jambes','back','bras'].forEach(function(g){
+      replaceRevertVisual(g);
+      replaceRestoreAll(g);
+    });
+  }
 }
 
 function renderProfileBadge() {
