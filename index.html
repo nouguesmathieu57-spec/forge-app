@@ -1586,6 +1586,19 @@ body{
 .scan-body{padding:16px;overflow-y:auto}
 /* Zone caméra (placeholder pour l'instant) */
 .scan-camera-zone{background:#000;border:2px dashed var(--s4);border-radius:12px;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;position:relative;overflow:hidden}
+.scan-camera-zone.live{border-style:solid;border-color:#FF6B35}
+#scan-cam-idle{display:flex;flex-direction:column;align-items:center;gap:12px}
+.scan-camera-zone.live #scan-cam-idle{display:none}
+.scan-cam-start{background:#FF6B35;border:none;color:#fff;border-radius:8px;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;cursor:pointer}
+.scan-cam-start:active{opacity:.85}
+#scan-video{display:none;width:100%;height:100%;object-fit:cover}
+.scan-camera-zone.live #scan-video{display:block}
+.scan-viewfinder{display:none;position:absolute;width:78%;height:34%;border:2px solid #00E676;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.45);pointer-events:none}
+.scan-camera-zone.live .scan-viewfinder{display:block}
+.scan-cam-hint{display:none;position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none}
+.scan-camera-zone.live .scan-cam-hint{display:block}
+.scan-cam-stop{display:none;position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px}
+.scan-camera-zone.live .scan-cam-stop{display:block}
 .scan-camera-icon{font-size:48px;opacity:.4}
 .scan-camera-msg{font-size:12px;color:var(--dim);text-align:center;padding:0 20px;line-height:1.6}
 .scan-soon-badge{position:absolute;top:10px;right:10px;background:rgba(255,179,0,.2);border:1px solid rgba(255,179,0,.4);color:#FFB300;font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:10px}
@@ -3799,11 +3812,19 @@ body.modal-open #nav { display:none !important; }
     </div>
     <div class="scan-body">
 
-      <!-- Zone caméra (désactivée pour l'instant) -->
-      <div class="scan-camera-zone">
-        <div class="scan-soon-badge">BIENTÔT</div>
-        <div class="scan-camera-icon">📷</div>
-        <div class="scan-camera-msg">La lecture par caméra arrive prochainement.<br>En attendant, saisis le code-barres à la main ci-dessous 👇</div>
+      <!-- Zone caméra -->
+      <div class="scan-camera-zone" id="scan-camera-zone">
+        <!-- État initial : bouton pour démarrer -->
+        <div id="scan-cam-idle">
+          <div class="scan-camera-icon">📷</div>
+          <div class="scan-camera-msg">Scanne le code-barres d'un produit<br>pour récupérer ses macros automatiquement.</div>
+          <button class="scan-cam-start" onclick="scanStartCamera()">DÉMARRER LA CAMÉRA</button>
+        </div>
+        <!-- Flux vidéo -->
+        <video id="scan-video" playsinline muted autoplay></video>
+        <div class="scan-viewfinder" id="scan-viewfinder"></div>
+        <div class="scan-cam-hint" id="scan-cam-hint">Cadre le code-barres</div>
+        <button class="scan-cam-stop" id="scan-cam-stop" onclick="scanStopCamera()">✕</button>
       </div>
 
       <!-- Saisie manuelle -->
@@ -7913,6 +7934,7 @@ function copyYesterdayMeals() {
 var scanCurrentProduct = null; // { name, brand, p, g, l, kcal } pour 100g
 
 function openScanModal() {
+  scanStopCamera();          // état propre à l'ouverture
   scanCurrentProduct = null;
   var codeEl = document.getElementById('scan-code-input');
   if (codeEl) codeEl.value = '';
@@ -7922,7 +7944,106 @@ function openScanModal() {
   modalOpen('scan-modal');
 }
 function closeScanModal() {
+  scanStopCamera();          // libère la caméra
   modalClose('scan-modal');
+}
+
+/* ══ CAMÉRA — chargement à la demande de ZXing ══
+   L'app reste offline-first : la lib n'est chargée que si l'utilisateur
+   ouvre le scanner (qui nécessite internet de toute façon pour OFF). */
+var scanStream      = null;   // MediaStream actif
+var scanReader      = null;   // instance ZXing
+var scanZXingLoaded = false;
+var scanActive      = false;
+
+function scanLoadZXing() {
+  return new Promise(function(resolve, reject) {
+    if (scanZXingLoaded && window.ZXing) { resolve(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js';
+    s.async = true;
+    s.onload = function() {
+      scanZXingLoaded = true;
+      resolve();
+    };
+    s.onerror = function() {
+      reject(new Error('lib'));
+    };
+    document.head.appendChild(s);
+    // Garde-fou : 12s max
+    setTimeout(function(){ if (!scanZXingLoaded) reject(new Error('timeout')); }, 12000);
+  });
+}
+
+function scanStartCamera() {
+  var zone = document.getElementById('scan-camera-zone');
+  scanShowStatus('loading', '⏳ Préparation du scanner…');
+
+  scanLoadZXing()
+    .then(function() {
+      return navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+    })
+    .then(function(stream) {
+      scanStream = stream;
+      var video = document.getElementById('scan-video');
+      video.srcObject = stream;
+      video.setAttribute('playsinline', true); // requis iOS
+      return video.play().then(function(){ return video; });
+    })
+    .then(function(video) {
+      if (zone) zone.classList.add('live');
+      scanActive = true;
+      scanHideStatus();
+      // Démarrer la détection continue
+      scanReader = new ZXing.BrowserMultiFormatReader();
+      scanReader.decodeFromVideoElement(video, function(result, err) {
+        if (result && scanActive) {
+          scanOnDetected(result.getText());
+        }
+        // err est normal entre deux frames : on l'ignore
+      });
+    })
+    .catch(function(err) {
+      scanStopCamera();
+      var msg = err && err.message === 'lib'
+        ? '⚠️ Impossible de charger le scanner. Vérifie ta connexion internet, ou saisis le code à la main.'
+        : (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'))
+          ? '🚫 Accès caméra refusé. Autorise la caméra dans les réglages de ton navigateur, ou saisis le code à la main.'
+          : (err && err.name === 'NotFoundError')
+            ? '📷 Aucune caméra détectée sur cet appareil.'
+            : '⚠️ Scanner indisponible. Saisis le code-barres à la main ci-dessous.';
+      scanShowStatus('error', msg);
+    });
+}
+
+function scanOnDetected(code) {
+  if (!scanActive) return;
+  scanActive = false;               // éviter les détections en rafale
+  vibrate(60);
+  var clean = scanCleanCode(code);
+  scanStopCamera();
+  if (!clean) {
+    scanShowStatus('error', 'Code illisible. Réessaie ou saisis-le à la main.');
+    return;
+  }
+  var input = document.getElementById('scan-code-input');
+  if (input) input.value = clean;
+  scanLookup();                     // enchaîne sur Open Food Facts
+}
+
+function scanStopCamera() {
+  scanActive = false;
+  try { if (scanReader) { scanReader.reset(); scanReader = null; } } catch(e) {}
+  if (scanStream) {
+    scanStream.getTracks().forEach(function(t){ try { t.stop(); } catch(e) {} });
+    scanStream = null;
+  }
+  var video = document.getElementById('scan-video');
+  if (video) video.srcObject = null;
+  var zone = document.getElementById('scan-camera-zone');
+  if (zone) zone.classList.remove('live');
 }
 
 function scanShowStatus(type, msg) {
